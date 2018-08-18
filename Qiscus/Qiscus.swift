@@ -134,8 +134,8 @@ public class Qiscus {
      */
     
     public func setAppId(appId:String){
-        QiscusCore.setup(WithAppID: appId)
         QiscusCore.enableDebugPrint = true
+        QiscusCore.setup(WithAppID: appId)
     }
     
     /**

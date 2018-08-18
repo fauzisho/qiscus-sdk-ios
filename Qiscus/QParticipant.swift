@@ -10,6 +10,6 @@ import QiscusCore
 import UIKit
 
 //toDo need QParticipant Model
-public class QParticipant: ParticipantModel {
+public class QParticipant: MemberModel {
 
 }
