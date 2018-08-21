@@ -189,9 +189,13 @@ room.post(comment: comment)
 ### Load Messages
 
 ```
-// offset can be taken from comment.messageId
-// this method will give the messages after the offset given
-room.loadComments(limit: 20, offset: "12345", onSuccess: { (comments) in
+/// Load Comment by room
+///
+/// - Parameters:
+///   - id: Room ID
+///   - limit: by default set 20, min 0 and max 100
+///   - completion: Response new Qiscus Array of Comment Object and error if exist.
+room.loadComments(roomID id: String, limit: 20, onSuccess: { (comments) in
             // comments contain array of QComment objects
         }) { (error) in
             print(error)
@@ -201,9 +205,8 @@ room.loadComments(limit: 20, offset: "12345", onSuccess: { (comments) in
 ### Load More
 
 ```
-// offset can be taken from comment.messageId
 // this method will give the messages before the offset given
-room.loadMore(limit: 20, offset: "12345", onSuccess: { (comments, hasMoreMessages) in
+room.loadMore(roomID: "123", lastCommentID: 231, limit: 20, onSuccess: { (comments, hasMoreMessages) in
         // comments contain array of QComment objects
         // hasMoreMessages signifies that there is still another message before the first message, this is Boolean (true/false) 
 }) { (error) in
@@ -247,10 +250,12 @@ let deletecomment = self.room!.comments[index.row]
 Delete with this function.
 
 ```
-deletecomment.delete(forMeOnly: false, hardDelete: true, onSuccess: {
+var arrayDeleteComment = [String]()
+arrayDeleteComment.append(deletecomment.uniqueTempId)
+deletecomment.deleteMessage(uniqueIDs id: arrayDeleteComment, type: DeleteType.forMe, onSuccess: { in
                 print("success")
-            }, onError: { (statusCode) in
-                print("delete error: status code \(statusCode)")
+            }, onError: { (error) in
+                print("delete error: \(statusCode)")
             })
 ```
 
@@ -258,7 +263,9 @@ deletecomment.delete(forMeOnly: false, hardDelete: true, onSuccess: {
 
 ```
 var room:QRoom?
-self.room?.clearMessages(onSuccess: {
+var arrayRoom = [String]()
+arrayRoom(room.id)
+self.room?.deleteAllMessage(roomID: arrayRoom, onSuccess: {
                 print("success")
             }, onError: { (error) in
                 print(error)
