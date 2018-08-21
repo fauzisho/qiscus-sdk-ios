@@ -195,7 +195,7 @@ public class QComment: CommentModel {
                 if let id = data["qiscus_id"] as? String {
                     temp.id = id
                 }
-                if let roomId = data["qiscus_roomId"] as? Int {
+                if let roomId = data["qiscus_roomId"] as? String {
                     temp.roomId = roomId
                 }
                 if let beforeId = data["qiscus_beforeId"] as? Int {
