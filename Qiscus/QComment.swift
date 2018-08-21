@@ -70,9 +70,14 @@ import SwiftyJSON
 
 public class QComment: CommentModel {
     
+     var onChange : (CommentModel) -> Void = { _ in}
+    
     public var senderName : String{
         get{
             return username
+        }
+        set{
+            username = newValue
         }
     }
     
@@ -80,11 +85,17 @@ public class QComment: CommentModel {
         get{
             return message
         }
+        set{
+            message = newValue
+        }
     }
     
     public var createdAt : Int{
         get{
             return unixTimestamp
+        }
+        set{
+            unixTimestamp = newValue
         }
     }
     
@@ -92,26 +103,41 @@ public class QComment: CommentModel {
         get{
             return email
         }
+        set{
+            email = newValue
+        }
     }
     
     //need room name from QComment
     public var roomName : String{
         get{
-            return "room name harcode"
+            return roomName
+        }
+        
+        set{
+            roomName = newValue
         }
     }
     
     //need payload string from QComment
     public var payloadData : String{
         get{
-            return "need to be implement payloadData"
+            return "payload still harcode"
+        }
+        
+        set{
+            //payloadData = newValue
         }
     }
     
     //need extras string from QComment
     public var extrasData : String {
         get{
-            return "need to be implement extra"
+            return "extras still harcode"
+        }
+        
+        set{
+           // extrasData = newValue
         }
     }
     
@@ -119,6 +145,7 @@ public class QComment: CommentModel {
         get{
             return QCommentType(rawValue: type.hashValue)!
         }
+        
     }
     
     public var date: String {
@@ -309,6 +336,23 @@ public class QComment: CommentModel {
 //            })
 //        }
         
+    }
+    
+    /// Delete message by id
+    ///
+    /// - Parameters:
+    ///   - uniqueID: comment unique id
+    ///   - type: forMe or ForEveryone
+    ///   - completion: Response Comments your deleted
+    public func deleteMessage(uniqueIDs id: [String], type: DeleteType, onSuccess:@escaping ([QComment])->Void, onError:@escaping (String)->Void) {
+       
+        QiscusCore.shared.deleteMessage(uniqueIDs: id, type: type) { (qComments, error) in
+            if let qCommentsData = qComments{
+                onSuccess(qCommentsData as! [QComment])
+            }else{
+                onError((error?.message)!)
+            }
+        }
     }
     
 }

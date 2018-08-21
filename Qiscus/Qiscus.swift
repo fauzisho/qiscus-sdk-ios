@@ -80,6 +80,12 @@ public class Qiscus {
         }
     }
     
+    public class var shared:Qiscus{
+        get{
+            return Qiscus.sharedInstance
+        }
+    }
+    
     /// shared instance of QiscusClient
     public static var client : QiscusClient {
         get { return QiscusClient.shared }
@@ -88,7 +94,31 @@ public class Qiscus {
     /**
      iCloud Config, by default is disable/false. You need to setup icloud capabilities then create container in your developer account.
      */
-    public var iCloudUpload = false
+    public var iCloudUpload = false {
+        didSet{
+            //TODO Need to implement to SDKUI
+        }
+    }
+    public var cameraUpload = true {
+        didSet{
+            //TODO Need to implement to SDKUI
+        }
+    }
+    public var galeryUpload = true {
+        didSet{
+            //TODO Need to implement to SDKUI
+        }
+    }
+    public var contactShare = true {
+        didSet{
+            //TODO Need to implement to SDKUI
+        }
+    }
+    public var locationShare = true {
+        didSet{
+            //TODO Need to implement to SDKUI
+        }
+    }
     
     /**
      Receive all Qiscus Log, then handle logs\s by client.
@@ -120,13 +150,6 @@ public class Qiscus {
         }
     }
     
-    public func connect(delegate del: QiscusConfigDelegate) {
-        self.configDelegate = del
-        if !QiscusCore.connect() {
-            print("Qiscus Realtime Filed to connect, please try again or relogin")
-        }
-    }
-    
     /**
      Set App ID, when you are using nonce auth you need to setup App ID before get nounce
      
@@ -134,8 +157,8 @@ public class Qiscus {
      */
     
     public func setAppId(appId:String){
-        QiscusCore.enableDebugPrint = true
         QiscusCore.setup(WithAppID: appId)
+        QiscusCore.enableDebugPrint = true
     }
     
     /**
@@ -145,7 +168,7 @@ public class Qiscus {
      - parameter delegate: QiscusConfigDelegate
      
      */
-    public func setup(withUserIdentityToken uidToken:String, delegate: QiscusConfigDelegate? = nil){
+    public class func setup(withUserIdentityToken uidToken:String, delegate: QiscusConfigDelegate? = nil){
         if delegate != nil {
             Qiscus.sharedInstance.configDelegate = delegate
         }
@@ -157,10 +180,16 @@ public class Qiscus {
     func setup(withuserIdentityToken: String){
         QiscusCore.connect(withIdentityToken: withuserIdentityToken) { (qUser, error) in
             if let user = qUser{
-                 QiscusClient.shared.token = user.token
-                 QiscusClient.shared.userData.set(user.token, forKey: "qiscus_token")
+                QiscusClient.shared.token = user.token
+                QiscusClient.shared.userData.set(user.token, forKey: "qiscus_token")
+                self.configDelegate?.qiscusConnected()
+                self.configDelegate?.qiscus(didConnect: true, error: nil)
+                
+            }else{
+                self.configDelegate?.qiscusFailToConnect((error?.message)!)
+                self.configDelegate?.qiscus(didConnect: false, error: (error?.message)!)
             }
-           
+            
         }
     }
     
@@ -180,24 +209,22 @@ public class Qiscus {
     
     //Todo need to be fix
     @objc func goToBackgroundMode(){
-//        for (_,chatView) in self.chatViews {
-//            if chatView.isPresence {
-//                chatView.goBack()
-//                if let room = chatView.chatRoom {
-//                    room.delegate = nil
-//                }
-//            }
-//        }
-//        Qiscus.shared.stopPublishOnlineStatus()
+        //        for (_,chatView) in self.chatViews {
+        //            if chatView.isPresence {
+        //                chatView.goBack()
+        //                if let room = chatView.chatRoom {
+        //                    room.delegate = nil
+        //                }
+        //            }
+        //        }
+        //        Qiscus.shared.stopPublishOnlineStatus()
     }
     
     /// connect mqtt
     ///
     /// - Parameter chatOnly: -
     class func mqttConnect(chatOnly:Bool = false){
-        QiscusBackgroundThread.asyncAfter(deadline: .now() + 1.0) {
-            Qiscus.backgroundSync()
-        }
+        Qiscus.backgroundSync()
     }
     
     /// QiscusUIConfiguration class
@@ -221,8 +248,18 @@ public class Qiscus {
     
     public func chatView(withRoomId: String) -> QiscusChatVC {
         let chatRoom = QiscusChatVC()
-        chatRoom.chatRoomId = withRoomId
-        return chatRoom
+        if !Qiscus.sharedInstance.connected {
+            Qiscus.setupReachability()
+        }
+        
+        var chatVC = QiscusChatVC()
+        
+        if let chatView = Qiscus.sharedInstance.chatViews[withRoomId] {
+            chatVC = chatView
+        }else{
+            chatVC.chatRoomId = withRoomId
+        }
+        return chatVC
     }
     
     public func getNonce(onSuccess:@escaping ((String)->Void), onFailed:@escaping ((String)->Void), secureURL:Bool = true){
@@ -231,9 +268,17 @@ public class Qiscus {
         }
     }
     
-    public func fetchAllRoom(onSuccess:@escaping (([QRoom])->Void)){
-        QRoom.getAllRoom { (qRoom, error) in
-            onSuccess(qRoom!)
+    public class func fetchAllRoom(loadLimit:Int = 0, onSuccess:@escaping (([QRoom])->Void),onError:@escaping ((String)->Void)){
+        var page = 1
+        var limit = 100
+        if loadLimit > 0 {
+            limit = loadLimit
+        }
+        
+        QRoom.getAllRoom(withLimit: limit, page: page, onSuccess: { (qRoom, totalRooms) in
+            onSuccess(qRoom)
+        }) { (error) in
+            onError(error)
         }
     }
     
@@ -247,14 +292,15 @@ public class Qiscus {
     
     /// subscribe room notification
     public func subscribeAllRoomNotification(){
-//        QiscusBackgroundThread.async { autoreleasepool {
-//            let rooms = QRoom.all()
-//            for room in rooms {
-//                room.subscribeRealtimeStatus()
-//            }
-//            }}
+        //        QiscusBackgroundThread.async { autoreleasepool {
+        //            let rooms = QRoom.all()
+        //            for room in rooms {
+        //                room.subscribeRealtimeStatus()
+        //            }
+        //            }}
     }
     
+    //TODO NEED TO BE IMPLEMENT search Comment
     /// search local message comment
     ///
     /// - Parameter searchQuery: query to search
@@ -313,8 +359,15 @@ public class Qiscus {
                     Qiscus.sharedInstance.syncProcess()
                     if let payloadData = userInfo["payload"]{
                         let jsonPayload = JSON(arrayLiteral: payloadData)[0]
+                        
+                        //TODO Need To Be implement in SDKCore
+                        //using commentBy Id
                         let tempComment = QComment.tempComment(fromJSON: jsonPayload)
-                        Qiscus.sharedInstance.configDelegate?.qiscus(gotSilentNotification: tempComment!, userInfo: userInfo)
+                        
+                        if tempComment != nil {
+                            Qiscus.sharedInstance.configDelegate?.qiscus(gotSilentNotification: tempComment!, userInfo: userInfo)
+                        }
+                       
                     }
                 }
             }
@@ -328,13 +381,13 @@ public class Qiscus {
     
     //Todo connect to mqtt
     public class func backgroundSync(){
-        
+        QiscusCore.connect()
     }
     
     /// register device token to sdk server
     ///
     /// - Parameter token: device token Data
-    public func didRegisterUserNotification(withToken token: Data){
+    public class func didRegisterUserNotification(withToken token: Data){
         if Qiscus.isLoggedIn{
             var tokenString: String = ""
             for i in 0..<token.count {
@@ -343,7 +396,7 @@ public class Qiscus {
             
             //call service api to register notification
             QiscusCore.shared.register(deviceToken: tokenString) { (isRegister, erorr) in
-                
+                Qiscus.sharedInstance.configDelegate?.qiscus(didRegisterPushNotification: isRegister, deviceToken: tokenString, error: erorr?.message)
             }
         }
     }
@@ -371,7 +424,7 @@ public class Qiscus {
     /// didREceive localnotification
     ///
     /// - Parameter notification: UILocalNotification
-    public func didReceiveNotification(notification:UILocalNotification){
+    public class func didReceiveNotification(notification:UILocalNotification){
         if notification.userInfo != nil {
             if let comment = QComment.decodeDictionary(data: notification.userInfo!) {
                 var userData:[AnyHashable : Any]? = [AnyHashable : Any]()
@@ -389,7 +442,7 @@ public class Qiscus {
         }
     }
     
-   public func didReceive(RemoteNotification userInfo:[AnyHashable : Any], completionHandler: @escaping (UIBackgroundFetchResult) -> Void = {_ in}){
+    public func didReceive(RemoteNotification userInfo:[AnyHashable : Any], completionHandler: @escaping (UIBackgroundFetchResult) -> Void = {_ in}){
         completionHandler(.newData)
         
         if Qiscus.isLoggedIn{
@@ -433,8 +486,9 @@ public class Qiscus {
     }
     
     //Todo need to be implement call api sync
-   func syncProcess(first:Bool = true, cloud:Bool = false){
-        
+    func syncProcess(first:Bool = true, cloud:Bool = false){
+        self.configDelegate?.qiscusStartSyncing()
+        self.configDelegate?.qiscus(finishSync: true, error: "")
     }
     
     /// setup reachability for network connection detection
@@ -485,6 +539,9 @@ public class Qiscus {
     ///
     /// - Parameter delegate: QiscusConfigDelegate
     public class func connect(delegate:QiscusConfigDelegate? = nil){
+        if !QiscusCore.connect() {
+            print("Qiscus Realtime Filed to connect, please try again or relogin")
+        }
         Qiscus.sharedInstance.RealtimeConnect()
         if delegate != nil {
             Qiscus.sharedInstance.configDelegate = delegate
@@ -517,11 +574,11 @@ public class Qiscus {
         Qiscus.sharedInstance.styleConfiguration.color.bottomColor = color
         Qiscus.sharedInstance.styleConfiguration.color.tintColor = tintColor
         //TODO Need to fix
-//        for (_,chatView) in Qiscus.sharedInstance.chatViews {
-//            chatView.topColor = color
-//            chatView.bottomColor = color
-//            chatView.tintColor = tintColor
-//        }
+        //        for (_,chatView) in Qiscus.sharedInstance.chatViews {
+        //            chatView.topColor = color
+        //            chatView.bottomColor = color
+        //            chatView.tintColor = tintColor
+        //        }
     }
     
     /**
@@ -532,11 +589,11 @@ public class Qiscus {
         Qiscus.sharedInstance.iCloudUpload = active
     }
     
-    //TODO Need to be implement,
+    
     /// unregister device token from service
     public func unRegisterDevice(){
         QiscusCore.shared.remove(deviceToken: QiscusClient.shared.token) { (unRegister, error) in
-            
+            self.configDelegate?.qiscus(didUnregisterPushNotification: unRegister, error: error?.message)
         }
     }
     
@@ -545,19 +602,20 @@ public class Qiscus {
      Logout Qiscus and clear all data with this function
      @func clearData()
      */
-    public func clear(){
+    public class func clear(){
         QiscusClient.clear()
         QiscusClient.hasRegisteredDeviceToken = false
+        Qiscus.shared.unRegisterDevice()
     }
     
     //TODO Need TO Be Implement
     /// register device token to sdk service
     ///
     /// - Parameter deviceToken: device token in string
-   public func registerDevice(withToken deviceToken: String){
+    public func registerDevice(withToken deviceToken: String){
         Qiscus.qiscusDeviceToken = deviceToken
         Qiscus.client.deviceToken = deviceToken
-    
+        
     }
     
     //Todo need to be implement to call api update profile
@@ -568,7 +626,7 @@ public class Qiscus {
     ///   - avatarURL: String avatar url
     ///   - onSuccess: @escaping on success update user profile
     ///   - onFailed: @escaping on error update user profile with error message
-    public func updateProfile(username:String? = nil, avatarURL:String? = nil, onSuccess:@escaping (()->Void), onFailed:@escaping ((String)->Void)) {
+    public class func updateProfile(username:String? = nil, avatarURL:String? = nil, onSuccess:@escaping (()->Void), onFailed:@escaping ((String)->Void)) {
         
         var userName = ""
         if(userName != nil){
@@ -638,7 +696,7 @@ public class Qiscus {
     ///   - distinctId: -
     ///   - withMessage: predefined text message
     /// - Returns: QiscusChatVC to be presented or pushed
-    public  func chatView(withUsers users:[String], readOnly:Bool = false, title:String = "", subtitle:String = "", distinctId:String = "", withMessage:String? = nil)->QiscusChatVC{
+    public class func chatView(withUsers users:[String], readOnly:Bool = false, title:String = "", subtitle:String = "", distinctId:String = "", withMessage:String? = nil)->QiscusChatVC{
         
         let chatVC = QiscusChatVC()
         
@@ -652,7 +710,7 @@ public class Qiscus {
             if chatVC.isPresence {
                 chatVC.back()
             }
-    
+            
         }
         return chatVC
     }
@@ -667,7 +725,7 @@ public class Qiscus {
     ///   - distinctId: -
     ///   - withMessage: predefined text message
     /// - Returns: QiscusChatVC to be presented or pushed
-    public func createChatView(withUsers users:[String], readOnly:Bool = false, title:String, subtitle:String = "", distinctId:String? = nil, optionalData:String?=nil, withMessage:String? = nil)->QiscusChatVC{
+    public class func createChatView(withUsers users:[String], readOnly:Bool = false, title:String, subtitle:String = "", distinctId:String? = nil, optionalData:String?=nil, withMessage:String? = nil)->QiscusChatVC{
         if !Qiscus.sharedInstance.connected {
             Qiscus.setupReachability()
         }
@@ -707,7 +765,7 @@ public class Qiscus {
     ///   - distinctId: -
     ///   - withMessage: predefined text message
     /// - Returns: QiscusChatVC to be presented or pushed
-    public func chatView(withRoomId roomId:String, readOnly:Bool = false, title:String = "", subtitle:String = "", withMessage:String? = nil)->QiscusChatVC{
+    public class func chatView(withRoomId roomId:String, readOnly:Bool = false, title:String = "", subtitle:String = "", withMessage:String? = nil)->QiscusChatVC{
         if !Qiscus.sharedInstance.connected {
             Qiscus.setupReachability()
         }
@@ -727,5 +785,61 @@ public class Qiscus {
         return chatVC
     }
     
+    public class func chatView(withRoomUniqueId uniqueId:String, readOnly:Bool = false, title:String = "", avatarUrl:String = "", subtitle:String = "", withMessage:String? = nil)->QiscusChatVC{
+        
+        let chatVC = QiscusChatVC()
+        
+        QiscusCore.shared.getRoom(withChannel: uniqueId) { (qRoom, error) in
+            if !Qiscus.sharedInstance.connected {
+                Qiscus.setupReachability()
+            }
+            Qiscus.sharedInstance.isPushed = true
+            chatVC.room = qRoom
+            chatVC.chatTitle = title
+            chatVC.chatSubtitle = subtitle
+            chatVC.archived = readOnly
+            chatVC.chatMessage = withMessage
+            chatVC.chatAvatarURL = avatarUrl
+            if chatVC.isPresence {
+                chatVC.back()
+            }
+            
+            chatVC.archived = readOnly
+
+        }
+        
+        return chatVC
+    }
     
+    //will return qRooms and totalRooms
+    public class func roomList(withLimit: Int, page: Int,onSuccess:@escaping (([QRoom],Int)->Void), onFailed: @escaping ((String)->Void)){
+        QRoom.getAllRoom(withLimit: withLimit, page: page, onSuccess: { (qRoom, totalRoom) in
+            onSuccess(qRoom,totalRoom)
+        }) { (error) in
+            onFailed(error)
+        }
+        
+    }
+    
+    @objc public class func getNonce(withAppId appId:String, onSuccess:@escaping ((String)->Void), onFailed:@escaping ((String)->Void), secureURL:Bool = true){
+        QiscusCore.setup(WithAppID: appId)
+        QiscusCore.getNonce { (nonce, error) in
+            if(nonce != nil){
+                onSuccess((nonce?.nonce)!)
+            }else{
+                onFailed(error!)
+            }
+        }
+    }
+    
+    //Todo need to implement to SDKCore
+    @objc public class func setBaseURL(withURL url:String){
+        
+    }
+    
+    //Todo need to implement to SDKCore
+    @objc public class func setRealtimeServer(withServer server:String, port:Int = 1883, enableSSL:Bool = false){
+        
+    }
+ 
 }

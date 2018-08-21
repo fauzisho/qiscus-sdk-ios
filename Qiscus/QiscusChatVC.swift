@@ -51,6 +51,7 @@ public protocol QiscusChatVCDelegate{
     func chatVC(viewController:QiscusChatVC, didFailLoadRoom error:String)
 }
 public class QiscusChatVC: UIChatViewController {
+    //TODO NEED TO BE IMPLEMENT
     public var delegate:QiscusChatVCDelegate?
     public var configDelegate:QiscusChatVCConfigDelegate?
     public var cellDelegate:QiscusChatVCCellDelegate?
@@ -58,10 +59,12 @@ public class QiscusChatVC: UIChatViewController {
     public var chatDistinctId:String?
     public var chatData:String?
     public var chatMessage:String?
+    
     public var archived:Bool = QiscusUIConfiguration.sharedInstance.readOnly
     public var chatNewRoomUsers:[String] = [String]()
     public var chatTitle:String?
     public var chatSubtitle:String?
+    public var chatAvatarURL : String?
     public var chatUser:String?
     public var data:Any?
     public var chatRoomId:String?

@@ -38,7 +38,7 @@ open class QRoomListCell: UITableViewCell {
     func subscribeEvent(roomId: String) {
         let center: NotificationCenter = NotificationCenter.default
         //center.addObserver(self, selector: #selector(QRoomListCell.userTyping(_:)), name: QiscusNotification.USER_TYPING(onRoom: roomId), object: nil)
-        center.addObserver(self, selector: #selector(QRoomListCell.roomChangeNotif(_:)), name: QiscusNotification.ROOM_CHANGE(onRoom: roomId), object: nil)
+       // center.addObserver(self, selector: #selector(QRoomListCell.roomChangeNotif(_:)), name: QiscusNotification.ROOM_CHANGE(onRoom: roomId), object: nil)
     }
     
     func unsubscribeEvent(roomId: String) {

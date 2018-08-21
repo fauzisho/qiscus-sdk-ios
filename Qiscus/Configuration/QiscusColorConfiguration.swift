@@ -7,59 +7,136 @@
 //
 
 import UIKit
+import QiscusUI
 
 open class QiscusColorConfiguration: NSObject {
     static var sharedInstance = QiscusColorConfiguration()
     
     /// Your cancel button color, using UIColor class, Default value : UIColor(red: 223/255.0, green: 223/255.0, blue: 223/255.0, alpha:1.0)
-    open var cancelButtonColor = UIColor(red: 223/255.0, green: 223/255.0, blue: 223/255.0, alpha:1.0)
+    open var cancelButtonColor = UIColor(red: 223/255.0, green: 223/255.0, blue: 223/255.0, alpha:1.0){
+        didSet{
+            
+        }
+    }
     
     /// Your alert text color, using UIColor class, Default value : UIColor(red: 155/255.0, green: 155/255.0, blue: 155/255.0, alpha:1.0)
-    open var alertTextColor = UIColor(red: 155/255.0, green: 155/255.0, blue: 155/255.0, alpha:1.0)
+    open var alertTextColor = UIColor(red: 155/255.0, green: 155/255.0, blue: 155/255.0, alpha:1.0){
+        didSet{
+            
+        }
+    }
     
     /// Your left baloon color, using UIColor class, Default value : UIColor(red: 0/255.0, green: 187/255.0, blue: 150/255.0, alpha: 1.0)
-    open var leftBaloonColor = UIColor(red: 0/255.0, green: 187/255.0, blue: 150/255.0, alpha: 1)
+    open var leftBaloonColor = UIColor(red: 0/255.0, green: 187/255.0, blue: 150/255.0, alpha: 1){
+        didSet{
+            
+        }
+    }
     
     /// Your right baloon color, using UIColor class, Default value : UIColor(red: 165/255.0, green: 226/255.0, blue: 221/255.0, alpha: 1.0)
-    open var rightBaloonColor = UIColor(red: 165/255.0, green: 226/255.0, blue: 221/255.0, alpha: 1)
+    open var rightBaloonColor = UIColor(red: 165/255.0, green: 226/255.0, blue: 221/255.0, alpha: 1){
+        didSet{
+            
+        }
+    }
     
     /// Your right baloon color, using UIColor class, Default value : UIColor(red: 165/255.0, green: 226/255.0, blue: 221/255.0, alpha: 1.0)
-    open var systemBalloonColor = UIColor(red: 201/255, green: 229/255, blue: 215/255, alpha: 1)
+    open var systemBalloonColor = UIColor(red: 201/255, green: 229/255, blue: 215/255, alpha: 1){
+        didSet{
+            
+        }
+    }
     
     /// Your right baloon color, using UIColor class, Default value : UIColor(red: 165/255.0, green: 226/255.0, blue: 221/255.0, alpha: 1.0)
-    open var systemBalloonTextColor = UIColor(red: 33/255, green: 33/255, blue: 35/255, alpha: 1)
+    open var systemBalloonTextColor = UIColor(red: 33/255, green: 33/255, blue: 35/255, alpha: 1){
+        didSet{
+            
+        }
+    }
     
     /// Your left baloon text color, using UIColor class, Default value : UIColor.whiteColor()
-    open var leftBaloonTextColor = UIColor.white
+    open var leftBaloonTextColor = UIColor.white{
+        didSet{
+            
+        }
+    }
     
     /// Your right baloon text color, using UIColor class, Default value : UIColor(red: 33/255.0, green: 33/255.0, blue: 33/255.0, alpha: 1)
-    open var rightBaloonTextColor = UIColor(red: 33/255.0, green: 33/255.0, blue: 33/255.0, alpha: 1)
+    open var rightBaloonTextColor = UIColor(red: 33/255.0, green: 33/255.0, blue: 33/255.0, alpha: 1){
+        didSet{
+            
+        }
+    }
     
     /// Your text color of time label, using UIColor class, Default value : UIColor(red: 114/255.0, green: 114/255.0, blue: 114/255.0, alpha: 1)
-    open var timeLabelTextColor = UIColor(red: 114/255.0, green: 114/255.0, blue: 114/255.0, alpha: 1)
+    open var timeLabelTextColor = UIColor(red: 114/255.0, green: 114/255.0, blue: 114/255.0, alpha: 1){
+        didSet{
+            
+        }
+    }
     
     /// Your failed text color if the message fail to send, using UIColor class, Default value : UIColor(red: 1, green: 19/255.0, blue: 0, alpha: 1)
-    open var failToSendColor = UIColor(red: 1, green: 19/255.0, blue: 0, alpha: 1)
-    open var readMessageColor = UIColor.green
+    open var failToSendColor = UIColor(red: 1, green: 19/255.0, blue: 0, alpha: 1){
+        didSet{
+            
+        }
+    }
+    open var readMessageColor = UIColor.green{
+        didSet{
+            
+        }
+    }
     
     /// Your link color of left baloon chat, using UIColor class, Default value : UIColor.whiteColor()
-    open var leftBaloonLinkColor = UIColor.white
+    open var leftBaloonLinkColor = UIColor.white{
+        didSet{
+            
+        }
+    }
     
     /// Your link color of right baloon chat, using UIColor class, Default value : UIColor(red: 33/255.0, green: 33/255.0, blue: 33/255.0, alpha: 1)
-    open var rightBaloonLinkColor = UIColor(red: 33/255.0, green: 33/255.0, blue: 33/255.0, alpha: 1)
+    open var rightBaloonLinkColor = UIColor(red: 33/255.0, green: 33/255.0, blue: 33/255.0, alpha: 1){
+        didSet{
+            
+        }
+    }
     
     /// Your background color of lock view, using UIColor class, Default value : UIColor(red: 255.0/255.0, green: 87/255.0, blue: 34/255.0, alpha: 1)
-    open var lockViewBgColor = UIColor(red: 255.0/255.0, green: 87/255.0, blue: 34/255.0, alpha: 1)
+    open var lockViewBgColor = UIColor(red: 255.0/255.0, green: 87/255.0, blue: 34/255.0, alpha: 1){
+        didSet{
+            
+        }
+    }
     
     /// Your tint color of lock view, using UIColor class, Default value : UIColor.blackColor()
-    open var lockViewTintColor = UIColor.black
+    open var lockViewTintColor = UIColor.black{
+        didSet{
+            
+        }
+    }
     
     /// Welcome image color, using UIColor class, Default value: UIColor(red: 18/255.0, green: 180/255.0, blue: 147/255.0, alpha: 1)
-    open var welcomeIconColor = UIColor(red: 18/255.0, green: 180/255.0, blue: 147/255.0, alpha: 1)
+    open var welcomeIconColor = UIColor(red: 18/255.0, green: 180/255.0, blue: 147/255.0, alpha: 1){
+        didSet{
+            
+        }
+    }
     
-    public var topColor = UIColor(red: 8/255.0, green: 153/255.0, blue: 140/255.0, alpha: 1.0)
-    public var bottomColor = UIColor(red: 23/255.0, green: 177/255.0, blue: 149/255.0, alpha: 1)
-    public var tintColor = UIColor.white
+    public var topColor = UIColor(red: 8/255.0, green: 153/255.0, blue: 140/255.0, alpha: 1.0){
+        didSet{
+            
+        }
+    }
+    public var bottomColor = UIColor(red: 23/255.0, green: 177/255.0, blue: 149/255.0, alpha: 1){
+        didSet{
+            
+        }
+    }
+    public var tintColor = UIColor.white{
+        didSet{
+            
+        }
+    }
     
     public var avatarBackgroundColor:[UIColor] = [
         UIColor(red: 1, green: 23/255, blue: 68/255, alpha: 1),
@@ -78,7 +155,11 @@ open class QiscusColorConfiguration: NSObject {
         UIColor(red: 0, green: 230/255, blue: 118/255, alpha: 1),
         UIColor(red: 245/255, green: 0, blue: 87/255, alpha: 1),
         UIColor(red: 0, green: 229/255, blue: 1, alpha: 1)
-    ]
+        ]{
+        didSet{
+            
+        }
+    }
     
     
     
