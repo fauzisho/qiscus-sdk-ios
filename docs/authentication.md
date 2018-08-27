@@ -345,7 +345,7 @@ After successfully created your room, you may need to do advance development for
 When a user is having conversation with many other users, either in 1-1 Chat Room or in Group Room, a user may have involved into many rooms and he may want to leave the room and enter it again later. In this case, you need to display list of room the user involved in your app. Please Keep in mind that Qiscus does not provide the UI of list rooms. However, we provide the information the get the list of room. Using `QChatService.roomList()` method, you can obtain list of room information where your user entered to. This method will return some data that you can benefit to make further modification in your app, for example displaying user rooms.
 
 ```swift
-QChatService.roomList(withLimit: 100, page: page, onSuccess: { (rooms, totalRoom, currentPage, limit) in
+Qiscus.roomList(withLimit: 100, page: page, onSuccess: { (rooms, totalRoom) in
    print("room list: \(rooms)")
 }) { (error) in
    print("\(error)")

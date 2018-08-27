@@ -12,7 +12,6 @@ import QiscusCore
 
 open class QRoomList: UIChatListViewController {
     var roomData : [QRoom] = [QRoom]()
-    
     override open func viewDidLoad() {
         super.viewDidLoad()
         self.title = "Chat List"
@@ -37,5 +36,37 @@ open class QRoomList: UIChatListViewController {
     open override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.tabBarController?.tabBar.isHidden = false
+        //QiscusCore.delegate = self
     }
+}
+
+extension QRoomList : QiscusCoreDelegate {
+    public func onRoom(_ room: RoomModel, gotNewComment comment: CommentModel) {
+        Qiscus.listChatDelegate?.onRoom(room as! QRoom, gotNewComment: comment as! QComment)
+    }
+
+    public func onRoom(_ room: RoomModel, didChangeComment comment: CommentModel, changeStatus status: CommentStatus) {
+       
+        Qiscus.listChatDelegate?.onRoom(room as! QRoom, didChangeComment: comment as! QComment, changeStatus: status)
+    }
+
+    public func onRoom(_ room: RoomModel, thisParticipant user: MemberModel, isTyping typing: Bool) {
+        
+        Qiscus.listChatDelegate?.onRoom(room as! QRoom, thisParticipant: user as! QMember, isTyping: typing)
+    }
+
+    public func onChange(user: MemberModel, isOnline online: Bool, at time: Date) {
+       Qiscus.listChatDelegate?.onChange(user: user as! QMember, isOnline: online, at: time)
+    }
+
+    public func gotNew(room: RoomModel) {
+        
+        Qiscus.listChatDelegate?.gotNew(room: room as! QRoom)
+    }
+
+    public func remove(room: RoomModel) {
+        
+        Qiscus.listChatDelegate?.remove(room: room as! QRoom)
+    }
+
 }

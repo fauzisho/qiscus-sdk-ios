@@ -69,44 +69,15 @@ import SwiftyJSON
 }
 
 public class QComment: CommentModel {
-    
-     var onChange : (CommentModel) -> Void = { _ in}
-    
-    public var senderName : String{
-        get{
-            return username
-        }
-        set{
-            username = newValue
-        }
-    }
-    
-    public var text : String{
-        get{
-            return message
-        }
-        set{
-            message = newValue
-        }
-    }
-    
-    public var createdAt : Int{
-        get{
-            return unixTimestamp
-        }
-        set{
-            unixTimestamp = newValue
-        }
-    }
-    
-    public var senderEmail: String{
-        get{
-            return email
-        }
-        set{
-            email = newValue
-        }
-    }
+//    public var createdAt : Int{
+//        get{
+//            return unixTimestamp
+//        }
+//        set{
+//            unixTimestamp = newValue
+//        }
+//    }
+//
     
     //need room name from QComment
     public var roomName : String{
@@ -150,7 +121,7 @@ public class QComment: CommentModel {
     
     public var date: String {
         get {
-            let date = Date(timeIntervalSince1970: TimeInterval(self.createdAt))
+            let date = Date(timeIntervalSince1970: TimeInterval(self.unixTimestamp))
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "d MMMM yyyy"
             let dateString = dateFormatter.string(from: date)
@@ -185,68 +156,68 @@ public class QComment: CommentModel {
         return nil
     }
     
-    public class func decodeDictionary(data:[AnyHashable : Any]) -> QComment? {
-        if let isQiscusdata = data["qiscus_commentdata"] as? Bool{
-            if isQiscusdata {
-                let temp = QComment()
-                if let uniqueId = data["qiscus_uniqueId"] as? String{
-                    temp.uniqueTempId = uniqueId
-                }
-                if let id = data["qiscus_id"] as? String {
-                    temp.id = id
-                }
-                if let roomId = data["qiscus_roomId"] as? String {
-                    temp.roomId = roomId
-                }
-                if let beforeId = data["qiscus_beforeId"] as? Int {
-                    temp.commentBeforeId = beforeId
-                }
-                if let text = data["qiscus_text"] as? String {
-                    temp.message = text
-                }
-                if let createdAt = data["qiscus_createdAt"] as? Int{
-                    temp.unixTimestamp = createdAt
-                }
-                if let email = data["qiscus_senderEmail"] as? String{
-                    temp.email = email
-                }
-                if let name = data["qiscus_senderName"] as? String{
-                    temp.username = name
-                }
-                if let statusRaw = data["qiscus_statusRaw"] as? String {
-                    temp.status = statusRaw
-                }
-                if let typeRaw = data["qiscus_typeRaw"] as? String {
-                    temp.type = CommentType(rawValue: typeRaw)!
-                }
-                if let payload = data["qiscus_data"] as? String {
-                    //temp.payloadData = payload
-                }
-                
-                return temp
-            }
-        }
-        return nil
-    }
-    
-    public func encodeDictionary()->[AnyHashable : Any]{
-        var data = [AnyHashable : Any]()
-        
-        data["qiscus_commentdata"] = true
-        data["qiscus_uniqueId"] = self.uniqueTempId
-        data["qiscus_id"] = self.id
-        data["qiscus_roomId"] = self.roomId
-        data["qiscus_beforeId"] = self.commentBeforeId
-        data["qiscus_text"] = self.text
-        data["qiscus_createdAt"] = self.createdAt
-        data["qiscus_senderEmail"] = self.senderEmail
-        data["qiscus_senderName"] = self.senderName
-        data["qiscus_statusRaw"] = self.status
-        data["qiscus_typeRaw"] = self.type
-        data["qiscus_data"] = self.payloadData
-        
-        return data
-    }
+//    public class func decodeDictionary(data:[AnyHashable : Any]) -> QComment? {
+//        if let isQiscusdata = data["qiscus_commentdata"] as? Bool{
+//            if isQiscusdata {
+//                let temp = QComment()
+//                if let uniqueId = data["qiscus_uniqueId"] as? String{
+//                    temp.uniqueTempId = uniqueId
+//                }
+//                if let id = data["qiscus_id"] as? String {
+//                    temp.id = id
+//                }
+//                if let roomId = data["qiscus_roomId"] as? String {
+//                    temp.roomId = roomId
+//                }
+//                if let beforeId = data["qiscus_beforeId"] as? Int {
+//                    temp.commentBeforeId = beforeId
+//                }
+//                if let text = data["qiscus_text"] as? String {
+//                    temp.message = text
+//                }
+//                if let createdAt = data["qiscus_createdAt"] as? Int{
+//                    temp.unixTimestamp = createdAt
+//                }
+//                if let email = data["qiscus_senderEmail"] as? String{
+//                    temp.email = email
+//                }
+//                if let name = data["qiscus_senderName"] as? String{
+//                    temp.username = name
+//                }
+//                if let statusRaw = data["qiscus_statusRaw"] as? String {
+//                    temp.status = statusRaw
+//                }
+//                if let typeRaw = data["qiscus_typeRaw"] as? String {
+//                    temp.type = CommentType(rawValue: typeRaw)!
+//                }
+//                if let payload = data["qiscus_data"] as? String {
+//                    //temp.payloadData = payload
+//                }
+//                
+//                return temp
+//            }
+//        }
+//        return nil
+//    }
+//    
+//    public func encodeDictionary()->[AnyHashable : Any]{
+//        var data = [AnyHashable : Any]()
+//        
+//        data["qiscus_commentdata"] = true
+//        data["qiscus_uniqueId"] = self.uniqueTempId
+//        data["qiscus_id"] = self.id
+//        data["qiscus_roomId"] = self.roomId
+//        data["qiscus_beforeId"] = self.commentBeforeId
+//        data["qiscus_text"] = self.text
+//        data["qiscus_createdAt"] = self.createdAt
+//        data["qiscus_senderEmail"] = self.senderEmail
+//        data["qiscus_senderName"] = self.senderName
+//        data["qiscus_statusRaw"] = self.status
+//        data["qiscus_typeRaw"] = self.type
+//        data["qiscus_data"] = self.payloadData
+//        
+//        return data
+//    }
     
     public class QCommentInfo: NSObject {
         public var comment:QComment?
@@ -281,7 +252,7 @@ public class QComment: CommentModel {
         }
     }
     
-    //Todo Need Tobe Implement
+    //Todo Need To be Implement
     public func forward(toRoomWithId roomId: String){
 //        let comment = QComment()
 //        let time = Double(Date().timeIntervalSince1970)

@@ -92,6 +92,15 @@ public class QiscusChatVC: UIChatViewController {
     public override func viewDidLoad() {
         super.viewDidLoad()
         self.setupUI()
+        NotificationCenter.default.addObserver(self, selector:#selector(willEnterFromForeground), name: NSNotification.Name.UIApplicationWillEnterForeground, object: nil)
+    }
+    
+    @objc func willEnterFromForeground(){
+        self.tabBarController?.tabBar.isHidden = true
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     func setupUI(){

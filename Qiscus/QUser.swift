@@ -12,3 +12,7 @@ import UIKit
 //public class QUser: UserModel {
 //
 //}
+
+open class QMember : MemberModel {
+
+}

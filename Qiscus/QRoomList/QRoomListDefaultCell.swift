@@ -111,7 +111,7 @@ class QRoomListDefaultCell: QRoomListCell {
     func setupLastComment(){
         self.descriptionLabel.textColor = UIColor.black
         if let r = room {
-            self.descriptionLabel.text = "\(r.lastCommentMessage.senderName): \(r.lastCommentMessage.text)"
+            self.descriptionLabel.text = "\(r.lastCommentMessage.username): \(r.lastCommentMessage.message)"
         }else{
             self.descriptionLabel.text = ""
         }

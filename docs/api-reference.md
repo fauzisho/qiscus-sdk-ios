@@ -363,11 +363,9 @@ Qiscus.channelsInfo(withNames: ["myChannel1","myChannel2"], onSuccess: { (rooms)
 ### Get Room List
 
 ```
-Qiscus.roomList(withLimit: 100, page: 1, onSuccess: { (rooms, totalRoom, currentPage, limit) in
+Qiscus.roomList(withLimit: 100, page: 1, onSuccess: { (rooms, totalRoom) in
             // rooms contains array of room
             // totalRoom = total room in server
-            // currentPage = current page requested
-            // limit = limit requested
         }) { (error) in
             // resulting error in string
         }
@@ -383,7 +381,7 @@ let rooms = QRoom.all()
 
 ```
 var room:QRoom?
-room.update(roomName: roomName, roomAvatarURL: avatar, onSuccess: { (qRoom) in
+room.update(withID : "123", roomName: roomName, roomAvatarURL: avatar, onSuccess: { (qRoom) in
                 //success update
             }, onError: { (error) in
                 //error
@@ -406,53 +404,19 @@ Qiscus.room(withId: roomId!, onSuccess: { (room) in
 ### Publish Start Typing
 
 ```
-room.publishStartTyping()
+room.publishStartTyping(roomID: room.id)
 ```
 
 ### Publish Stop Typing
 
 ```
-room.publishStopTyping()
+room.publishStopTyping(roomID: room.id)
 ```
 
 ### Update Message Read Status
 
 ```
-QRoom.publishStatus(roomId: roomId, commentId: commentId, status: .read)
-```
-
-### View Who Has Received And Read Message
-
-To get information who has received and read a message, We can get all data member in QComment. In QComment class have a variable readUser and deliveredUser.
-
-```
-var comment : QComment?
-
-comment?.statusInfo?.readUser //list data users have been read comment
-comment?.statusInfo?.readUser.count //count of data users have been read comment
-comment?.statusInfo?.deliveredUser //list data users have been delivered comment
-comment?.statusInfo?.deliveredUser.count //count of data users have been delivered comment
-```
-
-We can get a update users status delivered and received message with `QParticipantDelegate`
-
-```
-extension YourViewController: QParticipantDelegate{
-    //in function show your tableview
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        var participantGroup = data?.statusInfo?.readUser
-        if indexPath.section > 0 {
-            participantGroup = data?.statusInfo?.deliveredUser
-        }
-        let participant = participantGroup?[indexPath.row]
-        participant?.delegate = self // init QParticipantdelegate
-        //init your cell
-        return cell
-    }
-    func participant(didChange participant: QParticipant) {
-       //you can update here
-    }
-}
+QRoom.publishStatus(roomId: roomId, commentId: commentId)
 ```
 
 ## Event Handler
@@ -481,10 +445,22 @@ func newCommentNotif(_ notification: Notification){
 
 ### Typing
 
-Subscribe to notification channel.
+Subscribe All Room to get notification
 
 ```
-room.subscribeRealtimeStatus()
+//Just call Qiscus.fetchAllRoom
+Qiscus.fetchAllRoom(onSuccess: { (qRoom) in
+    
+}) { (error) in
+    
+}
+
+//or Qiscus.roomList
+Qiscus.roomList(withLimit: 100, page: 1, onSuccess: { (qRooms, totalRooms) in
+
+}) { (error) in
+
+}
 ```
 
 Listen to notification.

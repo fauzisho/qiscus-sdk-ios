@@ -36,6 +36,15 @@ public protocol QiscusRoomDelegate {
     func didFailUpdateRoom(withError error:String)
 }
 
+public protocol QiscusListRoomDelegate {
+    func onRoom(_ room: QRoom, gotNewComment comment: QComment)
+    func onRoom(_ room: QRoom, didChangeComment comment: QComment, changeStatus status: CommentStatus)
+    func onRoom(_ room: QRoom, thisParticipant user: QMember, isTyping typing: Bool)
+    func onChange(user: QMember, isOnline online: Bool, at time: Date)
+    func gotNew(room: QRoom)
+    func remove(room: QRoom)
+}
+
 var QiscusBackgroundThread = DispatchQueue(label: "com.qiscus.background", attributes: .concurrent)
 
 public class Qiscus {
@@ -44,6 +53,7 @@ public class Qiscus {
     static let qiscusVersionNumber:String = "2.9.1"
     var reachability:QReachability?
     var configDelegate : QiscusConfigDelegate? = nil
+    public static var listChatDelegate:QiscusListRoomDelegate?
     static var qiscusDeviceToken: String = ""
     var notificationAction:((QiscusChatVC)->Void)? = nil
     var disableLocalization: Bool = false
@@ -234,15 +244,33 @@ public class Qiscus {
         }
     }
     
-    public func room(withId roomId:String, onSuccess:@escaping ((QRoom)->Void),onError:@escaping ((String)->Void)){
+    public class func room(withId roomId:String, onSuccess:@escaping ((QRoom)->Void),onError:@escaping ((String)->Void)){
         return QiscusCore.shared.getRoom(withID: roomId, completion: { (qRoom, error) in
-            onSuccess(qRoom as! QRoom)
+            if(qRoom != nil){
+                onSuccess(qRoom as! QRoom)
+            }else{
+                onError((error?.message)!)
+            }
         })
     }
     
-    public func room(withUserId: String, onSuccess:@escaping ((QRoom)->Void),onError:@escaping ((String)->Void)){
+    public class func room(withChannel channelName:String, onSuccess:@escaping ((QRoom)->Void),onError:@escaping ((String)->Void)){
+        return QiscusCore.shared.getRoom(withChannel: channelName, completion: { (qRoom, error) in
+            if(qRoom != nil){
+                onSuccess(qRoom as! QRoom)
+            }else{
+                onError((error?.message)!)
+            }
+        })
+    }
+    
+    public class func room(withUserId: String, onSuccess:@escaping ((QRoom)->Void),onError:@escaping ((String)->Void)){
         return QiscusCore.shared.getRoom(withUser: withUserId, completion: { (qRoom, error) in
-            onSuccess(qRoom as! QRoom)
+            if(qRoom != nil){
+                onSuccess(qRoom as! QRoom)
+            }else{
+                onError((error?.message)!)
+            }
         })
     }
     
@@ -426,19 +454,20 @@ public class Qiscus {
     /// - Parameter notification: UILocalNotification
     public class func didReceiveNotification(notification:UILocalNotification){
         if notification.userInfo != nil {
-            if let comment = QComment.decodeDictionary(data: notification.userInfo!) {
-                var userData:[AnyHashable : Any]? = [AnyHashable : Any]()
-                let qiscusKey:[AnyHashable] = ["qiscus_commentdata","qiscus_uniqueId","qiscus_id","qiscus_roomId","qiscus_beforeId","qiscus_text","qiscus_createdAt","qiscus_senderEmail","qiscus_senderName","qiscus_statusRaw","qiscus_typeRaw","qiscus_data"]
-                for (key,value) in notification.userInfo! {
-                    if !qiscusKey.contains(key) {
-                        userData![key] = value
-                    }
-                }
-                if userData!.count == 0 {
-                    userData = nil
-                }
-                Qiscus.sharedInstance.configDelegate?.qiscus(didTapLocalNotification: comment, userInfo: userData)
-            }
+            //TODO NEED TO BE IMPLEMENT
+//            if let comment = QComment.decodeDictionary(data: notification.userInfo!) {
+//                var userData:[AnyHashable : Any]? = [AnyHashable : Any]()
+//                let qiscusKey:[AnyHashable] = ["qiscus_commentdata","qiscus_uniqueId","qiscus_id","qiscus_roomId","qiscus_beforeId","qiscus_text","qiscus_createdAt","qiscus_senderEmail","qiscus_senderName","qiscus_statusRaw","qiscus_typeRaw","qiscus_data"]
+//                for (key,value) in notification.userInfo! {
+//                    if !qiscusKey.contains(key) {
+//                        userData![key] = value
+//                    }
+//                }
+//                if userData!.count == 0 {
+//                    userData = nil
+//                }
+//                Qiscus.sharedInstance.configDelegate?.qiscus(didTapLocalNotification: comment, userInfo: userData)
+//            }
         }
     }
     
@@ -606,6 +635,9 @@ public class Qiscus {
         QiscusClient.clear()
         QiscusClient.hasRegisteredDeviceToken = false
         Qiscus.shared.unRegisterDevice()
+        QiscusCore.logout { (error) in
+            
+        }
     }
     
     //TODO Need TO Be Implement
@@ -654,34 +686,36 @@ public class Qiscus {
     ///   - userInfo: userInfo
     public func createLocalNotification(forComment comment:QComment, alertTitle:String? = nil, alertBody:String? = nil, userInfo:[AnyHashable : Any]? = nil){
         DispatchQueue.main.async {autoreleasepool{
-            let localNotification = UILocalNotification()
-            if let title = alertTitle {
-                localNotification.alertTitle = title
-            }else{
-                localNotification.alertTitle = comment.senderName
-            }
-            if let body = alertBody {
-                localNotification.alertBody = body
-            }else{
-                localNotification.alertBody = comment.text
-            }
-            
-            localNotification.soundName = "default"
-            var userData = [AnyHashable : Any]()
-            
-            if userInfo != nil {
-                for (key,value) in userInfo! {
-                    userData[key] = value
-                }
-            }
-            
-            let commentInfo = comment.encodeDictionary()
-            for (key,value) in commentInfo {
-                userData[key] = value
-            }
-            localNotification.userInfo = userData
-            localNotification.fireDate = Date().addingTimeInterval(0.4)
-            Qiscus.sharedInstance.application.scheduleLocalNotification(localNotification)
+
+            //TODO NEED TO BE IMPLEMENT
+//            let localNotification = UILocalNotification()
+//            if let title = alertTitle {
+//                localNotification.alertTitle = title
+//            }else{
+//                localNotification.alertTitle = comment.username
+//            }
+//            if let body = alertBody {
+//                localNotification.alertBody = body
+//            }else{
+//                localNotification.alertBody = comment.message
+//            }
+//
+//            localNotification.soundName = "default"
+//            var userData = [AnyHashable : Any]()
+//
+//            if userInfo != nil {
+//                for (key,value) in userInfo! {
+//                    userData[key] = value
+//                }
+//            }
+//
+//            let commentInfo = comment.encodeDictionary()
+//            for (key,value) in commentInfo {
+//                userData[key] = value
+//            }
+//            localNotification.userInfo = userData
+//            localNotification.fireDate = Date().addingTimeInterval(0.4)
+//            Qiscus.sharedInstance.application.scheduleLocalNotification(localNotification)
             }}
     }
     
@@ -703,10 +737,19 @@ public class Qiscus {
         QiscusCore.shared.getRoom(withUser: users.first!) { (qRoom, error) in
             chatVC.room = qRoom
             chatVC.chatUser = users.first!
-            chatVC.chatTitle = title
-            chatVC.chatSubtitle = subtitle
+            if(title != ""){
+                chatVC.chatTitle = title
+            }
+            if(subtitle != ""){
+                chatVC.chatSubtitle = subtitle
+            }
             chatVC.archived = readOnly
-            chatVC.chatMessage = withMessage
+            if(withMessage != nil){
+                chatVC.chatMessage = withMessage
+            }
+            if(withMessage != nil){
+                chatVC.chatMessage = withMessage
+            }
             if chatVC.isPresence {
                 chatVC.back()
             }
@@ -744,7 +787,9 @@ public class Qiscus {
             chatVC.archived         = readOnly
             chatVC.chatNewRoomUsers = users
             chatVC.chatTitle        = title
-            chatVC.chatSubtitle     = subtitle
+            if(subtitle != ""){
+                chatVC.chatSubtitle = subtitle
+            }
             chatVC.room             = qRoom
             if chatVC.isPresence {
                 chatVC.back()
@@ -777,10 +822,16 @@ public class Qiscus {
         }else{
             chatVC.chatRoomId = roomId
         }
-        chatVC.chatTitle = title
-        chatVC.chatSubtitle = subtitle
+        if(title != ""){
+            chatVC.chatTitle = title
+        }
+        if(subtitle != ""){
+            chatVC.chatSubtitle = subtitle
+        }
         chatVC.archived = readOnly
-        chatVC.chatMessage = withMessage
+        if(withMessage != nil){
+            chatVC.chatMessage = withMessage
+        }
         
         return chatVC
     }
@@ -795,11 +846,20 @@ public class Qiscus {
             }
             Qiscus.sharedInstance.isPushed = true
             chatVC.room = qRoom
-            chatVC.chatTitle = title
-            chatVC.chatSubtitle = subtitle
+            if(title != ""){
+                chatVC.chatTitle = title
+            }
+            if(subtitle != ""){
+                chatVC.chatSubtitle = subtitle
+            }
+            if(withMessage != nil){
+                chatVC.chatMessage = withMessage
+            }
+            if(avatarUrl != ""){
+                chatVC.chatAvatarURL = avatarUrl
+            }
+            
             chatVC.archived = readOnly
-            chatVC.chatMessage = withMessage
-            chatVC.chatAvatarURL = avatarUrl
             if chatVC.isPresence {
                 chatVC.back()
             }
@@ -840,6 +900,60 @@ public class Qiscus {
     //Todo need to implement to SDKCore
     @objc public class func setRealtimeServer(withServer server:String, port:Int = 1883, enableSSL:Bool = false){
         
+    }
+    
+    public class func newRoom(withUsers usersId:[String], roomName: String, avatarURL:String = "", onSuccess:@escaping ((QRoom)->Void),onError:@escaping ((String)->Void)){
+        if roomName.trimmingCharacters(in: .whitespacesAndNewlines) != "" {
+            
+            if avatarURL.isEmpty {
+                QiscusCore.shared.createGroup(withName: roomName, participants: usersId, avatarUrl: nil) { (qRoom, error) in
+                }
+            }else{
+                QiscusCore.shared.createGroup(withName: roomName, participants: usersId, avatarUrl: URL(string: avatarURL)) { (qRoom, error) in
+                }
+            }
+        }else{
+            onError("room name can not be empty string")
+        }
+    }
+    
+    public class func roomInfo(withId id:String, onSuccess:@escaping ((QRoom)->Void), onError: @escaping ((String)->Void)){
+        QiscusCore.shared.getRoom(withID: id) { (qRoom, error) in
+            if(qRoom != nil){
+                onSuccess(qRoom as! QRoom)
+            }else{
+                onError((error?.message)!)
+            }
+        }
+    }
+    
+    public class func roomsInfo(withIds ids:[String], onSuccess:@escaping (([QRoom])->Void), onError: @escaping ((String)->Void)){
+        QiscusCore.shared.getRooms(withId: ids) { (qRooms, error) in
+            if(qRooms != nil){
+                onSuccess(qRooms as! [QRoom])
+            }else{
+                onError((error?.message)!)
+            }
+        }
+    }
+    public class func channelInfo(withName name:String, onSuccess:@escaping ((QRoom)->Void), onError: @escaping ((String)->Void)){
+        QiscusCore.shared.getRoom(withChannel: name) { (qRoom, error) in
+            if(qRoom != nil){
+                onSuccess(qRoom as! QRoom)
+            }else{
+                onError((error?.message)!)
+            }
+        }
+    }
+    
+    public class func channelsInfo(withNames names:[String], onSuccess:@escaping (([QRoom])->Void), onError: @escaping ((String)->Void)){
+        QiscusCore.shared.getRooms(withUniqueId: names) { (qRooms, error) in
+            if(qRooms != nil){
+                onSuccess(qRooms as! [QRoom])
+            }else{
+                onError((error?.message)!)
+            }
+        }
     }
  
 }

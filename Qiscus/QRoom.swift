@@ -48,7 +48,7 @@ public class QRoom: RoomModel {
     
     public var avatarURL : String {
         get{
-            return avatarUrl
+            return (avatarUrl?.absoluteString)!
         }
     }
     
@@ -100,7 +100,11 @@ public class QRoom: RoomModel {
                      onSuccess(qRoomData as! [QRoom], qRoomData.count)
                 }
             }else{
-                onFailed((error?.message)!)
+                if let error = error?.message {
+                    onFailed(error)
+                }else{
+                     onFailed("error getAllRoom")
+                }
             }
         }
     }
@@ -119,31 +123,37 @@ public class QRoom: RoomModel {
     }
     
     public func update(withID: String, roomName:String? = nil, roomAvatarURL:String? = nil, roomOptions:String? = nil, onSuccess:@escaping ((_ room: QRoom)->Void),onError:@escaping ((_ error: String)->Void)){
-        QiscusCore.shared.updateRoom(withID: withID, name: roomName, avatarURL: URL(string: roomAvatarURL!), options: roomOptions) { (qRoom, error) in
+        
+        var roomAvatarUrl: URL? = nil
+        if(roomAvatarURL != nil){
+            roomAvatarUrl = URL(string: roomAvatarURL!)
+        }
+        
+        QiscusCore.shared.updateRoom(withID: withID, name: roomName, avatarURL: roomAvatarUrl, options: roomOptions) { (qRoom, error) in
             if let qRoomData = qRoom {
                 onSuccess(qRoom as! QRoom)
             }else{
                 onError((error?.message)!)
             }
-           
-        }
-    }
-    
-    public func newComment(text:String, payload:JSON? = nil,type:QCommentType = .text, data:Data? = nil, image:UIImage? = nil, filename:String = "", filePath:URL? = nil )->QComment{
-        // create object comment
-        let message = QComment()
-        message.message = text
-        message.type = .text
-        message.status = "sending"
-        if let user = QiscusCore.getProfile() {
-            message.email = user.email
+            
         }
         
+    }
+    
+    public func newComment(text:String, payload:JSON? = nil,type:QCommentType = .text)->QComment{
+        // create object comment
+        let message = QComment.init()
+        message.message = text
+        message.type = type.name()
+        if payload != nil {
+            message.payload = payload?.dictionary
+        }
         return message
     }
     
+    //TODO RoomID??? cannot write roomId from QiscusSDKCore
     public func newCustomComment(type:String, payload:String, text:String? = nil )->QComment{
-        let comment = QComment()
+        let comment = QComment.init()
         let payloadData = JSON(parseJSON: payload)
         var contentString = "\"\""
         if payloadData == JSON.null{
@@ -152,41 +162,32 @@ public class QRoom: RoomModel {
             contentString = "\(payloadData)"
         }
         let payload = "{ \"type\": \"\(type)\", \"content\": \(contentString)}"
+        let payloadJson = JSON(parseJSON: payload)
+        comment.payload = payloadJson.dictionary
+        comment.type    = type
         if text == nil {
-            comment.text = "message type \(type)"
+            comment.message = "message type \(type)"
         }else{
-            comment.text = text!
+            comment.message = text!
         }
-//
-//        comment.uniqueId = uniqueID
-//        comment.id = 0
-//        comment.roomId = self.id
-//
-//        comment.createdAt = Double(Date().timeIntervalSince1970)
-//        comment.senderEmail = QiscusMe.sharedInstance.email
-//        comment.senderName = QiscusMe.sharedInstance.userName
-//        comment.statusRaw = QCommentStatus.sending.rawValue
-//        comment.typeRaw = type
-//        comment.data = payload
-//
+        //comment.roomId = roomId
         return comment
     }
     
-    //TODO NEED TO BE IMPLEMENT with param type and payload
     public func post(comment:QComment, type:String? = nil, payload:JSON? = nil){
+        comment.payload = payload?.dictionary
+        if type != nil && !(type?.isEmpty)! {
+            comment.type  = type!
+        }
+       
         QiscusCore.shared.sendMessage(roomID: self.id, comment: comment) { (message, error) in
-            if comment != nil {
-                comment.status = "deliverd"
-            }else {
-                comment.status = "failed"
-            }
             comment.onChange(comment)
         }
     }
     
     //TODO NEED TO BE IMPLEMENT newFileComment
     public func newFileComment(type: QiscusFileType, filename:String = "", caption:String = "", data:Data? = nil, thumbImage:UIImage? = nil)->QComment{
-        let comment = QComment()
+        let comment = QComment.init()
         let fileNameArr = filename.split(separator: ".")
         let fileExt = String(fileNameArr.last!).lowercased()
         
@@ -323,6 +324,19 @@ public class QRoom: RoomModel {
             }
         }
     }
+    
+    public func publishStartTyping(roomID: String){
+        QiscusCore.shared.isTyping(true, roomID: roomID)
+    }
+    
+    public func publishStopTyping(roomID: String){
+        QiscusCore.shared.isTyping(false, roomID: roomID)
+    }
+    
+    public class func publishStatus(roomId:String, commentId:String){
+        QiscusCore.shared.updateCommentRead(roomId: roomId, lastCommentReadId: commentId)
+    }
+    
 }
 
 

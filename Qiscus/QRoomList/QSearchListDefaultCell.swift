@@ -33,7 +33,7 @@ class QSearchListDefaultCell: QSearchListCell {
                         NSAttributedStringKey.font: UIFont.boldSystemFont(ofSize: 14.0)]
         let normalAttr = [NSAttributedStringKey.font: UIFont.systemFont(ofSize: 14.0)]
         
-        let message = self.comment!.text
+        let message = self.comment!.message
         let newLabelText = NSMutableAttributedString(string: message)
         let allRange = (message as NSString).range(of: message)
         newLabelText.setAttributes(normalAttr, range: allRange)
