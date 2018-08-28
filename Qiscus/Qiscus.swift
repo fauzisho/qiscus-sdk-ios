@@ -775,7 +775,6 @@ public class Qiscus {
             }}
     }
     
-    //Todo call QiscusUI
     /// get QiscusChatVC with array of username
     ///
     /// - Parameters:
@@ -937,7 +936,14 @@ public class Qiscus {
         
     }
     
-    @objc public class func getNonce(withAppId appId:String, onSuccess:@escaping ((String)->Void), onFailed:@escaping ((String)->Void), secureURL:Bool = true){
+    
+    /// getNonce
+    ///
+    /// - Parameters:
+    ///   - appId: appId QIscus
+    ///   - onSuccess: will return nonce
+    ///   - onFailed: will return error message
+    @objc public class func getNonce(withAppId appId:String, onSuccess:@escaping ((String)->Void), onFailed:@escaping ((String)->Void)){
         QiscusCore.setup(WithAppID: appId)
         QiscusCore.getNonce { (nonce, error) in
             if(nonce != nil){
@@ -948,23 +954,15 @@ public class Qiscus {
         }
     }
     
-    //Todo need to implement to SDKCore
-    @objc public class func setBaseURL(withURL url:String){
-        
-    }
-    
-    //Todo need to implement to SDKCore
-    @objc public class func setRealtimeServer(withServer server:String, port:Int = 1883, enableSSL:Bool = false){
-        
-    }
-    
-    /// Create new Group room
+    /// setBaseURL
     ///
     /// - Parameters:
-    ///   - withName: Name of group
-    ///   - participants: arrau of user id/qiscus email
-    ///   - completion: Response Qiscus Room Object and error if exist.
-    
+    ///   - url: baseUrl
+    ///   - realtimeServer: realtime server
+    ///   - realtimePort: realtime port
+    public class func setBaseURL(withURL url:URL? = nil, realtimeServer: String? = nil, realtimePort: Int? = nil){
+        QiscusCore.set(customServer: url!, realtimeServer: realtimeServer!, realtimePort: realtimePort!)
+    }
     
     /// Create new Group room
     ///
