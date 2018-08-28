@@ -120,8 +120,14 @@ extension QConversationCollectionView: UICollectionViewDelegate, UICollectionVie
                     return headerCell
                 }
             } else {
-                let footerCell = self.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "emptyHeader", for: indexPath)
-                return footerCell
+                if kind == UICollectionElementKindSectionFooter{
+                    let footerCell = self.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "emptyFooter", for: indexPath) as! QChatEmptyFooter
+                    return footerCell
+                }else{
+                    let headerCell = self.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "emptyHeader", for: indexPath) as! QChatEmptyHeaderCell
+                    
+                    return headerCell
+                }
             }
         }else{
             if kind == UICollectionElementKindSectionFooter{
