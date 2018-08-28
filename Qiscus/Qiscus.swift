@@ -63,7 +63,14 @@ public class Qiscus {
     /**
      Active Qiscus Print log, by default is disable/false
      */
-    public static var showDebugPrint = false
+    public static var showDebugPrint : Bool {
+        get{
+            return QiscusCore.enableDebugPrint
+        }
+        set{
+            QiscusCore.enableDebugPrint = newValue
+        }
+    }
     
     /**
      Save qiscus log.
@@ -166,7 +173,7 @@ public class Qiscus {
      - parameter appId: Qiscus App ID, please register or login in http://qiscus.com to find your App ID
      */
     
-    public func setAppId(appId:String){
+    public class func setAppId(appId:String){
         QiscusCore.setup(WithAppID: appId)
         QiscusCore.enableDebugPrint = true
     }
@@ -436,14 +443,26 @@ public class Qiscus {
     ///   - roomId: roomId
     ///   - roomName: roomName
     ///   - avatar: avatarUrl
-    public func updateRoom(roomId: String, roomName: String? = nil, avatar: String? = nil){
+    public func updateRoom(roomId: String, roomName: String? = nil, avatar: String? = nil, onSuccess:@escaping ((QRoom)->Void),onError:@escaping ((String)->Void)){
         if(avatar != nil){
             QiscusCore.shared.updateRoom(withID: roomId, name: roomName, avatarURL: URL(string: avatar!), options: nil) { (qRoom, error) in
-                
+                if let qRoomData = qRoom {
+                    onSuccess(qRoomData as! QRoom)
+                }else{
+                    if let errorMessage = error {
+                        onError(errorMessage.message)
+                    }
+                }
             }
         }else{
             QiscusCore.shared.updateRoom(withID: roomId, name: roomName, avatarURL: nil, options: nil) { (qRoom, error) in
-                
+                if let qRoomData = qRoom {
+                    onSuccess(qRoomData as! QRoom)
+                }else{
+                    if let errorMessage = error {
+                        onError(errorMessage.message)
+                    }
+                }
             }
         }
         
@@ -952,6 +971,109 @@ public class Qiscus {
                 onSuccess(qRooms as! [QRoom])
             }else{
                 onError((error?.message)!)
+            }
+        }
+    }
+    
+    /// get all unread count
+    ///
+    /// - Parameters:
+    ///   - onSuccess: success completion with unread count value
+    ///   - onError: error completion with error message
+    public class func getAllUnreadCount(onSuccess: @escaping ((_ unread: Int) -> Void), onError: @escaping ((_ error: String) -> Void)) {
+        QiscusCore.shared.unreadCount { (unread, error) in
+            if error == nil {
+                onSuccess(unread)
+            }else{
+                if let errorMessage = error{
+                    onError(errorMessage.message)
+                }
+            }
+        }
+    }
+    
+    
+    /// add participants to room
+    ///
+    /// - Parameters:
+    ///   - id: room id
+    ///   - userIds: array of participant user id registered in qiscus sdk
+    ///   - onSuccess: completion when successfully add participant
+    ///   - onError: completion when failed add participant
+    public class func addParticipant(onRoomId id: String, userEmails: [String], onSuccess:@escaping ([QMember])->Void, onError: @escaping (String)->Void) {
+        QiscusCore.shared.addParticipant(userEmails: userEmails, roomId: id) { (qMembers, error) in
+            if let qMembersData = qMembers {
+                onSuccess(qMembersData as! [QMember])
+            }else{
+                if let errorMessage = error {
+                    onError(errorMessage.message)
+                }
+            }
+        }
+    }
+    
+    
+    /// remove participants from room
+    ///
+    /// - Parameters:
+    ///   - id: room id
+    ///   - userIds: array of participant user id registered in qiscus sdk
+    ///   - onSuccess: completion bool when success delete participant
+    ///   - onError: completion when failed delete participant
+    public class func removeParticipant(onRoom id: String, userEmails: [String], onSuccess:@escaping (Bool)->Void, onError: @escaping (String)->Void) {
+        QiscusCore.shared.removeParticipant(userEmails: userEmails, roomId: id) { (removed, error) in
+            if error == nil {
+                onSuccess(removed)
+            }else{
+                if let errorMessage = error {
+                    onError(errorMessage.message)
+                }
+            }
+            
+        }
+    }
+    
+    /// block user
+    /// - Parameters:
+    ///   - user_email
+    public class func blockUser(user_email: String, onSuccess:@escaping(QMember)->Void, onError: @escaping (String)->Void) {
+        QiscusCore.shared.blockUser(email: user_email) { (qMember, error) in
+            if let qMemberUser = qMember {
+                onSuccess(qMemberUser as! QMember)
+            }else{
+                if let errorMessage = error {
+                    onError(errorMessage.message)
+                }
+            }
+        }
+    }
+    
+    /// unblock user
+    /// - Parameters:
+    ///   - user_email
+    public class func unBlockUser(user_email: String, onSuccess:@escaping(QMember)->Void, onError: @escaping (String)->Void) {
+        QiscusCore.shared.unblockUser(email: user_email) { (qMember, error) in
+            if let qMemberUser = qMember {
+                onSuccess(qMemberUser as! QMember)
+            }else{
+                if let errorMessage = error {
+                    onError(errorMessage.message)
+                }
+            }
+        }
+    }
+    
+    /// list of block user
+    /// - Parameters:
+    ///   - token
+    public class func getListBlockUser(page: Int? = 1, limit: Int? = 20, onSuccess:@escaping([QMember])->Void, onError: @escaping (String)->Void){
+        QiscusCore.shared.listBlocked(page: page, limit: limit) { (qMembers, error) in
+            if let qMemberUser = qMembers {
+                onSuccess(qMemberUser as! [QMember])
+            }else{
+                if let errorMessage = error {
+                    onError(errorMessage.message)
+                }
             }
         }
     }
