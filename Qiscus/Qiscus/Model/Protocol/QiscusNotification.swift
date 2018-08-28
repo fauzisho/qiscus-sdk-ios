@@ -118,7 +118,9 @@ public class QiscusNotification: NSObject {
             DispatchQueue.main.async {
                 if let mainRoom = QRoom.room(withId: id){
                     if let c = QComment.comment(withUniqueId: uid){
-                        mainRoom.delegate?.room?(gotNewComment: c)
+                        if !c.isInvalidated {
+                            mainRoom.delegate?.room?(gotNewComment: c)
+                        }
                     }
                 }
             }
