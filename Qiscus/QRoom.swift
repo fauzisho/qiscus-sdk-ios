@@ -17,11 +17,6 @@ import SwiftyJSON
     case file
 }
 
-@objc public enum QRoomType:Int{
-    case single
-    case group
-}
-
 public class QRoom: RoomModel {
     public var lastCommentMessage: QComment{
         get{
@@ -32,17 +27,6 @@ public class QRoom: RoomModel {
     public var roomName : String{
         get{
             return name
-        }
-    }
-    
-    public var roomType : QRoomType{
-        get{
-            if chatType != "single" {
-                return QRoomType.group
-            }else{
-                return QRoomType.single
-            }
-            
         }
     }
     
@@ -91,7 +75,14 @@ public class QRoom: RoomModel {
         }
     }
     
-    public class func getAllRoom(withLimit limit:Int = 100, page:Int? = nil, onSuccess:@escaping (([QRoom],Int)->Void), onFailed: @escaping ((String)->Void)){
+    /// getAllRoom
+    ///
+    /// - Parameters:
+    ///   - limit: default limit 100
+    ///   - page: default page 1
+    ///   - onSuccess: will return QRoom object and total room
+    ///   - onFailed: will return error message
+    public class func getAllRoom(withLimit limit:Int = 100, page:Int? = 1, onSuccess:@escaping (([QRoom],Int)->Void), onFailed: @escaping ((String)->Void)){
         QiscusCore.shared.getAllRoom(limit: limit, page: page) { (qRoom, metaData, error) in
             if let qRoomData = qRoom {
                 if(metaData != nil){

@@ -251,6 +251,11 @@ public class Qiscus {
         }
     }
     
+    /// Get room with room id
+    ///
+    /// - Parameters:
+    ///   - withID: existing roomID from server or local db.
+    ///   - completion: Response Qiscus Room Object and error if exist.
     public class func room(withId roomId:String, onSuccess:@escaping ((QRoom)->Void),onError:@escaping ((String)->Void)){
         return QiscusCore.shared.getRoom(withID: roomId, completion: { (qRoom, error) in
             if(qRoom != nil){
@@ -261,6 +266,11 @@ public class Qiscus {
         })
     }
     
+    /// Get room by channel name
+    ///
+    /// - Parameters:
+    ///   - channel: channel name or channel id
+    ///   - completion: Response Qiscus Room Object and error if exist.
     public class func room(withChannel channelName:String, onSuccess:@escaping ((QRoom)->Void),onError:@escaping ((String)->Void)){
         return QiscusCore.shared.getRoom(withChannel: channelName, completion: { (qRoom, error) in
             if(qRoom != nil){
@@ -271,6 +281,11 @@ public class Qiscus {
         })
     }
     
+    /// Get or create room with participant / create 1 on 1 chat
+    ///
+    /// - Parameters:
+    ///   - withUsers: Qiscus user emaial.
+    ///   - completion: Qiscus Room Object and error if exist.
     public class func room(withUserId: String, onSuccess:@escaping ((QRoom)->Void),onError:@escaping ((String)->Void)){
         return QiscusCore.shared.getRoom(withUser: withUserId, completion: { (qRoom, error) in
             if(qRoom != nil){
@@ -281,6 +296,11 @@ public class Qiscus {
         })
     }
     
+    
+    /// open chat wit roomId
+    ///
+    /// - Parameter withRoomId: roomId
+    /// - Returns: will return ViewController chat
     public func chatView(withRoomId: String) -> QiscusChatVC {
         let chatRoom = QiscusChatVC()
         if !Qiscus.sharedInstance.connected {
@@ -297,12 +317,29 @@ public class Qiscus {
         return chatVC
     }
     
+    /// Get Nonce from SDK server. use when login with JWT
+    ///
+    /// - Parameter completion: @escaping with Optional(QNonce) and String Optional(error)
     public func getNonce(onSuccess:@escaping ((String)->Void), onFailed:@escaping ((String)->Void), secureURL:Bool = true){
         QiscusCore.getNonce { (nonceData, error) in
-            onSuccess((nonceData?.nonce)!)
+            if let nonce = nonceData {
+                onSuccess((nonceData?.nonce)!)
+            }else{
+                if let errorMessage = error {
+                    onFailed(errorMessage)
+                }
+            }
+            
         }
     }
     
+    /// fetchAllRoom
+    ///
+    /// - Parameters:
+    ///   - limit: default limit 100
+    ///   - page: default page 1
+    ///   - onSuccess: will return QRoom object and total room
+    ///   - onFailed: will return error message
     public class func fetchAllRoom(loadLimit:Int = 0, onSuccess:@escaping (([QRoom])->Void),onError:@escaping ((String)->Void)){
         var page = 1
         var limit = 100
@@ -921,14 +958,44 @@ public class Qiscus {
         
     }
     
+    /// Create new Group room
+    ///
+    /// - Parameters:
+    ///   - withName: Name of group
+    ///   - participants: arrau of user id/qiscus email
+    ///   - completion: Response Qiscus Room Object and error if exist.
+    
+    
+    /// Create new Group room
+    ///
+    /// - Parameters:
+    ///   - usersId: array of user id/qiscus email
+    ///   - roomName: name of group
+    ///   - avatarURL: avatar url of group
+    ///   - onSuccess: response Qiscus Room Object
+    ///   - onError: Response Qiscus error message
     public class func newRoom(withUsers usersId:[String], roomName: String, avatarURL:String = "", onSuccess:@escaping ((QRoom)->Void),onError:@escaping ((String)->Void)){
         if roomName.trimmingCharacters(in: .whitespacesAndNewlines) != "" {
             
             if avatarURL.isEmpty {
                 QiscusCore.shared.createGroup(withName: roomName, participants: usersId, avatarUrl: nil) { (qRoom, error) in
+                    if let qRoomData = qRoom{
+                        onSuccess(qRoomData as! QRoom)
+                    }else{
+                        if let errorMessage = error {
+                            onError(errorMessage)
+                        }
+                    }
                 }
             }else{
                 QiscusCore.shared.createGroup(withName: roomName, participants: usersId, avatarUrl: URL(string: avatarURL)) { (qRoom, error) in
+                    if let qRoomData = qRoom{
+                        onSuccess(qRoomData as! QRoom)
+                    }else{
+                        if let errorMessage = error {
+                            onError(errorMessage)
+                        }
+                    }
                 }
             }
         }else{
@@ -936,25 +1003,46 @@ public class Qiscus {
         }
     }
     
+    /// Get room with room id
+    ///
+    /// - Parameters:
+    ///   - withID: existing roomID from server or local db.
+    ///   - completion: Response Qiscus Room Object and error if exist.
     public class func roomInfo(withId id:String, onSuccess:@escaping ((QRoom)->Void), onError: @escaping ((String)->Void)){
         QiscusCore.shared.getRoom(withID: id) { (qRoom, error) in
             if(qRoom != nil){
                 onSuccess(qRoom as! QRoom)
             }else{
-                onError((error?.message)!)
+                if let errorMessage = error {
+                    onError(errorMessage.message)
+                }
+                
             }
         }
     }
     
+    /// Get Room info
+    ///
+    /// - Parameters:
+    ///   - withId: array of room id
+    ///   - completion: Response new Qiscus Room Object and error if exist.
     public class func roomsInfo(withIds ids:[String], onSuccess:@escaping (([QRoom])->Void), onError: @escaping ((String)->Void)){
         QiscusCore.shared.getRooms(withId: ids) { (qRooms, error) in
             if(qRooms != nil){
                 onSuccess(qRooms as! [QRoom])
             }else{
-                onError((error?.message)!)
+                if let errorMessage = error {
+                    onError(errorMessage.message)
+                }
             }
         }
     }
+    
+    /// Get room by channel name
+    ///
+    /// - Parameters:
+    ///   - channel: channel name or channel id
+    ///   - completion: Response Qiscus Room Object and error if exist.
     public class func channelInfo(withName name:String, onSuccess:@escaping ((QRoom)->Void), onError: @escaping ((String)->Void)){
         QiscusCore.shared.getRoom(withChannel: name) { (qRoom, error) in
             if(qRoom != nil){
@@ -965,6 +1053,11 @@ public class Qiscus {
         }
     }
     
+    /// Get Room info
+    ///
+    /// - Parameters:
+    ///   - ids: Unique room id
+    ///   - completion: Response new Qiscus Room Object and error if exist.
     public class func channelsInfo(withNames names:[String], onSuccess:@escaping (([QRoom])->Void), onError: @escaping ((String)->Void)){
         QiscusCore.shared.getRooms(withUniqueId: names) { (qRooms, error) in
             if(qRooms != nil){
@@ -1030,6 +1123,25 @@ public class Qiscus {
                 }
             }
             
+        }
+    }
+    
+    
+    /// getList Participant
+    ///
+    /// - Parameters:
+    ///   - id: roomId
+    ///   - onSuccess: will return array QMember
+    ///   - onError: will return error message
+    public class func listParticipant(onRoom id: String, onSuccess:@escaping ([QMember])->Void, onError: @escaping (String)->Void){
+        QiscusCore.shared.getParticipant(roomId: id) { (qMembersUser, error) in
+            if let qMembers = qMembersUser {
+                onSuccess(qMembers as! [QMember])
+            }else{
+                if let errorMessage = error {
+                    onError(errorMessage.message)
+                }
+            }
         }
     }
     
