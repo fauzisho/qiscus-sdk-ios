@@ -14,7 +14,7 @@ s.source_files  = "Qiscus/**/*.{swift}"
 s.resource_bundles = {
     'Qiscus' => ['Qiscus/**/*.{xcassets,imageset}']
 }
-s.platform      = :ios, "9.0"
+s.platform      = :ios, "10.0"
 s.dependency 'QiscusCore'
 s.dependency 'QiscusUI'
 
