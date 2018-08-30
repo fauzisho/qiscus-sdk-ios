@@ -394,6 +394,17 @@ Qiscus.room(withId: roomId!, onSuccess: { (room) in
         }
 ```
 
+### Add participant in a Room
+
+```
+Qiscus.addParticipant(onRoomId: "123", userIds: ["123"], onSuccess: { (qRoom) in }) { (userIds, id) in }
+```
+
+### Remove participant in a Room
+```
+Qiscus.removeParticipant(onRoom: "123", userIds: ["123"], onSuccess: { (qRoom) in }) { (userIds, id) in }
+```
+
 ## Statuses
 
 ### Publish Start Typing
