@@ -131,93 +131,49 @@ public class QComment: CommentModel {
     }
     
     //Todo search comment from local
-    internal class func comments(searchQuery: String) -> [QComment] {
-//        if Thread.isMainThread {
-//            let realm = try! Realm(configuration: Qiscus.dbConfiguration)
-//            realm.refresh()
-//            
-//            let comments = realm.objects(QComment.self).filter({ (comment) -> Bool in
-//                return comment.text.lowercased().contains(searchQuery.lowercased())
-//            })
-//            
-//            return Array(comments)
-//        }
-//        
-        return [QComment]()
-    }
-    
-    //Todo call resendPendingMessage
-    internal class func resendPendingMessage(){
+    internal class func comments(searchQuery: String, onSuccess:@escaping (([QComment])->Void), onFailed: @escaping ((String)->Void)){
+        let comments = QiscusCore.dataStore.getComments().filter({ (comment) -> Bool in
+            return comment.message.lowercased().contains(searchQuery.lowercased())
+        })
         
+        if(comments.count == 0){
+            onFailed("Comment not found")
+        }else{
+            onSuccess(comments as! [QComment])
+        }
     }
     
-     //Todo get model comment
-    internal class func tempComment(fromJSON json:JSON)->QComment?{
-        return nil
+    /// will post pending message when internet connection is available
+    internal class func resendPendingMessage(){
+        let comments = QiscusCore.dataStore.getComments().filter({ (comment) in comment.status.rawValue.lowercased() == "failed".lowercased() ||  comment.status.rawValue.lowercased() == "pending".lowercased() })
+        
+        for comment in comments {
+            QRoom.getRoom(withId: comment.roomId) { (qRoomData, error) in
+                if let qRoom = qRoomData {
+                    qRoomData?.post(comment: comment as! QComment)
+                }
+            }
+        }
     }
     
-//    public class func decodeDictionary(data:[AnyHashable : Any]) -> QComment? {
-//        if let isQiscusdata = data["qiscus_commentdata"] as? Bool{
-//            if isQiscusdata {
-//                let temp = QComment()
-//                if let uniqueId = data["qiscus_uniqueId"] as? String{
-//                    temp.uniqueTempId = uniqueId
-//                }
-//                if let id = data["qiscus_id"] as? String {
-//                    temp.id = id
-//                }
-//                if let roomId = data["qiscus_roomId"] as? String {
-//                    temp.roomId = roomId
-//                }
-//                if let beforeId = data["qiscus_beforeId"] as? Int {
-//                    temp.commentBeforeId = beforeId
-//                }
-//                if let text = data["qiscus_text"] as? String {
-//                    temp.message = text
-//                }
-//                if let createdAt = data["qiscus_createdAt"] as? Int{
-//                    temp.unixTimestamp = createdAt
-//                }
-//                if let email = data["qiscus_senderEmail"] as? String{
-//                    temp.email = email
-//                }
-//                if let name = data["qiscus_senderName"] as? String{
-//                    temp.username = name
-//                }
-//                if let statusRaw = data["qiscus_statusRaw"] as? String {
-//                    temp.status = statusRaw
-//                }
-//                if let typeRaw = data["qiscus_typeRaw"] as? String {
-//                    temp.type = CommentType(rawValue: typeRaw)!
-//                }
-//                if let payload = data["qiscus_data"] as? String {
-//                    //temp.payloadData = payload
-//                }
-//                
-//                return temp
-//            }
-//        }
-//        return nil
-//    }
-//    
-//    public func encodeDictionary()->[AnyHashable : Any]{
-//        var data = [AnyHashable : Any]()
-//        
-//        data["qiscus_commentdata"] = true
-//        data["qiscus_uniqueId"] = self.uniqueTempId
-//        data["qiscus_id"] = self.id
-//        data["qiscus_roomId"] = self.roomId
-//        data["qiscus_beforeId"] = self.commentBeforeId
-//        data["qiscus_text"] = self.text
-//        data["qiscus_createdAt"] = self.createdAt
-//        data["qiscus_senderEmail"] = self.senderEmail
-//        data["qiscus_senderName"] = self.senderName
-//        data["qiscus_statusRaw"] = self.status
-//        data["qiscus_typeRaw"] = self.type
-//        data["qiscus_data"] = self.payloadData
-//        
-//        return data
-//    }
+    public func encodeDictionary()->[AnyHashable : Any]{
+        var data = [AnyHashable : Any]()
+        
+        data["qiscus_commentdata"] = true
+        data["qiscus_uniqueId"] = self.uniqueTempId
+        data["qiscus_id"] = self.id
+        data["qiscus_roomId"] = self.roomId
+        data["qiscus_beforeId"] = self.commentBeforeId
+        data["qiscus_text"] = self.message
+        data["qiscus_createdAt"] = self.unixTimestamp
+        data["qiscus_senderEmail"] = self.userEmail
+        data["qiscus_senderName"] = self.username
+        data["qiscus_statusRaw"] = self.status
+        data["qiscus_typeRaw"] = self.type
+        data["qiscus_data"] = self.payloadData
+        
+        return data
+    }
     
     public class QCommentInfo: NSObject {
         public var comment:QComment?
@@ -252,60 +208,23 @@ public class QComment: CommentModel {
         }
     }
     
-    //Todo Need To be Implement
-    public func forward(toRoomWithId roomId: String){
-//        let comment = QComment()
-//        let time = Double(Date().timeIntervalSince1970)
-//        let timeToken = UInt64(time * 10000)
-//        let uniqueID = "ios-\(timeToken)"
-//
-//        comment.uniqueId = uniqueID
-//        comment.roomId = roomId
-//        comment.text = self.text
-//        comment.createdAt = Double(Date().timeIntervalSince1970)
-//        comment.senderEmail = Qiscus.client.email
-//        comment.senderName = Qiscus.client.userName
-//        comment.statusRaw = QCommentStatus.sending.rawValue
-//        comment.data = self.data
-//        comment.typeRaw = self.type.name()
-//        comment.rawExtra = self.rawExtra
-//
-//        if self.type == .reply {
-//            comment.typeRaw = QCommentType.text.name()
-//        }
-//
-//        var file:QFile? = nil
-//
-//        if let fileRef = self.file {
-//            file = QFile()
-//            file!.id = uniqueID
-//            file!.roomId = roomId
-//            file!.url = fileRef.url
-//            file!.filename = fileRef.filename
-//            file!.senderEmail = Qiscus.client.email
-//            file!.localPath = fileRef.localPath
-//            file!.mimeType = fileRef.mimeType
-//            file!.localThumbPath = fileRef.localThumbPath
-//            file!.localMiniThumbPath = fileRef.localMiniThumbPath
-//            file!.pages = fileRef.pages
-//            file!.size = fileRef.size
-//        }
-//
-//        if let room = QRoom.room(withId: roomId){
-//            let realm = try! Realm(configuration: Qiscus.dbConfiguration)
-//            realm.refresh()
-//            if file != nil {
-//                try! realm.write {
-//                    realm.add(file!, update:true)
-//                }
-//            }
-//            room.addComment(newComment: comment)
-//            room.post(comment: comment, onSuccess: {
-//
-//            }, onError: { (error) in
-//                Qiscus.printLog(text: "error \(error)")
-//            })
-//        }
+    
+    /// forward to other roomId
+    ///
+    /// - Parameters:
+    ///   - roomId: roomId
+    ///   - onSuccess: will return success
+    ///   - onError: will return error message
+    public func forward(toRoomWithId roomId: String, onSuccess:@escaping ()->Void, onError:@escaping (String)->Void){
+        QiscusCore.shared.sendMessage(roomID: roomId, comment: self) { (qCommentData, error) in
+            if let qComment = qCommentData {
+                onSuccess()
+            }else{
+                if let errorMessage = error {
+                    onError(errorMessage.message)
+                }
+            }
+        }
         
     }
     
@@ -321,7 +240,9 @@ public class QComment: CommentModel {
             if let qCommentsData = qComments{
                 onSuccess(qCommentsData as! [QComment])
             }else{
-                onError((error?.message)!)
+                if let errorMessage = error {
+                    onError(errorMessage.message)
+                }
             }
         }
     }
