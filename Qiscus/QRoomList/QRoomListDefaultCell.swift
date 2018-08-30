@@ -78,13 +78,9 @@ class QRoomListDefaultCell: QRoomListCell {
     func setupAvatar(){
         self.avatarView.image = Qiscus.image(named: "avatar")
         if let thisRoom = self.room{
-            thisRoom.loadAvatar(onSuccess: { (avatar) in
-                self.avatarView.image = avatar
-            }, onError: { (_) in
-                if let r = self.room {
-                   // r.downloadRoomAvatar()
-                }
-            })
+            if let avatarUrl = thisRoom.avatarUrl {
+                 self.avatarView.af_setImage(withURL: avatarUrl)
+            }
         }
     }
     func setupUnreadIndicator(){
