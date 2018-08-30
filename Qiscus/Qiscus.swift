@@ -364,29 +364,44 @@ public class Qiscus {
     
     /// subscribe room notification
     public func subscribeAllRoomNotification(){
-        //        QiscusBackgroundThread.async { autoreleasepool {
-        //            let rooms = QRoom.all()
-        //            for room in rooms {
-        //                room.subscribeRealtimeStatus()
-        //            }
-        //            }}
+        QiscusCore.connect()
     }
     
-    //TODO NEED TO BE IMPLEMENT search Comment
     /// search local message comment
     ///
     /// - Parameter searchQuery: query to search
     /// - Returns: array of QComment obj
-    public func searchComment(searchQuery: String) -> [QComment]? {
-        return nil
+    public class func searchComment(searchQuery: String, onSuccess:@escaping (([QComment])->Void), onFailed: @escaping ((String)->Void)){
+        let comments = QiscusCore.dataStore.getComments().filter({ (comment) -> Bool in
+            return comment.message.lowercased().contains(searchQuery.lowercased())
+        })
+        
+        if(comments.count == 0){
+            onFailed("Comment not found")
+        }else{
+            onSuccess(comments as! [QComment])
+        }
+        
     }
     
     /// search message comment from service
     ///
-    /// - Parameter searchQuery: query to search
-    /// - Returns: array of QComment obj
-    public class func searchCommentService( withQuery text:String, room:QRoom? = nil, fromComment:QComment? = nil, onSuccess:@escaping (([QComment])->Void), onFailed: @escaping ((String)->Void)){
-        
+    /// - Parameters:
+    ///   - text: query to search
+    ///   - roomId: roomId is optional
+    ///   - lastCommentId: latCommentId is optional
+    ///   - onSuccess: response from Qiscus is array of comment
+    ///   - onFailed: response error message
+    public class func searchCommentService(withQuery text:String, roomId: String? = nil, lastCommentId:Int? = nil, onSuccess:@escaping (([QComment])->Void), onFailed: @escaping ((String)->Void)){
+        QiscusCore.shared.searchMessage(keyword: text, roomID: roomId, lastCommentId: lastCommentId, completion: { (qCommentsArray, error) in
+            if let qComments = qCommentsArray {
+                onSuccess(qComments as! [QComment])
+            }else{
+                if let errorMessage = error {
+                    onFailed(errorMessage.message)
+                }
+            }
+        })
     }
     
     /// debug print
@@ -431,15 +446,14 @@ public class Qiscus {
                     Qiscus.sharedInstance.syncProcess()
                     if let payloadData = userInfo["payload"]{
                         let jsonPayload = JSON(arrayLiteral: payloadData)[0]
+                        let commentId = jsonPayload["id"].string ?? ""
                         
-                        //TODO Need To Be implement in SDKCore
-                        //using commentBy Id
-                        let tempComment = QComment.tempComment(fromJSON: jsonPayload)
-                        
-                        if tempComment != nil {
-                            Qiscus.sharedInstance.configDelegate?.qiscus(gotSilentNotification: tempComment!, userInfo: userInfo)
+                        if commentId != "" {
+                            if let comment = QiscusCore.dataStore.getCommentbyID(id: commentId){
+                                Qiscus.sharedInstance.configDelegate?.qiscus(gotSilentNotification: comment as! QComment, userInfo: userInfo)
+                            }
+                            
                         }
-                       
                     }
                 }
             }
@@ -505,25 +519,20 @@ public class Qiscus {
         
     }
     
-    /// didREceive localnotification
+    /// didREceive local notification
     ///
     /// - Parameter notification: UILocalNotification
     public class func didReceiveNotification(notification:UILocalNotification){
         if notification.userInfo != nil {
-            //TODO NEED TO BE IMPLEMENT
-//            if let comment = QComment.decodeDictionary(data: notification.userInfo!) {
-//                var userData:[AnyHashable : Any]? = [AnyHashable : Any]()
-//                let qiscusKey:[AnyHashable] = ["qiscus_commentdata","qiscus_uniqueId","qiscus_id","qiscus_roomId","qiscus_beforeId","qiscus_text","qiscus_createdAt","qiscus_senderEmail","qiscus_senderName","qiscus_statusRaw","qiscus_typeRaw","qiscus_data"]
-//                for (key,value) in notification.userInfo! {
-//                    if !qiscusKey.contains(key) {
-//                        userData![key] = value
-//                    }
-//                }
-//                if userData!.count == 0 {
-//                    userData = nil
-//                }
-//                Qiscus.sharedInstance.configDelegate?.qiscus(didTapLocalNotification: comment, userInfo: userData)
-//            }
+            if let isQiscusdata = notification.userInfo!["qiscus_commentdata"] as? Bool{
+                if isQiscusdata {
+                    if let commentId = notification.userInfo!["qiscus_id"] as? String {
+                        if let comment = QiscusCore.dataStore.getCommentbyID(id: commentId){
+                            Qiscus.sharedInstance.configDelegate?.qiscus(didTapLocalNotification: comment as! QComment, userInfo: notification.userInfo)
+                        }
+                    }
+                }
+            }
         }
     }
     
@@ -537,8 +546,14 @@ public class Qiscus {
                     self.syncProcess()
                     if let payloadData = userInfo["payload"]{
                         let jsonPayload = JSON(arrayLiteral: payloadData)[0]
-                        let tempComment = QComment.tempComment(fromJSON: jsonPayload)
-                        Qiscus.sharedInstance.configDelegate?.qiscus(gotSilentNotification: tempComment!, userInfo: userInfo)
+                        let commentId = jsonPayload["id"].string ?? ""
+                        if commentId != "" {
+                            if let comment = QiscusCore.dataStore.getCommentbyID(id: commentId){
+                                Qiscus.sharedInstance.configDelegate?.qiscus(gotSilentNotification: comment as! QComment, userInfo: userInfo)
+                            }
+                            
+                        }
+                        
                     }
                 }
             }
@@ -744,34 +759,34 @@ public class Qiscus {
         DispatchQueue.main.async {autoreleasepool{
 
             //TODO NEED TO BE IMPLEMENT
-//            let localNotification = UILocalNotification()
-//            if let title = alertTitle {
-//                localNotification.alertTitle = title
-//            }else{
-//                localNotification.alertTitle = comment.username
-//            }
-//            if let body = alertBody {
-//                localNotification.alertBody = body
-//            }else{
-//                localNotification.alertBody = comment.message
-//            }
-//
-//            localNotification.soundName = "default"
-//            var userData = [AnyHashable : Any]()
-//
-//            if userInfo != nil {
-//                for (key,value) in userInfo! {
-//                    userData[key] = value
-//                }
-//            }
-//
-//            let commentInfo = comment.encodeDictionary()
-//            for (key,value) in commentInfo {
-//                userData[key] = value
-//            }
-//            localNotification.userInfo = userData
-//            localNotification.fireDate = Date().addingTimeInterval(0.4)
-//            Qiscus.sharedInstance.application.scheduleLocalNotification(localNotification)
+            let localNotification = UILocalNotification()
+            if let title = alertTitle {
+                localNotification.alertTitle = title
+            }else{
+                localNotification.alertTitle = comment.username
+            }
+            if let body = alertBody {
+                localNotification.alertBody = body
+            }else{
+                localNotification.alertBody = comment.message
+            }
+
+            localNotification.soundName = "default"
+            var userData = [AnyHashable : Any]()
+
+            if userInfo != nil {
+                for (key,value) in userInfo! {
+                    userData[key] = value
+                }
+            }
+
+            let commentInfo = comment.encodeDictionary()
+            for (key,value) in commentInfo {
+                userData[key] = value
+            }
+            localNotification.userInfo = userData
+            localNotification.fireDate = Date().addingTimeInterval(0.4)
+            Qiscus.sharedInstance.application.scheduleLocalNotification(localNotification)
             }}
     }
     
@@ -891,6 +906,17 @@ public class Qiscus {
         return chatVC
     }
     
+    
+    /// get QiscusChatVC with withRoomUniqueId
+    ///
+    /// - Parameters:
+    ///   - uniqueId: uniqueId
+    ///   - readOnly: readOnly
+    ///   - title: title of room
+    ///   - avatarUrl: avatar url of room
+    ///   - subtitle: subtitle
+    ///   - withMessage: withMessage
+    /// - Returns: QiscusChatVC to be presented or pushed
     public class func chatView(withRoomUniqueId uniqueId:String, readOnly:Bool = false, title:String = "", avatarUrl:String = "", subtitle:String = "", withMessage:String? = nil)->QiscusChatVC{
         
         let chatVC = QiscusChatVC()
@@ -926,9 +952,15 @@ public class Qiscus {
         return chatVC
     }
     
-    //will return qRooms and totalRooms
-    public class func roomList(withLimit: Int, page: Int,onSuccess:@escaping (([QRoom],Int)->Void), onFailed: @escaping ((String)->Void)){
-        QRoom.getAllRoom(withLimit: withLimit, page: page, onSuccess: { (qRoom, totalRoom) in
+    /// get allroom
+    ///
+    /// - Parameters:
+    ///   - withLimit: limit is optional, default limit is 100
+    ///   - page: page is optional, default page is 1
+    ///   - onSuccess: will return qRooms and totalRooms
+    ///   - onFailed: will return error message
+    public class func roomList(withLimit: Int? = 100, page: Int? = 1,onSuccess:@escaping (([QRoom],Int)->Void), onFailed: @escaping ((String)->Void)){
+        QRoom.getAllRoom(withLimit: withLimit!, page: page, onSuccess: { (qRoom, totalRoom) in
             onSuccess(qRoom,totalRoom)
         }) { (error) in
             onFailed(error)
