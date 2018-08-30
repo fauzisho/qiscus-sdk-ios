@@ -36,17 +36,13 @@ public class QRoom: RoomModel {
         }
     }
     
-    //Todo Need to be implement from qiscus core
-    public func loadAvatar(onSuccess:  @escaping (UIImage)->Void, onError:  @escaping (String)->Void){
-        
-    }
-    
-    /// Need get data from localdatabase
+    /// getAllRooms from local db
     ///
-    /// - Returns: [QRoom]
+    /// - Returns: will return QRoom
     public class func all() -> [QRoom]?{
+        let rooms = QiscusCore.dataStore.getRooms() as! [QRoom]
+        return rooms
         
-        return nil
     }
     
     public class func getRoom(withId: String, completion: @escaping (QRoom?, String?) -> Void) {
@@ -59,8 +55,14 @@ public class QRoom: RoomModel {
         }
     }
     
-    //will return rooms, totalRoom, currentPage, limit
-    public class func roomList(withLimit limit:Int = 100, page:Int? = nil, showParticipant:Bool = true, onSuccess:@escaping (([QRoom],Int)->Void), onFailed: @escaping ((String)->Void)){
+    /// get allroom
+    ///
+    /// - Parameters:
+    ///   - withLimit: limit is optional, default limit is 100
+    ///   - page: page is optional, default page is 1
+    ///   - onSuccess: will return qRooms and totalRooms
+    ///   - onFailed: will return error message
+    public class func roomList(withLimit limit:Int = 100, page:Int? = 1, showParticipant:Bool = true, onSuccess:@escaping (([QRoom],Int)->Void), onFailed: @escaping ((String)->Void)){
         
         QiscusCore.shared.getAllRoom(limit: limit, page: page) { (qRoom, metaData, error) in
             if let qRoomData = qRoom {
@@ -82,7 +84,7 @@ public class QRoom: RoomModel {
     ///   - page: default page 1
     ///   - onSuccess: will return QRoom object and total room
     ///   - onFailed: will return error message
-    public class func getAllRoom(withLimit limit:Int = 100, page:Int? = 1, onSuccess:@escaping (([QRoom],Int)->Void), onFailed: @escaping ((String)->Void)){
+    public class func getAllRoom(withLimit limit:Int? = 100, page:Int? = 1, onSuccess:@escaping (([QRoom],Int)->Void), onFailed: @escaping ((String)->Void)){
         QiscusCore.shared.getAllRoom(limit: limit, page: page) { (qRoom, metaData, error) in
             if let qRoomData = qRoom {
                 if(metaData != nil){
@@ -100,6 +102,10 @@ public class QRoom: RoomModel {
         }
     }
     
+    
+    /// getUnreadCount from service
+    ///
+    /// - Parameter completion: will return unreadCount
     public class func getUnreadCount(completion: @escaping (Int) -> Void){
         QiscusCore.shared.getAllRoom() { (qRoom,meta,error) in
             var countUnread = 0
@@ -113,6 +119,29 @@ public class QRoom: RoomModel {
         }
     }
     
+    /// getUnreadCount from local db
+    ///
+    /// - Parameter completion: will return unreadCount
+    public class func getLocalUnreadCount(completion: @escaping (Int) -> Void){
+        let qRooms = QiscusCore.dataStore.getRooms()
+        var countUnread = 0
+        for room in qRooms.enumerated() {
+            countUnread = countUnread + room.element.unreadCount
+        }
+        
+        completion(countUnread)
+    }
+    
+    
+    /// update room
+    ///
+    /// - Parameters:
+    ///   - withID: id of room
+    ///   - roomName: room of name
+    ///   - roomAvatarURL: avatar of room
+    ///   - roomOptions: roomOption
+    ///   - onSuccess: will return QRoom model
+    ///   - onError: will return error message
     public func update(withID: String, roomName:String? = nil, roomAvatarURL:String? = nil, roomOptions:String? = nil, onSuccess:@escaping ((_ room: QRoom)->Void),onError:@escaping ((_ error: String)->Void)){
         
         var roomAvatarUrl: URL? = nil
@@ -124,14 +153,24 @@ public class QRoom: RoomModel {
             if let qRoomData = qRoom {
                 onSuccess(qRoom as! QRoom)
             }else{
-                onError((error?.message)!)
+                if let errorMessage = error {
+                    onError(errorMessage.message)
+                }
             }
             
         }
         
     }
     
-    public func newComment(text:String, payload:JSON? = nil,type:QCommentType = .text)->QComment{
+    
+    /// create NewComment
+    ///
+    /// - Parameters:
+    ///   - text: message comment
+    ///   - payload: payload
+    ///   - type: QCommentType, default is text
+    /// - Returns: will return QComment model
+    public func newComment(roomId: String, text:String, payload:JSON? = nil,type:QCommentType = .text)->QComment{
         // create object comment
         let message = QComment.init()
         message.message = text
@@ -142,7 +181,14 @@ public class QRoom: RoomModel {
         return message
     }
     
-    //TODO RoomID??? cannot write roomId from QiscusSDKCore
+    
+    /// newCutomComment
+    ///
+    /// - Parameters:
+    ///   - type: type
+    ///   - payload: payload
+    ///   - text: text
+    /// - Returns: will return QComment model
     public func newCustomComment(type:String, payload:String, text:String? = nil )->QComment{
         let comment = QComment.init()
         let payloadData = JSON(parseJSON: payload)
@@ -161,10 +207,17 @@ public class QRoom: RoomModel {
         }else{
             comment.message = text!
         }
-        //comment.roomId = roomId
+        
         return comment
     }
     
+    
+    /// postComment
+    ///
+    /// - Parameters:
+    ///   - comment: commment model
+    ///   - type: type is optional
+    ///   - payload: payload is optional
     public func post(comment:QComment, type:String? = nil, payload:JSON? = nil){
         comment.payload = payload?.dictionary
         if type != nil && !(type?.isEmpty)! {
@@ -177,6 +230,15 @@ public class QRoom: RoomModel {
     }
     
     //TODO NEED TO BE IMPLEMENT newFileComment
+    /// newFileComment
+    ///
+    /// - Parameters:
+    ///   - type: file type
+    ///   - filename: filename
+    ///   - caption: caption
+    ///   - data: data
+    ///   - thumbImage: thumbImage
+    /// - Returns: will return QComment model
     public func newFileComment(type: QiscusFileType, filename:String = "", caption:String = "", data:Data? = nil, thumbImage:UIImage? = nil)->QComment{
         let comment = QComment.init()
         let fileNameArr = filename.split(separator: ".")
@@ -281,7 +343,16 @@ public class QRoom: RoomModel {
         }
     }
     
-    public func loadMore(roomID: String, lastCommentID: Int, limit: Int, onSuccess:@escaping ([QComment],Bool)->Void, onError:@escaping (String)->Void){
+    
+    /// loadMore Comment
+    ///
+    /// - Parameters:
+    ///   - roomID: roomId
+    ///   - lastCommentID: lastCommentId
+    ///   - limit: default limit is 20
+    ///   - onSuccess: will return array of QComment
+    ///   - onError: will return error message
+    public func loadMore(roomID: String, lastCommentID: Int, limit: Int? = 20, onSuccess:@escaping ([QComment],Bool)->Void, onError:@escaping (String)->Void){
         QiscusCore.shared.loadMore(roomID: roomID, lastCommentID: lastCommentID, limit: limit) { (qComments, error) in
             if let qCommentsData = qComments{
                 var hasMoreMessages : Bool = true
@@ -290,7 +361,9 @@ public class QRoom: RoomModel {
                 }
                 onSuccess(qCommentsData as! [QComment], hasMoreMessages)
             }else{
-                onError((error?.message)!)
+                if let errorMessage = error {
+                     onError(errorMessage.message)
+                }
             }
         }
     }
@@ -316,14 +389,25 @@ public class QRoom: RoomModel {
         }
     }
     
+    /// publishStartTyping
+    ///
+    /// - Parameter roomID: roomId
     public func publishStartTyping(roomID: String){
         QiscusCore.shared.isTyping(true, roomID: roomID)
     }
     
+    /// publishStopTyping
+    ///
+    /// - Parameter roomID: roomId
     public func publishStopTyping(roomID: String){
         QiscusCore.shared.isTyping(false, roomID: roomID)
     }
     
+    /// publish Status Of Comment // Mark Comment as read
+    ///
+    /// - Parameters:
+    ///   - roomId: roomId
+    ///   - commentId: commentID
     public class func publishStatus(roomId:String, commentId:String){
         QiscusCore.shared.updateCommentRead(roomId: roomId, lastCommentReadId: commentId)
     }
