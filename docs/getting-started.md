@@ -277,8 +277,15 @@ class ViewController: UIViewController {
 
 ### Participant Management
 
-In some cases, you may need to add additional participants into your room chat or even removing any participant. Currently, Qiscus Chat SDK only allow you to manage your users server to server. You cannot do it on your client app side. Hence, we recommend to invite and remove user out of specific room through our SERVER API for simplicity and security reason. You can learn how to use [Server API](https://www.qiscus.com/docs/restapi). 
+In some cases, you may need to add additional participants into your room chat or even removing any participant. Currently, Qiscus Chat SDK allow you or even removing any participant. This two methods you can use to managing participant.
 
+```javascript
+Qiscus.addParticipant(onRoomId: "123", userIds: ["123"], onSuccess: { (qRoom) in }) { (userIds, id) in }	
+```
+
+```javascript
+Qiscus.removeParticipant(onRoom: "123", userIds: ["123"], onSuccess: { (qRoom) in }) { (userIds, id) in }
+```
 
 ## Enable Push Notification
 
