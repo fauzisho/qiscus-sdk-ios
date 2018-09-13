@@ -95,18 +95,18 @@ public class QComment: CommentModel {
         get{
             return "payload still harcode"
         }
-
+        
         set{
             //payloadData = newValue
         }
     }
-
+    
     //need extras string from QComment
     public var extrasData : String {
         get{
             return "extras still harcode"
         }
-
+        
         set{
            // extrasData = newValue
         }
@@ -119,10 +119,20 @@ public class QComment: CommentModel {
         
     }
     
+    public var date: String {
+        get {
+            let date = Date(timeIntervalSince1970: TimeInterval(self.unixTimestamp))
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "d MMMM yyyy"
+            let dateString = dateFormatter.string(from: date)
+            
+            return dateString
+        }
+    }
+    
     //Todo search comment from local
     internal class func comments(searchQuery: String, onSuccess:@escaping (([QComment])->Void), onFailed: @escaping ((String)->Void)){
-        
-        let comments = QiscusCore.database.comment.all().filter({ (comment) -> Bool in
+        let comments = QiscusCore.dataStore.getComments().filter({ (comment) -> Bool in
             return comment.message.lowercased().contains(searchQuery.lowercased())
         })
         
@@ -135,8 +145,7 @@ public class QComment: CommentModel {
     
     /// will post pending message when internet connection is available
     internal class func resendPendingMessage(){
-        
-        let comments = QiscusCore.database.comment.all().filter({ (comment) in comment.status.rawValue.lowercased() == "failed".lowercased() ||  comment.status.rawValue.lowercased() == "pending".lowercased() })
+        let comments = QiscusCore.dataStore.getComments().filter({ (comment) in comment.status.rawValue.lowercased() == "failed".lowercased() ||  comment.status.rawValue.lowercased() == "pending".lowercased() })
         
         for comment in comments {
             QRoom.getRoom(withId: comment.roomId) { (qRoomData, error) in
@@ -151,7 +160,7 @@ public class QComment: CommentModel {
         var data = [AnyHashable : Any]()
         
         data["qiscus_commentdata"] = true
-        data["qiscus_uniqueId"] = self.uniqId
+        data["qiscus_uniqueId"] = self.uniqueTempId
         data["qiscus_id"] = self.id
         data["qiscus_roomId"] = self.roomId
         data["qiscus_beforeId"] = self.commentBeforeId
@@ -161,7 +170,7 @@ public class QComment: CommentModel {
         data["qiscus_senderName"] = self.username
         data["qiscus_statusRaw"] = self.status
         data["qiscus_typeRaw"] = self.type
-        data["qiscus_data"] = self.payload
+        data["qiscus_data"] = self.payloadData
         
         return data
     }
@@ -237,25 +246,5 @@ public class QComment: CommentModel {
             }
         }
     }
-    
-//    public func fileName(text:String) ->String{
-//        let url = getAttachmentURL(message: text)
-//        var fileName:String = ""
-//        
-//        let remoteURL = url.replacingOccurrences(of: " ", with: "%20").replacingOccurrences(of: "’", with: "%E2%80%99")
-//        
-//        if let mediaURL = URL(string: remoteURL) {
-//            fileName = mediaURL.lastPathComponent.replacingOccurrences(of: "%20", with: "_")
-//        }
-//        
-//        return fileName
-//    }
-//    
-//    public func getAttachmentURL(message: String) -> String {
-//        let component1 = message.components(separatedBy: "[file]")
-//        let component2 = component1.last!.components(separatedBy: "[/file]")
-//        let mediaUrlString = component2.first?.trimmingCharacters(in: CharacterSet.whitespaces).replacingOccurrences(of: " ", with: "%20")
-//        return mediaUrlString!
-//    }
     
 }

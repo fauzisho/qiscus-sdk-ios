@@ -10,8 +10,10 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CustomChatInput" customModule="Example" customModuleProvider="target">
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CustomChatInput" customModule="Qiscus" customModuleProvider="target">
             <connections>
+                <outlet property="attachButton" destination="eX8-dS-8SK" id="Hfi-oJ-JQY"/>
+                <outlet property="sendButton" destination="KIv-HR-J1D" id="zYB-tv-zsb"/>
                 <outlet property="textField" destination="oKn-dc-97b" id="DpP-mX-jRf"/>
             </connections>
         </placeholder>
@@ -70,7 +72,7 @@
                         <constraint firstAttribute="height" constant="50" id="MN8-zC-0Qv"/>
                     </constraints>
                     <color key="tintColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                    <state key="normal" image="attach"/>
+                    <state key="normal" image="share_attachment"/>
                     <connections>
                         <action selector="clickAttachment:" destination="-1" eventType="touchUpInside" id="kun-jy-4MV"/>
                     </connections>
@@ -105,7 +107,7 @@
         </view>
     </objects>
     <resources>
-        <image name="attach" width="21" height="21"/>
-        <image name="send" width="21" height="21"/>
+        <image name="send" width="28" height="28"/>
+        <image name="share_attachment" width="28" height="28"/>
     </resources>
 </document>

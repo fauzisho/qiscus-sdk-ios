@@ -6,8 +6,10 @@
 //
 
 import UIKit
+import QiscusUI
+import QiscusCore
 
-class QReplyRightCell: UITableViewCell {
+class QReplyRightCell: UIBaseChatCell {
 
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -18,6 +20,19 @@ class QReplyRightCell: UITableViewCell {
         super.setSelected(selected, animated: animated)
 
         // Configure the view for the selected state
+    }
+    
+    override func present(message: CommentModel) {
+        // parsing payload
+        self.bindData(message: message)
+        
+    }
+    
+    override func update(message: CommentModel) {
+        self.bindData(message: message)
+    }
+    
+    func bindData(message: CommentModel){
     }
     
 }

@@ -15,6 +15,8 @@ import SwiftyJSON
     case video
     case audio
     case file
+    case document
+    case pdf
 }
 
 public class QRoom: RoomModel {
@@ -246,7 +248,7 @@ public class QRoom: RoomModel {
         
         var fileName = filename.lowercased()
         if fileName == "asset.jpg" || fileName == "asset.png" {
-            fileName = "\(comment.uniqueTempId).\(fileExt)"
+            fileName = "\(comment.uniqId).\(fileExt)"
         }
         
         let payload = "{\"url\":\"\(fileName)\", \"caption\": \"\(caption)\"}"

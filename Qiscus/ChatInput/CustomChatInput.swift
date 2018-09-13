@@ -16,11 +16,13 @@ protocol CustomChatInputDelegate {
 
 class CustomChatInput: UIChatInput {
     
+    @IBOutlet weak var sendButton: UIButton!
+    @IBOutlet weak var attachButton: UIButton!
     @IBOutlet weak var textField: UITextField!
     var delegate : CustomChatInputDelegate? = nil
     
     override func commonInit(nib: UINib) {
-        let nib = UINib(nibName: "CustomChatInput", bundle: Bundle.main)
+        let nib = UINib(nibName: "CustomChatInput", bundle: Qiscus.bundle)
         super.commonInit(nib: nib)
     }
     

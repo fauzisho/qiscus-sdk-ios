@@ -47,6 +47,7 @@ class QTextLeftCell: UIBaseChatCell {
         self.lbName.text = message.username
         self.lbTime.text = self.hour(date: message.date())
         self.tvContent.text = message.message
+        self.tvContent.textColor = QiscusColorConfiguration.sharedInstance.leftBaloonTextColor
         
         //if(self.firstInSection){
         lbNameHeight.constant = 21

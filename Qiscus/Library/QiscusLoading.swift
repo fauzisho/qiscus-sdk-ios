@@ -7,10 +7,12 @@
 //
 
 import UIKit
+import Foundation
 
 public extension UIViewController{
     @objc public func showQiscusLoading(withText text:String? = nil, andProgress progress:Float = 0, isBlocking:Bool = false){
-        Qiscus.uiThread.async {autoreleasepool{
+        
+        DispatchQueue.main.async {autoreleasepool{
             let loadingView = QLoadingViewController.sharedInstance
             if !loadingView.isPresence{
                 loadingView.modalTransitionStyle = .crossDissolve
@@ -41,7 +43,7 @@ public extension UIViewController{
         }}
     }
     public func dismissQiscusLoading(){
-        Qiscus.uiThread.async { autoreleasepool{
+        DispatchQueue.main.async { autoreleasepool{
             let loadingView = QLoadingViewController.sharedInstance
             if loadingView.isPresence{
                 loadingView.dismiss(animated: false, completion: {

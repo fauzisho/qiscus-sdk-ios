@@ -9,13 +9,20 @@
 import UIKit
 import Photos
 import MobileCoreServices
+import QiscusCore
+import QiscusUI
 enum QUploaderType {
     case image
     case video
 }
 
-class QiscusUploaderVC: UIViewController, UIScrollViewDelegate {
+class QiscusUploaderVC: UIViewController, UIScrollViewDelegate,UITextViewDelegate {
 
+    @IBOutlet weak var labelUploading: UILabel!
+    @IBOutlet weak var heightProgressViewCons: NSLayoutConstraint!
+    @IBOutlet weak var labelProgress: UILabel!
+    @IBOutlet weak var progressView: UIView!
+    @IBOutlet weak var containerProgressView: UIView!
     @IBOutlet weak var cancelButton: UIButton!
     @IBOutlet weak var sendButton: UIButton!
     @IBOutlet weak var scrollView: UIScrollView!
@@ -23,7 +30,7 @@ class QiscusUploaderVC: UIViewController, UIScrollViewDelegate {
     @IBOutlet weak var deleteButton: UIButton!
     @IBOutlet weak var imageCollection: UICollectionView!
     @IBOutlet weak var inputBottom: NSLayoutConstraint!
-    @IBOutlet weak var mediaCaption: ChatInputText!
+    @IBOutlet weak var mediaCaption: UITextView!
     @IBOutlet weak var minInputHeight: NSLayoutConstraint!
     @IBOutlet weak var mediaBottomMargin: NSLayoutConstraint!
     
@@ -31,12 +38,29 @@ class QiscusUploaderVC: UIViewController, UIScrollViewDelegate {
     var type = QUploaderType.image
     var data   : Data?
     var fileName :String?
-    var room    : QRoom?
-    var imageData: [QComment] = []
+    var imageData: [CommentModel] = []
     var selectedImageIndex: Int = 0
+    let maxProgressHeight:Double = 40.0
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        let keyboardToolBar = UIToolbar()
+        keyboardToolBar.sizeToFit()
+        
+        let flexibleSpace = UIBarButtonItem(barButtonSystemItem:
+            UIBarButtonSystemItem.flexibleSpace, target: nil, action: nil)
+        let doneButton = UIBarButtonItem(barButtonSystemItem:
+            UIBarButtonSystemItem.done, target: self, action: #selector(self.doneClicked) )
+        
+        keyboardToolBar.setItems([flexibleSpace, doneButton], animated: true)
+        
+        mediaCaption.inputAccessoryView = keyboardToolBar
+        
+        mediaCaption.text = QiscusTextConfiguration.sharedInstance.captionPlaceholder
+        mediaCaption.textColor = UIColor.lightGray
+        mediaCaption.delegate = self
+        
         self.qiscusAutoHideKeyboard()
         self.scrollView.delegate = self
         self.scrollView.minimumZoomScale = 1.0
@@ -44,10 +68,9 @@ class QiscusUploaderVC: UIViewController, UIScrollViewDelegate {
         let sendImage = Qiscus.image(named: "send")?.withRenderingMode(.alwaysTemplate)
         self.sendButton.setImage(sendImage, for: .normal)
         self.sendButton.tintColor = Qiscus.shared.styleConfiguration.color.topColor
-        self.cancelButton.setTitle("CANCEL".getLocalize(), for: .normal)
-        self.mediaCaption.chatInputDelegate = self
+        self.cancelButton.setTitle("Cancel", for: .normal)
+        //self.mediaCaption.chatInputDelegate = self
         self.mediaCaption.font = Qiscus.style.chatFont
-        self.mediaCaption.placeholder = QiscusTextConfiguration.sharedInstance.captionPlaceholder
         
         imageCollection.dataSource = self
         imageCollection.delegate = self
@@ -56,13 +79,61 @@ class QiscusUploaderVC: UIViewController, UIScrollViewDelegate {
         imageCollection.isHidden = true
         imageCollection.allowsSelection = true
         self.deleteButton.isHidden = true
-        
+        self.sendButton.isEnabled = false
+        self.sendButton.isHidden = true
         if self.fileName != nil && self.data != nil && self.imageData.count == 0 {
-            self.imageData.append(self.generateComment(fileName: self.fileName!, data: self.data!, mediaCaption: self.mediaCaption.value))
+            QiscusCore.shared.upload(data: data!, filename: fileName!, onSuccess: { (file) in
+                self.sendButton.isEnabled = true
+                self.sendButton.isHidden = false
+                self.labelUploading.isHidden = true
+                let message = CommentModel()
+                message.type = "file_attachment"
+                message.payload = [
+                    "url"       : file.url.absoluteString,
+                    "file_name" : file.name,
+                    "size"      : file.size,
+                    "caption"   : ""
+                ]
+                message.message = "Send Attachment"
+                self.imageData.append(message)
+            }, onError: { (error) in
+                //
+            }) { (progress) in
+                Qiscus.printLog(text: "upload progress: \(progress)")
+                self.labelProgress.text = "\(Int(progress * 100)) %"
+                self.labelProgress.isHidden = false
+                self.containerProgressView.isHidden = false
+                self.progressView.isHidden = false
+                
+                let newHeight = progress * self.maxProgressHeight
+                self.heightProgressViewCons.constant = CGFloat(newHeight)
+                UIView.animate(withDuration: 0.65, animations: {
+                    self.progressView.layoutIfNeeded()
+                })
+            }
+            
         }
         
         for gesture in self.view.gestureRecognizers! {
             self.view.removeGestureRecognizer(gesture)
+        }
+    }
+    
+    @objc func doneClicked() {
+        view.endEditing(true)
+    }
+    
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if textView.textColor == UIColor.lightGray {
+            textView.text = nil
+            textView.textColor = UIColor.black
+        }
+    }
+    
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if textView.text.isEmpty {
+            textView.text = QiscusTextConfiguration.sharedInstance.captionPlaceholder
+            textView.textColor = UIColor.lightGray
         }
     }
 
@@ -97,46 +168,62 @@ class QiscusUploaderVC: UIViewController, UIScrollViewDelegate {
         return self.imageView
     }
     
-    func generateComment(fileName: String, data: Data, mediaCaption: String) -> QComment {
-        let newComment = self.room!.prepareImageComment(filename: fileName, data: data)
-        return newComment
-    }
-    
     @IBAction func deleteImage(_ sender: UIButton) {
         sender.isHidden = self.imageData.count == 2
-        self.imageData.remove(at: self.selectedImageIndex)
-        self.selectedImageIndex = self.selectedImageIndex != 0 ? self.selectedImageIndex - 1 : 0
-        self.imageCollection.reloadData()
-        self.imageCollection.selectItem(at: IndexPath(row: self.selectedImageIndex, section: 0), animated: true, scrollPosition: .bottom)
-        self.imageView.loadAsync(fromLocalPath: (self.imageData[self.selectedImageIndex].file?.localThumbPath)!, onLoaded: { (image, _) in
-            self.imageView.image = image
-        })
+//        self.imageData.remove(at: self.selectedImageIndex)
+//        self.selectedImageIndex = self.selectedImageIndex != 0 ? self.selectedImageIndex - 1 : 0
+//        self.imageCollection.reloadData()
+//        self.imageCollection.selectItem(at: IndexPath(row: self.selectedImageIndex, section: 0), animated: true, scrollPosition: .bottom)
+//        self.imageView.loadAsync(fromLocalPath: (self.imageData[self.selectedImageIndex].file?.localThumbPath)!, onLoaded: { (image, _) in
+//            self.imageView.image = image
+//        })
     }
     @IBAction func addMoreImage(_ sender: UIButton) {
         self.goToGaleryPicker()
     }
     
+//    func prepareMessageImage(){
+//        QiscusCore.shared.upload(data: data!, filename: fileName!, onSuccess: { (file) in
+//            let message = CommentModel()
+//            message.type = "file_attachment"
+//            message.payload = [
+//                "url"       : file.url.absoluteString,
+//                "file_name" : file.name,
+//                "size"      : file.size,
+//                "caption"   : ""
+//            ]
+//            message.message = "Send Attachment"
+//        }, onError: { (error) in
+//            //
+//        }) { (progress) in
+//            Qiscus.printLog(text: "upload progress: \(progress)")
+//        }
+//    }
+    
     @IBAction func sendMedia(_ sender: Any) {
-        if room != nil {
-            if type == .image {
-                let firstComment = self.room!.prepareImageComment(filename: self.fileName!, caption: self.mediaCaption.value, data: self.data!)
-                self.imageData.removeFirst()
-                self.imageData.insert(firstComment, at: 0)
-                for comment in imageData {
-                    self.room!.add(newComment: comment)
-                    self.room!.upload(comment: comment, onSuccess: { (roomResult, commentResult) in
-                        if let chatView = self.chatView {
-                            chatView.postComment(comment: commentResult)
-                        }
-                    }, onError: { (roomResult, commentResult, error) in
-                        Qiscus.printLog(text: "Error: \(error)")
-                    })
-                }
+        if type == .image {
+            
+            if (mediaCaption.text != QiscusTextConfiguration.sharedInstance.captionPlaceholder ){
                 
-                self.room!.delegate?.room!(didFinishSync: self.room!)
+                self.imageData.first?.payload![ "caption" ] = mediaCaption.text
                 
-                let _ = self.navigationController?.popViewController(animated: true)
             }
+            
+            chatView?.send(message: self.imageData.first!)
+            
+//            let firstComment = self.room!.prepareImageComment(filename: self.fileName!, caption: self.mediaCaption.value, data: self.data!)
+//            self.imageData.removeFirst()
+//            self.imageData.insert(firstComment, at: 0)
+//            for comment in imageData {
+//                self.room!.add(newComment: comment)
+//                self.room!.upload(comment: comment, onSuccess: { (roomResult, commentResult) in
+//
+//                }, onError: { (roomResult, commentResult, error) in
+//                    Qiscus.printLog(text: "Error: \(error)")
+//                })
+//            }
+            
+            let _ = self.navigationController?.popViewController(animated: true)
         }
     }
     
@@ -193,20 +280,20 @@ extension QiscusUploaderVC: UIImagePickerControllerDelegate, UINavigationControl
             let time = Double(Date().timeIntervalSince1970)
             let fileType:String = info[UIImagePickerControllerMediaType] as! String
             //picker.dismiss(animated: true, completion: nil)
-            
+
             if fileType == "public.image"{
                 var imageName:String = ""
                 let image = info[UIImagePickerControllerOriginalImage] as! UIImage
                 var data = UIImagePNGRepresentation(image)
                 if let imageURL = info[UIImagePickerControllerReferenceURL] as? URL{
                     imageName = imageURL.lastPathComponent
-                    
+
                     let imageNameArr = imageName.split(separator: ".")
                     let imageExt:String = String(imageNameArr.last!).lowercased()
-                    
+
                     let gif:Bool = (imageExt == "gif" || imageExt == "gif_")
                     let png:Bool = (imageExt == "png" || imageExt == "png_")
-                    
+
                     if png{
                         data = UIImagePNGRepresentation(image)!
                     }else if gif{
@@ -224,6 +311,7 @@ extension QiscusUploaderVC: UIImagePickerControllerDelegate, UINavigationControl
                         let result = PHAsset.fetchAssets(withALAssetURLs: [imageURL], options: nil)
                         let asset = result.firstObject
                         imageName = "\((asset?.value(forKey: "filename"))!)"
+                        imageName = imageName.replacingOccurrences(of: "HEIC", with: "jpg")
                         let imageSize = image.size
                         var bigPart = CGFloat(0)
                         if(imageSize.width > imageSize.height){
@@ -231,16 +319,16 @@ extension QiscusUploaderVC: UIImagePickerControllerDelegate, UINavigationControl
                         }else{
                             bigPart = imageSize.height
                         }
-                        
+
                         var compressVal = CGFloat(1)
                         if(bigPart > 2000){
                             compressVal = 2000 / bigPart
                         }
-                        
+
                         data = UIImageJPEGRepresentation(image, compressVal)!
                     }
                 }
-                
+
                 if data != nil {
                     let mediaSize = Double(data!.count) / 1024.0
                     if mediaSize > Qiscus.maxUploadSizeInKB {
@@ -250,11 +338,28 @@ extension QiscusUploaderVC: UIImagePickerControllerDelegate, UINavigationControl
                         return
                     }
                     
-                    imageData.append(self.generateComment(fileName: imageName, data: data!, mediaCaption: ""))
+                    QiscusCore.shared.upload(data: data!, filename: imageName, onSuccess: { (file) in
+                        let message = CommentModel()
+                        message.type = "file_attachment"
+                        message.payload = [
+                            "url"       : file.url.absoluteString,
+                            "file_name" : file.name,
+                            "size"      : file.size,
+                            "caption"   : ""
+                        ]
+                        message.message = "Send Attachment"
+                        self.imageData.append(message)
+                    }, onError: { (error) in
+                        //
+                    }) { (progress) in
+                        Qiscus.printLog(text: "upload progress: \(progress)")
+                    }
+
+                   // imageData.append(self.generateComment(fileName: imageName, data: data!, mediaCaption: ""))
                     self.inputBottom.constant = self.imageCollection.frame.height
                     UIView.animate(withDuration: 1, delay: 0, options: UIViewAnimationOptions(), animations: {
                         self.view.layoutIfNeeded()
-                        
+
                     }, completion: nil)
                     picker.dismiss(animated: true, completion: nil)
                     self.imageCollection.reloadData()
@@ -272,50 +377,28 @@ extension QiscusUploaderVC: UICollectionViewDelegate, UICollectionViewDelegateFl
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return self.imageData.count
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let imagePath = self.imageData[indexPath.row].file?.localThumbPath
-        self.imageView.loadAsync(fromLocalPath: imagePath!, onLoaded: { (image, _) in
-            self.imageView.image = image
-        })
-        self.selectedImageIndex = indexPath.row
+//        let imagePath = self.imageData[indexPath.row].file?.localThumbPath
+//        self.imageView.loadAsync(fromLocalPath: imagePath!, onLoaded: { (image, _) in
+//            self.imageView.image = image
+//        })
+//        self.selectedImageIndex = indexPath.row
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let comment = self.imageData[indexPath.row]
-        let imagePath = comment.file?.localThumbPath
-        
+        //let imagePath = comment.file?.localThumbPath
+
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MultipleImageCell", for: indexPath) as! MultipleImageCell
-        cell.ivMedia.loadAsync(fromLocalPath: imagePath!, onLoaded: { (image, _) in
-            cell.ivMedia.image = image
-        })
-        
+//        cell.ivMedia.loadAsync(fromLocalPath: imagePath!, onLoaded: { (image, _) in
+//            cell.ivMedia.image = image
+//        })
+
         return cell
     }
-}
-
-extension QiscusUploaderVC: ChatInputTextDelegate {
-    // MARK: - ChatInputTextDelegate Delegate
-    open func chatInputTextDidChange(chatInput input: ChatInputText, height: CGFloat) {
-        QiscusBackgroundThread.async { autoreleasepool{
-            let currentHeight = self.minInputHeight.constant
-            if currentHeight != height {
-                DispatchQueue.main.async { autoreleasepool{
-                    self.minInputHeight.constant = height
-                    input.layoutIfNeeded()
-                }}
-            }
-            }}
-    }
-    open func valueChanged(value:String){
-        
-    }
-    open func chatInputDidEndEditing(chatInput input: ChatInputText) {
-        //self.sendStopTyping()
-    }
-    
 }

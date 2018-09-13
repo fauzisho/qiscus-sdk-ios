@@ -18,11 +18,11 @@ public protocol QiscusConfigDelegate {
     func qiscusFailToConnect(_ withMessage:String)
     func qiscusConnected()
     
-    func qiscus(gotSilentNotification comment:QComment, userInfo:[AnyHashable:Any])
+    func qiscus(gotSilentNotification comment: CommentModel, userInfo:[AnyHashable:Any])
     func qiscus(didConnect succes:Bool, error:String?)
     func qiscus(didRegisterPushNotification success:Bool, deviceToken:String, error:String?)
     func qiscus(didUnregisterPushNotification success:Bool, error:String?)
-    func qiscus(didTapLocalNotification comment:QComment, userInfo:[AnyHashable : Any]?)
+    func qiscus(didTapLocalNotification comment: CommentModel, userInfo:[AnyHashable : Any])
     
     func qiscusStartSyncing()
     func qiscus(finishSync success:Bool, error:String?)
@@ -111,31 +111,15 @@ public class Qiscus {
     /**
      iCloud Config, by default is disable/false. You need to setup icloud capabilities then create container in your developer account.
      */
-    public var iCloudUpload = false {
-        didSet{
-            //TODO Need to implement to SDKUI
-        }
-    }
-    public var cameraUpload = true {
-        didSet{
-            //TODO Need to implement to SDKUI
-        }
-    }
-    public var galeryUpload = true {
-        didSet{
-            //TODO Need to implement to SDKUI
-        }
-    }
-    public var contactShare = true {
-        didSet{
-            //TODO Need to implement to SDKUI
-        }
-    }
-    public var locationShare = true {
-        didSet{
-            //TODO Need to implement to SDKUI
-        }
-    }
+    public var iCloudUpload = false
+    public var cameraUpload = true
+    public var galeryUpload = true
+    public var contactShare = true
+    public var locationShare = true
+    /**
+     Setup maximum size when you send attachment inside chat view, example send video/image from galery. By default maximum size is unlimited.
+     */
+    public static var maxUploadSizeInKB:Double = Double(100) * Double(1024)
     
     /**
      Receive all Qiscus Log, then handle logs\s by client.
@@ -195,7 +179,7 @@ public class Qiscus {
     }
     
     func setup(withuserIdentityToken: String){
-        QiscusCore.connect(withIdentityToken: withuserIdentityToken) { (qUser, error) in
+        QiscusCore.login(withIdentityToken: withuserIdentityToken) { (qUser, error) in
             if let user = qUser{
                 QiscusClient.shared.token = user.token
                 QiscusClient.shared.userData.set(user.token, forKey: "qiscus_token")
@@ -245,7 +229,7 @@ public class Qiscus {
     }
     
     /// QiscusUIConfiguration class
-    public var style:QiscusUIConfiguration{
+    public class var style:QiscusUIConfiguration{
         get{
             return Qiscus.sharedInstance.styleConfiguration
         }
@@ -302,7 +286,6 @@ public class Qiscus {
     /// - Parameter withRoomId: roomId
     /// - Returns: will return ViewController chat
     public func chatView(withRoomId: String) -> QiscusChatVC {
-        let chatRoom = QiscusChatVC()
         if !Qiscus.sharedInstance.connected {
             Qiscus.setupReachability()
         }
@@ -372,7 +355,7 @@ public class Qiscus {
     /// - Parameter searchQuery: query to search
     /// - Returns: array of QComment obj
     public class func searchComment(searchQuery: String, onSuccess:@escaping (([QComment])->Void), onFailed: @escaping ((String)->Void)){
-        let comments = QiscusCore.dataStore.getComments().filter({ (comment) -> Bool in
+        let comments = QiscusCore.database.comment.all().filter({ (comment) -> Bool in
             return comment.message.lowercased().contains(searchQuery.lowercased())
         })
         
@@ -446,13 +429,19 @@ public class Qiscus {
                     Qiscus.sharedInstance.syncProcess()
                     if let payloadData = userInfo["payload"]{
                         let jsonPayload = JSON(arrayLiteral: payloadData)[0]
-                        let commentId = jsonPayload["id"].string ?? ""
+                        let commentId = jsonPayload["id_str"].string ?? ""
+                        let roomId = jsonPayload["room_id_str"].string ?? ""
                         
                         if commentId != "" {
-                            if let comment = QiscusCore.dataStore.getCommentbyID(id: commentId){
-                                Qiscus.sharedInstance.configDelegate?.qiscus(gotSilentNotification: comment as! QComment, userInfo: userInfo)
+                            let lastComment = QiscusCore.shared.sync { (commentData, error) in
+                                if let comments = commentData {
+                                    for comment in comments.enumerated() {
+                                        if commentId == comment.element.id {
+                                            Qiscus.sharedInstance.configDelegate?.qiscus(gotSilentNotification: comment.element, userInfo: userInfo)
+                                        }
+                                    }
+                                }
                             }
-                            
                         }
                     }
                 }
@@ -519,7 +508,7 @@ public class Qiscus {
         
     }
     
-    /// didREceive local notification
+    /// didReceive local notification
     ///
     /// - Parameter notification: UILocalNotification
     public class func didReceiveNotification(notification:UILocalNotification){
@@ -527,8 +516,9 @@ public class Qiscus {
             if let isQiscusdata = notification.userInfo!["qiscus_commentdata"] as? Bool{
                 if isQiscusdata {
                     if let commentId = notification.userInfo!["qiscus_id"] as? String {
-                        if let comment = QiscusCore.dataStore.getCommentbyID(id: commentId){
-                            Qiscus.sharedInstance.configDelegate?.qiscus(didTapLocalNotification: comment as! QComment, userInfo: notification.userInfo)
+
+                        if let comment = QiscusCore.database.comment.find(predicate: NSPredicate(format: "id == \(commentId)")){
+                            Qiscus.sharedInstance.configDelegate?.qiscus(didTapLocalNotification: comment.first!, userInfo: notification.userInfo!)
                         }
                     }
                 }
@@ -548,7 +538,7 @@ public class Qiscus {
                         let jsonPayload = JSON(arrayLiteral: payloadData)[0]
                         let commentId = jsonPayload["id"].string ?? ""
                         if commentId != "" {
-                            if let comment = QiscusCore.dataStore.getCommentbyID(id: commentId){
+                            if let comment = QiscusCore.database.comment.find(id: commentId){
                                 Qiscus.sharedInstance.configDelegate?.qiscus(gotSilentNotification: comment as! QComment, userInfo: userInfo)
                             }
                             
@@ -640,7 +630,7 @@ public class Qiscus {
     /// - Parameter delegate: QiscusConfigDelegate
     public class func connect(delegate:QiscusConfigDelegate? = nil){
         if !QiscusCore.connect() {
-            print("Qiscus Realtime Filed to connect, please try again or relogin")
+           Qiscus.printLog(text: "Qiscus Realtime Filed to connect, please try again or relogin")
         }
         Qiscus.sharedInstance.RealtimeConnect()
         if delegate != nil {
@@ -755,7 +745,7 @@ public class Qiscus {
     ///   - alertTitle: banner title
     ///   - alertBody: banner body
     ///   - userInfo: userInfo
-    public func createLocalNotification(forComment comment:QComment, alertTitle:String? = nil, alertBody:String? = nil, userInfo:[AnyHashable : Any]? = nil){
+    public func createLocalNotification(forComment comment:CommentModel, alertTitle:String? = nil, alertBody:String? = nil, userInfo:[AnyHashable : Any]? = nil){
         DispatchQueue.main.async {autoreleasepool{
 
             //TODO NEED TO BE IMPLEMENT
@@ -780,10 +770,14 @@ public class Qiscus {
                 }
             }
 
-            let commentInfo = comment.encodeDictionary()
-            for (key,value) in commentInfo {
-                userData[key] = value
-            }
+//            let commentInfo = comment.encodeDictionary()
+//            for (key,value) in commentInfo {
+//                userData[key] = value
+//            }
+            
+            userData["qiscus_commentdata"] = true
+            userData["qiscus_id"] = comment.id
+            
             localNotification.userInfo = userData
             localNotification.fireDate = Date().addingTimeInterval(0.4)
             Qiscus.sharedInstance.application.scheduleLocalNotification(localNotification)
