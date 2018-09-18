@@ -485,6 +485,9 @@ public class QConversationCollectionView: UICollectionView {
     
     open func cellHeightForComment (comment:QComment, defaultHeight height:CGFloat, firstInSection first:Bool)->CGFloat{
         var retHeight = height
+        if comment.isInvalidated{
+            return 0.1
+        }
         if comment.status == .deleted {
             var text = ""
             let isSelf = comment.senderEmail == Qiscus.client.email

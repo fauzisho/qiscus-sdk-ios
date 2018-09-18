@@ -163,7 +163,6 @@ public class QiscusChatVC: UIViewController{
                     self.dataLoaded = true
                 })
             }
-            
             if let roomId = self.chatRoom?.id {
                 let center: NotificationCenter = NotificationCenter.default
                 center.addObserver(self, selector: #selector(QiscusChatVC.userTyping(_:)), name: QiscusNotification.USER_TYPING(onRoom: roomId), object: nil)
@@ -430,7 +429,13 @@ public class QiscusChatVC: UIViewController{
             room.readAll()
             room.unsubscribeRoomChannel()
             room.clearRemain30()
+            
+            let predicate = NSPredicate(format: "statusRaw != %d AND statusRaw != %d", QCommentStatus.deleted.rawValue, QCommentStatus.deleting.rawValue)
+            var messages = room.grouppedCommentsUID(filter: predicate)
+            messages = self.collectionView.checkHiddenMessage(messages: messages)
+            self.collectionView.messagesId = messages
         }
+        
         self.isPresence = false
         self.dataLoaded = false
         super.viewWillDisappear(animated)

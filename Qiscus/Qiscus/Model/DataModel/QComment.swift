@@ -1007,6 +1007,7 @@ public class QComment:Object {
                     }
                 }
                 if check {
+                     if comment.isInvalidated {return}
                     let data = realm.objects(QComment.self).filter("isRead == false AND createdAt < \(comment.createdAt) AND roomId == '\(comment.roomId)'")
                     for olderComment in data {
                         try! realm.write {

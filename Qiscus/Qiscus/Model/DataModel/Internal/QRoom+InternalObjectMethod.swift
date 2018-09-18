@@ -273,6 +273,7 @@ internal extension QRoom {
                     if Thread.isMainThread {
                         if let r = QRoom.getRoom(withId: id){
                             if let c = QComment.comment(withUniqueId: cUniqueId){
+                                if c.isInvalidated { return }
                                 QiscusNotification.publish(gotNewComment: c, room: r)
                             }
                         }
@@ -280,6 +281,7 @@ internal extension QRoom {
                         DispatchQueue.main.sync {
                             if let r = QRoom.getRoom(withId: id){
                                 if let c = QComment.comment(withUniqueId: cUniqueId){
+                                    if c.isInvalidated { return }
                                     QiscusNotification.publish(gotNewComment: c, room: r)
                                 }
                             }
@@ -862,6 +864,9 @@ internal extension QRoom {
                 let commentUniqueId = newComment.uniqueId
                 
                 if let oldComment = QComment.threadSaveComment(withUniqueId: commentUniqueId) {
+                    if newComment.isInvalidated {
+                       return
+                    }
                     try! realm.write {
                         oldComment.id = newComment.id
                         oldComment.text = newComment.text
@@ -879,7 +884,9 @@ internal extension QRoom {
                     oldComment.updateStatus(status: status)
                 }
                 else{
-                    room.addComment(newComment: newComment)
+                     if !newComment.isInvalidated {
+                        room.addComment(newComment: newComment)
+                    }
                 }
             }
         }
