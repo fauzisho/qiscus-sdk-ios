@@ -864,6 +864,9 @@ internal extension QRoom {
                 let commentUniqueId = newComment.uniqueId
                 
                 if let oldComment = QComment.threadSaveComment(withUniqueId: commentUniqueId) {
+                    if newComment.isInvalidated {
+                       return
+                    }
                     try! realm.write {
                         oldComment.id = newComment.id
                         oldComment.text = newComment.text
