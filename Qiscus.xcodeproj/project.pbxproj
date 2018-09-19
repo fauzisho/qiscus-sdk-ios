@@ -89,6 +89,7 @@
 		3D9B9FEE2151F30900D308E5 /* QiscusClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9B9FA02151F30800D308E5 /* QiscusClient.swift */; };
 		3D9B9FEF2151F30900D308E5 /* MultipleImageCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3D9B9FA12151F30800D308E5 /* MultipleImageCell.xib */; };
 		3D9B9FF12151F32000D308E5 /* Qiscus.podspec in Resources */ = {isa = PBXBuildFile; fileRef = 3D9B9FF02151F32000D308E5 /* Qiscus.podspec */; };
+		F36FB6DD7551F89E791C3C2F /* Pods_Qiscus.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A35341A3F45D7101165116AB /* Pods_Qiscus.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -102,6 +103,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1D73A31ED758D2FAEB733F7D /* Pods-Qiscus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Qiscus.release.xcconfig"; path = "Pods/Target Support Files/Pods-Qiscus/Pods-Qiscus.release.xcconfig"; sourceTree = "<group>"; };
 		3D9B9F2F2151F22000D308E5 /* Qiscus.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Qiscus.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D9B9F322151F22000D308E5 /* Qiscus.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Qiscus.h; sourceTree = "<group>"; };
 		3D9B9F332151F22000D308E5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -187,6 +189,8 @@
 		3D9B9FA02151F30800D308E5 /* QiscusClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QiscusClient.swift; sourceTree = "<group>"; };
 		3D9B9FA12151F30800D308E5 /* MultipleImageCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MultipleImageCell.xib; sourceTree = "<group>"; };
 		3D9B9FF02151F32000D308E5 /* Qiscus.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Qiscus.podspec; sourceTree = "<group>"; };
+		677690C580A4DEB0E8D75521 /* Pods-Qiscus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Qiscus.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Qiscus/Pods-Qiscus.debug.xcconfig"; sourceTree = "<group>"; };
+		A35341A3F45D7101165116AB /* Pods_Qiscus.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Qiscus.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -194,6 +198,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F36FB6DD7551F89E791C3C2F /* Pods_Qiscus.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -215,6 +220,8 @@
 				3D9B9F312151F22000D308E5 /* Qiscus */,
 				3D9B9F3C2151F22000D308E5 /* QiscusTests */,
 				3D9B9F302151F22000D308E5 /* Products */,
+				C7A2FABB598C5F281834DE72 /* Pods */,
+				D6016D9DF93A59FFC47F9E7A /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -411,6 +418,23 @@
 			path = Model;
 			sourceTree = "<group>";
 		};
+		C7A2FABB598C5F281834DE72 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				677690C580A4DEB0E8D75521 /* Pods-Qiscus.debug.xcconfig */,
+				1D73A31ED758D2FAEB733F7D /* Pods-Qiscus.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		D6016D9DF93A59FFC47F9E7A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A35341A3F45D7101165116AB /* Pods_Qiscus.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -429,10 +453,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 3D9B9F432151F22000D308E5 /* Build configuration list for PBXNativeTarget "Qiscus" */;
 			buildPhases = (
+				CFFD6159515CF3AD9ECF53DB /* [CP] Check Pods Manifest.lock */,
 				3D9B9F2A2151F22000D308E5 /* Sources */,
 				3D9B9F2B2151F22000D308E5 /* Frameworks */,
 				3D9B9F2C2151F22000D308E5 /* Headers */,
 				3D9B9F2D2151F22000D308E5 /* Resources */,
+				70B21231F6626B612B25CE91 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -542,6 +568,42 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		70B21231F6626B612B25CE91 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Qiscus/Pods-Qiscus-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		CFFD6159515CF3AD9ECF53DB /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Qiscus-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		3D9B9F2A2151F22000D308E5 /* Sources */ = {
@@ -743,6 +805,7 @@
 		};
 		3D9B9F442151F22000D308E5 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 677690C580A4DEB0E8D75521 /* Pods-Qiscus.debug.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
@@ -755,11 +818,7 @@
 				INFOPLIST_FILE = Qiscus/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.qiscusdev.Qiscus;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -771,6 +830,7 @@
 		};
 		3D9B9F452151F22000D308E5 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1D73A31ED758D2FAEB733F7D /* Pods-Qiscus.release.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
@@ -783,11 +843,7 @@
 				INFOPLIST_FILE = Qiscus/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.qiscusdev.Qiscus;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -803,11 +859,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = QG8KA4P8TE;
 				INFOPLIST_FILE = QiscusTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.qiscusdev.QiscusTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
@@ -822,11 +874,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = QG8KA4P8TE;
 				INFOPLIST_FILE = QiscusTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.qiscusdev.QiscusTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
