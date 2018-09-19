@@ -42,7 +42,7 @@ public class QRoom: RoomModel {
     ///
     /// - Returns: will return QRoom
     public class func all() -> [QRoom]?{
-        let rooms = QiscusCore.dataStore.getRooms() as! [QRoom]
+        let rooms = QiscusCore.database.room.all() as! [QRoom]
         return rooms
         
     }
@@ -125,7 +125,7 @@ public class QRoom: RoomModel {
     ///
     /// - Parameter completion: will return unreadCount
     public class func getLocalUnreadCount(completion: @escaping (Int) -> Void){
-        let qRooms = QiscusCore.dataStore.getRooms()
+        let qRooms = QiscusCore.database.room.all()
         var countUnread = 0
         for room in qRooms.enumerated() {
             countUnread = countUnread + room.element.unreadCount
