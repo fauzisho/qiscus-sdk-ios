@@ -43,7 +43,7 @@ class CustomChatInput: UIChatInput {
     }
 }
 
-class CustomChatInput : UITextFieldDelegate {
+extension CustomChatInput : UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
         self.typing(true)
     }

@@ -1009,7 +1009,7 @@ public class Qiscus {
                         onSuccess(qRoomData as! QRoom)
                     }else{
                         if let errorMessage = error {
-                            onError(errorMessage)
+                            onError(errorMessage.message)
                         }
                     }
                 }
@@ -1019,7 +1019,7 @@ public class Qiscus {
                         onSuccess(qRoomData as! QRoom)
                     }else{
                         if let errorMessage = error {
-                            onError(errorMessage)
+                            onError(errorMessage.message)
                         }
                     }
                 }
