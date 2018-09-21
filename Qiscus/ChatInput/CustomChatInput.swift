@@ -24,6 +24,7 @@ class CustomChatInput: UIChatInput {
     override func commonInit(nib: UINib) {
         let nib = UINib(nibName: "CustomChatInput", bundle: Qiscus.bundle)
         super.commonInit(nib: nib)
+        textField.delegate = self
     }
     
     @IBAction func clickSend(_ sender: Any) {
@@ -39,5 +40,15 @@ class CustomChatInput: UIChatInput {
     
     @IBAction func clickAttachment(_ sender: Any) {
         self.delegate?.sendAttachment()
+    }
+}
+
+class CustomChatInput : UITextFieldDelegate {
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        self.typing(true)
+    }
+    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        self.typing(false)
     }
 }

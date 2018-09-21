@@ -451,7 +451,9 @@ public class Qiscus {
     
     //Todo call api SyncProses
     public func syncProcess(){
-        
+        QiscusCore.shared.sync { (comments, error) in
+            //
+        }
     }
     
     //Todo connect to mqtt
