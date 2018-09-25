@@ -18,7 +18,7 @@ public protocol QiscusConfigDelegate {
     func qiscusFailToConnect(_ withMessage:String)
     func qiscusConnected()
     
-    func qiscus(gotSilentNotification comment: CommentModel, userInfo:[AnyHashable:Any])
+    func qiscus(gotSilentNotification userInfo:[AnyHashable:Any])
     func qiscus(didConnect succes:Bool, error:String?)
     func qiscus(didRegisterPushNotification success:Bool, deviceToken:String, error:String?)
     func qiscus(didUnregisterPushNotification success:Bool, error:String?)
@@ -58,6 +58,7 @@ public class Qiscus {
     var notificationAction:((QiscusChatVC)->Void)? = nil
     var disableLocalization: Bool = false
     var isPushed:Bool = false
+    var lastCommentID = [String]()
     /// cached qiscusChatVC : viewController that already opened will be chached here
     public var chatViews = [String:QiscusChatVC]()
     /**
@@ -433,15 +434,18 @@ public class Qiscus {
                         let roomId = jsonPayload["room_id_str"].string ?? ""
                         
                         if commentId != "" {
-                            let lastComment = QiscusCore.shared.sync { (commentData, error) in
-                                if let comments = commentData {
-                                    for comment in comments.enumerated() {
-                                        if commentId == comment.element.id {
-                                            Qiscus.sharedInstance.configDelegate?.qiscus(gotSilentNotification: comment.element, userInfo: userInfo)
-                                        }
-                                    }
-                                }
-                            }
+                            Qiscus.sharedInstance.configDelegate?.qiscus(gotSilentNotification: userInfo)
+//                            let lastComment = QiscusCore.shared.sync { (commentData, error) in
+//                                if let comments = commentData {
+//                                    for comment in comments.enumerated() {
+//                                        if commentId == comment.element.id {
+//                                            Qiscus.sharedInstance.configDelegate?.qiscus(gotSilentNotification: comment.element, userInfo: userInfo)
+//                                        }
+//                                    }
+//                                }else{
+//                                    print("error ini =\(error?.message)")
+//                                }
+//                            }
                         }
                     }
                 }
@@ -518,8 +522,11 @@ public class Qiscus {
             if let isQiscusdata = notification.userInfo!["qiscus_commentdata"] as? Bool{
                 if isQiscusdata {
                     if let commentId = notification.userInfo!["qiscus_id"] as? String {
-
+                        
                         if let comment = QiscusCore.database.comment.find(predicate: NSPredicate(format: "id == \(commentId)")){
+                            
+                            Qiscus.sharedInstance.lastCommentID.removeAll()
+
                             Qiscus.sharedInstance.configDelegate?.qiscus(didTapLocalNotification: comment.first!, userInfo: notification.userInfo!)
                         }
                     }
@@ -540,9 +547,10 @@ public class Qiscus {
                         let jsonPayload = JSON(arrayLiteral: payloadData)[0]
                         let commentId = jsonPayload["id"].string ?? ""
                         if commentId != "" {
-                            if let comment = QiscusCore.database.comment.find(id: commentId){
-                                Qiscus.sharedInstance.configDelegate?.qiscus(gotSilentNotification: comment as! QComment, userInfo: userInfo)
-                            }
+                            Qiscus.sharedInstance.configDelegate?.qiscus(gotSilentNotification: userInfo)
+//                            if let comment = QiscusCore.database.comment.find(id: commentId){
+//                                Qiscus.sharedInstance.configDelegate?.qiscus(gotSilentNotification: comment as! QComment, userInfo: userInfo)
+//                            }
                             
                         }
                         
@@ -747,43 +755,44 @@ public class Qiscus {
     ///   - alertTitle: banner title
     ///   - alertBody: banner body
     ///   - userInfo: userInfo
-    public func createLocalNotification(forComment comment:CommentModel, alertTitle:String? = nil, alertBody:String? = nil, userInfo:[AnyHashable : Any]? = nil){
+    public func createLocalNotification(commentId: String, alertTitle:String, alertBody:String, userInfo:[AnyHashable : Any]? = nil){
+        print("self.lasCommentId = \(self.lastCommentID)")
+        
+        
         DispatchQueue.main.async {autoreleasepool{
-
-            //TODO NEED TO BE IMPLEMENT
+            if self.lastCommentID.contains(commentId){
+                return
+            }
+            self.lastCommentID.append(commentId)
             let localNotification = UILocalNotification()
-            if let title = alertTitle {
-                localNotification.alertTitle = title
-            }else{
-                localNotification.alertTitle = comment.username
-            }
-            if let body = alertBody {
-                localNotification.alertBody = body
-            }else{
-                localNotification.alertBody = comment.message
-            }
-
+            localNotification.alertTitle = alertTitle
+            localNotification.alertBody = alertBody
+            
             localNotification.soundName = "default"
             var userData = [AnyHashable : Any]()
-
+            
             if userInfo != nil {
                 for (key,value) in userInfo! {
                     userData[key] = value
                 }
             }
-
-//            let commentInfo = comment.encodeDictionary()
-//            for (key,value) in commentInfo {
-//                userData[key] = value
-//            }
+            
+            //            let commentInfo = comment.encodeDictionary()
+            //            for (key,value) in commentInfo {
+            //                userData[key] = value
+            //            }
             
             userData["qiscus_commentdata"] = true
-            userData["qiscus_id"] = comment.id
+            userData["qiscus_id"] = commentId
             
             localNotification.userInfo = userData
             localNotification.fireDate = Date().addingTimeInterval(0.4)
+            
             Qiscus.sharedInstance.application.scheduleLocalNotification(localNotification)
+            
             }}
+        
+       
     }
     
     /// get QiscusChatVC with array of username
