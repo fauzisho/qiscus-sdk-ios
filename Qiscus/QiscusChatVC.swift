@@ -87,6 +87,7 @@ public class QiscusChatVC: UIChatViewController {
     var didFindLocation = true
     let locationManager = CLLocationManager()
     var presentingLoading = false
+    var inputBar = CustomChatInput()
     
     var latestNavbarTint = UINavigationBar.appearance().tintColor
     internal var currentNavbarTint = UINavigationBar.appearance().tintColor
@@ -110,6 +111,12 @@ public class QiscusChatVC: UIChatViewController {
             }
         }else{
             let _ = self.navigationController?.popViewController(animated: true)
+        }
+    }
+    
+    var replyData:CommentModel? = nil {
+        didSet{
+            inputBar.replyData = replyData
         }
     }
     
@@ -168,9 +175,37 @@ public class QiscusChatVC: UIChatViewController {
         picker.delegate = self
     }
     
+    override public func chatViewController(viewController: UIChatViewController, performAction action: Selector, forRowAt message: CommentModel, withSender sender: Any?) {
+        if action == #selector(UIResponderStandardEditActions.copy(_:)) {
+            let pasteboard = UIPasteboard.general
+            pasteboard.string = message.message
+        }
+    }
+    
+    override public func chatViewController(viewController: UIChatViewController, canPerformAction action: Selector, forRowAtmessage: CommentModel, withSender sender: Any?) -> Bool {
+        switch action.description {
+        case "copy:":
+            return true
+        case "reply:":
+            return true
+        default:
+            return false
+        }
+    }
+    
     func setupNotification(){
         let center: NotificationCenter = NotificationCenter.default
         center.addObserver(self, selector: #selector(QiscusChatVC.didSaveContact(_:)), name: QiscusNotification.DID_TAP_SAVE_CONTACT, object: nil)
+        center.addObserver(self, selector: #selector(QiscusChatVC.didClickReply(_:)), name: QiscusNotification.DID_TAP_MENU_REPLY, object: nil)
+    }
+    
+    @objc private func didClickReply(_ notification: Notification){
+        if let userInfo = notification.userInfo {
+            let comment = userInfo["comment"] as! CommentModel
+            
+            self.replyData = comment
+            
+        }
     }
     
     @objc private func didSaveContact(_ notification: Notification){
@@ -208,6 +243,7 @@ public class QiscusChatVC: UIChatViewController {
         self.registerClass(nib: UINib(nibName: "QDocumentRightCell", bundle: Qiscus.bundle), forMessageCellWithReuseIdentifier: "qDocumentRightCell")
         self.registerClass(nib: UINib(nibName: "QSystemCell", bundle: Qiscus.bundle), forMessageCellWithReuseIdentifier: "qSystemCell")
         self.registerClass(nib: UINib(nibName: "QReplyLeftCell", bundle: Qiscus.bundle), forMessageCellWithReuseIdentifier: "qReplyLeftCell")
+        self.registerClass(nib: UINib(nibName: "QReplyRightCell", bundle: Qiscus.bundle), forMessageCellWithReuseIdentifier: "qReplyRightCell")
         self.registerClass(nib: UINib(nibName: "QLocationLeftCell", bundle: Qiscus.bundle), forMessageCellWithReuseIdentifier: "qLocationLeftCell")
         self.registerClass(nib: UINib(nibName: "QLocationRightCell", bundle: Qiscus.bundle), forMessageCellWithReuseIdentifier: "qLocationRightCell")
         self.registerClass(nib: UINib(nibName: "QContactLeftCell", bundle: Qiscus.bundle), forMessageCellWithReuseIdentifier: "qContactLeftCell")
@@ -306,7 +342,7 @@ public class QiscusChatVC: UIChatViewController {
             return "qSystemCell"
         }else if message.type == "reply" {
             if (message.isMyComment() == true){
-                return "qTextRightCell"
+                return "qReplyRightCell"
             }else{
                 return "qReplyLeftCell"
             }
@@ -377,7 +413,7 @@ public class QiscusChatVC: UIChatViewController {
     // MARK: How to implement custom input chat
     // register custom input
     override public func chatInputBar() -> UIChatInput? {
-        let inputBar = CustomChatInput()
+        
         
         let sendImage = Qiscus.image(named: "send")?.withRenderingMode(.alwaysTemplate)
         let attachmentImage = Qiscus.image(named: "share_attachment")?.withRenderingMode(.alwaysTemplate)
