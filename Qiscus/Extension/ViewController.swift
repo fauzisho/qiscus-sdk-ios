@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import QiscusUI
 
 extension UIViewController {
 
