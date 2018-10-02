@@ -302,6 +302,9 @@ internal extension QRoom {
                     
                     let realm = try! Realm(configuration: Qiscus.dbConfiguration)
                     realm.refresh()
+                    if room.isInvalidated {
+                        return
+                    }
                     try! realm.write {
                         room.lastCommentId = 0
                         room.lastCommentText = ""
@@ -433,6 +436,9 @@ internal extension QRoom {
         let id = self.id
         QiscusDBThread.async {
             if let room = QRoom.threadSaveRoom(withId: id) {
+                if room.isInvalidated{
+                    return
+                }
                 let realm = try! Realm(configuration: Qiscus.dbConfiguration)
                 realm.refresh()
                 if let option = json["options"].string {
@@ -456,6 +462,9 @@ internal extension QRoom {
                     }
                 }
                 if let unread = json["unread_count"].int {
+                    if room.isInvalidated{
+                        return
+                    }
                     if unread != room.unreadCount {
                         try! realm.write {
                             room.unreadCount = unread

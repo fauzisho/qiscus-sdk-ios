@@ -109,7 +109,10 @@ public class QConversationCollectionView: UICollectionView {
         didSet{
             DispatchQueue.main.async {
                 if let r = self.room {
-                    self.comments = QComment.comments(onRoom: r.id)
+                    if !r.isInvalidated{
+                         self.comments = QComment.comments(onRoom: r.id)
+                    }
+                   
                 }
                 
                 if oldValue.count == 0 {

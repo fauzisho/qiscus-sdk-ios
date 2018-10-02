@@ -308,7 +308,6 @@ public class QRoomService:NSObject{
                     if let result = response.result.value {
                         let json = JSON(result)
                         let success = (json["status"].intValue == 200)
-                        
                         if success == true {
                             let commentJSON = json["results"]["comment"]
                             let commentId = commentJSON["id"].intValue
@@ -952,7 +951,11 @@ public class QRoomService:NSObject{
                                 }
                                 r.syncRoomData(withJSON: room)
                                 r.clearMessage()
-                                r.clearLastComment()
+                                if let lastCommentMessage = r.lastComment {
+                                    r.clearLastComment()
+                                }
+                                
+                                
                             }else{
                                 let _ = QRoom.addNewRoom(json: room)
                             }
