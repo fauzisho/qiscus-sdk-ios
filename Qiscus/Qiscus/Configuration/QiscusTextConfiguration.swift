@@ -84,5 +84,7 @@ open class QiscusTextConfiguration: NSObject {
     
     open var defaultRoomSubtitle = "not Available"
     
+    open var deleteForEveryOne = "DELETE_FOR_ME".getLocalize()
+    
     fileprivate override init(){}
 }

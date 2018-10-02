@@ -372,7 +372,7 @@ open class QChatCell: UICollectionViewCell, QCommentDelegate {
         
         let resendMenuItem: UIMenuItem = UIMenuItem(title: "RESEND".getLocalize(), action: #selector(QChatCell.resend))
         let deleteMenuItem: UIMenuItem = UIMenuItem(title: "DELETE".getLocalize(), action: #selector(QChatCell.deleteComment))
-        let deleteForMeMenuItem: UIMenuItem = UIMenuItem(title: "DELETE_FOR_ME".getLocalize(), action: #selector(QChatCell.deleteForMe))
+        let deleteForMeMenuItem: UIMenuItem = UIMenuItem(title: QiscusTextConfiguration.sharedInstance.deleteForEveryOne, action: #selector(QChatCell.deleteForMe))
         let replyMenuItem: UIMenuItem = UIMenuItem(title: "REPLY".getLocalize(), action: #selector(QChatCell.reply))
         let forwardMenuItem: UIMenuItem = UIMenuItem(title: "FORWARD".getLocalize(), action: #selector(QChatCell.forward))
         let shareMenuItem: UIMenuItem = UIMenuItem(title: "SHARE".getLocalize(), action: #selector(QChatCell.share))
