@@ -43,7 +43,7 @@ public enum QReplyType:Int{
     
     static let all = [text.name(), image.name(), video.name(), audio.name(),file.name(),postback.name(),account.name(), reply.name(), system.name(), card.name(), contact.name(), location.name(), custom.name()]
     
-    func name() -> String{
+    public func name() -> String{
         switch self {
             case .text      : return "text"
             case .image     : return "image"
@@ -62,7 +62,7 @@ public enum QReplyType:Int{
             case .carousel  : return "carousel"
         }
     }
-    init(name:String) {
+    public init(name:String) {
         switch name {
             case "text","button_postback_response"     : self = .text ; break
             case "image"            : self = .image ; break
