@@ -482,4 +482,15 @@ Don't forget to add usage description for camera, photo library and microphone t
 <string>NeedLibrary access for uploading and Images</string>
 ```
 
+### Security Disclosure
+
+If you believe you have identified a security vulnerability with QiscusCore, you should report it as soon as possible via email to juang@qiscus.co. Please do not post it to a public issue.
+
+
+## FAQ
+
+### When we use Qiscus intead QiscusCore or QiscusUI?
+
+QiscusCore is lite version chat sdk, if you wan't to build your own chat ui best option is use QiscusCore. But, if you need in App chat quickly use Qiscus Chat SDK(build in UI and simple configuration). please visit [Qiscus](https://github.com/qiscus/qiscus-sdk-ios) to use qiscus chat sdk.
+QiscusUI, build your own chat ui. QiscusUI provide chat component, make it easy to develop chat cell for specifics type. Every component in qiscusUI is basic, but Qiscus provide standart feature like a render image, text, file and also send image, video, etc. 
 
