@@ -62,12 +62,13 @@ class QAudioRightCell: UIBaseChatCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
+        self.setMenu()
         // Initialization code
     }
     
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-        
+        self.setMenu()
         // Configure the view for the selected state
     }
     
@@ -84,7 +85,6 @@ class QAudioRightCell: UIBaseChatCell {
     func bindData(message: CommentModel){
         self.setupBalon()
         self.status(message: message)
-        self.userNameLabel.text = message.username
         self.dateLabel.text = self.comment?.hour()
         guard let payload = self.comment?.payload else { return }
         if let url = payload["url"] as? String {

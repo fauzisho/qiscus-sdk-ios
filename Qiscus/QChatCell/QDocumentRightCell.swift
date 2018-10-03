@@ -26,6 +26,7 @@ class QDocumentRightCell: UIBaseChatCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
+        self.setMenu()
         fileIcon.image = Qiscus.image(named: "ic_file")?.withRenderingMode(.alwaysTemplate)
         fileIcon.contentMode = .scaleAspectFit
         fileIcon.tintColor = QiscusColorConfiguration.sharedInstance.leftBaloonColor
@@ -36,7 +37,7 @@ class QDocumentRightCell: UIBaseChatCell {
 
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-
+        self.setMenu()
         // Configure the view for the selected state
     }
     

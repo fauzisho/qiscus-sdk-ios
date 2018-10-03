@@ -19,7 +19,7 @@ class QTextLeftCell: UIBaseChatCell {
     @IBOutlet weak var lbNameLeading: NSLayoutConstraint!
     @IBOutlet weak var lbNameTrailing: NSLayoutConstraint!
     @IBOutlet weak var leftConstraint: NSLayoutConstraint!
-    
+    var isPublic: Bool = false
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
@@ -50,11 +50,11 @@ class QTextLeftCell: UIBaseChatCell {
         self.tvContent.text = message.message
         self.tvContent.textColor = QiscusColorConfiguration.sharedInstance.leftBaloonTextColor
         
-        //if(self.firstInSection){
-        lbNameHeight.constant = 21
-        //        }else{
-        //            lbNameHeight.constant = 0
-        //        }
+        if(isPublic == true){
+            lbNameHeight.constant = 21
+        }else{
+            lbNameHeight.constant = 0
+        }
     }
     
     func setupBalon(){

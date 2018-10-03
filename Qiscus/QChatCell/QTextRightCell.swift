@@ -54,7 +54,7 @@ class QTextRightCell: UIBaseChatCell {
         self.tvContent.textColor = QiscusColorConfiguration.sharedInstance.rightBaloonTextColor
         
         //if(self.firstInSection){
-            lbNameHeight.constant = 21
+            lbNameHeight.constant = 0
 //        }else{
 //            lbNameHeight.constant = 0
 //        }

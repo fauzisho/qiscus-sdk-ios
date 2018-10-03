@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14313.18" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14283.14"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -23,7 +23,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="399" height="100.5"/>
                         <subviews>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="redraw" horizontalHuggingPriority="251" verticalHuggingPriority="249" translatesAutoresizingMaskIntoConstraints="NO" id="nN2-Lu-JjU">
-                                <rect key="frame" x="179.5" y="21" width="212.5" height="75"/>
+                                <rect key="frame" x="186" y="0.0" width="212" height="95.5"/>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute type="number" keyPath="cornerRadiuss">
                                         <real key="value" value="6"/>
@@ -31,26 +31,26 @@
                                 </userDefinedRuntimeAttributes>
                             </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yll-Pk-9Kd">
-                                <rect key="frame" x="337" y="0.0" width="42" height="21"/>
+                                <rect key="frame" x="343" y="0.0" width="42" height="0.0"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="21" id="oaa-7I-00A"/>
+                                    <constraint firstAttribute="height" id="oaa-7I-00A"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="mvh-JW-FFh">
-                                <rect key="frame" x="185" y="26" width="187" height="55"/>
+                                <rect key="frame" x="191" y="5" width="187" height="75.5"/>
                                 <subviews>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ic_file" translatesAutoresizingMaskIntoConstraints="NO" id="TtO-7d-TwB">
-                                        <rect key="frame" x="10" y="18" width="20" height="20"/>
+                                        <rect key="frame" x="10" y="28" width="20" height="20"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="20" id="0jC-sJ-eGi"/>
                                             <constraint firstAttribute="width" constant="20" id="ZBf-mf-Cdo"/>
                                         </constraints>
                                     </imageView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="99E-it-WL6">
-                                        <rect key="frame" x="35" y="10" width="149" height="35"/>
+                                        <rect key="frame" x="35" y="10" width="149" height="55.5"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
@@ -74,7 +74,7 @@
                                 </userDefinedRuntimeAttributes>
                             </view>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1hO-D6-CLV">
-                                <rect key="frame" x="187" y="26" width="184" height="55"/>
+                                <rect key="frame" x="193.5" y="5" width="183.5" height="75.5"/>
                                 <constraints>
                                     <constraint firstAttribute="width" relation="lessThanOrEqual" constant="200" id="7oC-kt-y6J"/>
                                     <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="50" id="pEy-W4-ogX"/>
@@ -89,7 +89,7 @@
                                 </userDefinedRuntimeAttributes>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7Qd-hk-TFW">
-                                <rect key="frame" x="184" y="82" width="22" height="10"/>
+                                <rect key="frame" x="191" y="82" width="22" height="10"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="10" id="bd8-GF-zsu"/>
                                 </constraints>
@@ -98,7 +98,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="z7J-UI-6MJ">
-                                <rect key="frame" x="312" y="83" width="42" height="10"/>
+                                <rect key="frame" x="318" y="82.5" width="42" height="10"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="42" id="API-I2-bhc"/>
                                 </constraints>
@@ -107,7 +107,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ic_read" translatesAutoresizingMaskIntoConstraints="NO" id="Xos-Tm-Zmw">
-                                <rect key="frame" x="357" y="81" width="14" height="14"/>
+                                <rect key="frame" x="363" y="80.5" width="14" height="14"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="14" id="CW6-Bz-C3m"/>
                                     <constraint firstAttribute="width" constant="14" id="dHX-u0-sZQ"/>
@@ -124,7 +124,7 @@
                             <constraint firstItem="mvh-JW-FFh" firstAttribute="top" secondItem="nN2-Lu-JjU" secondAttribute="top" constant="5" id="Ev1-P1-vEQ"/>
                             <constraint firstItem="mvh-JW-FFh" firstAttribute="leading" secondItem="nN2-Lu-JjU" secondAttribute="leading" constant="5" id="INX-Mx-wHp"/>
                             <constraint firstItem="1hO-D6-CLV" firstAttribute="top" secondItem="yll-Pk-9Kd" secondAttribute="bottom" constant="5" id="JvS-M7-70e"/>
-                            <constraint firstAttribute="trailing" secondItem="yll-Pk-9Kd" secondAttribute="trailing" constant="20" id="O1M-T2-lXu"/>
+                            <constraint firstAttribute="trailing" secondItem="yll-Pk-9Kd" secondAttribute="trailing" constant="14" id="O1M-T2-lXu"/>
                             <constraint firstItem="nN2-Lu-JjU" firstAttribute="height" secondItem="1hO-D6-CLV" secondAttribute="height" constant="20" id="PDj-tI-alI"/>
                             <constraint firstItem="Xos-Tm-Zmw" firstAttribute="leading" secondItem="z7J-UI-6MJ" secondAttribute="trailing" constant="3" id="VPW-dn-5n0"/>
                             <constraint firstItem="Xos-Tm-Zmw" firstAttribute="trailing" secondItem="nN2-Lu-JjU" secondAttribute="trailing" constant="-21" id="XaM-RY-1Dx"/>
@@ -167,7 +167,7 @@
         </tableViewCell>
     </objects>
     <resources>
-        <image name="ic_file" width="19" height="22"/>
+        <image name="ic_file" width="57" height="66"/>
         <image name="ic_read" width="72" height="72"/>
     </resources>
 </document>

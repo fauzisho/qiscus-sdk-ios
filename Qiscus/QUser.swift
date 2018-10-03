@@ -13,6 +13,6 @@ import UIKit
 //
 //}
 
-open class QMember : MemberModel {
+extension MemberModel {
 
 }

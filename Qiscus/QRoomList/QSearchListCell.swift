@@ -11,7 +11,7 @@ import QiscusCore
 
 open class QSearchListCell: UITableViewCell {
 
-    public var comment:QComment? {
+    public var comment:CommentModel? {
         didSet{
             setupUI()
         }

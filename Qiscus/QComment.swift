@@ -1,5 +1,5 @@
 //
-//  QComment.swift
+//  CommentModel.swift
 //  Alamofire
 //
 //  Created by asharijuang on 07/08/18.
@@ -9,7 +9,7 @@ import Foundation
 import QiscusCore
 import SwiftyJSON
 
-@objc public enum QCommentType:Int {
+@objc public enum CommentModelType:Int {
     case text
     case image
     case video
@@ -28,7 +28,7 @@ import SwiftyJSON
     
     static let all = [text.name(), image.name(), video.name(), audio.name(),file.name(),postback.name(),account.name(), reply.name(), system.name(), card.name(), contact.name(), location.name(), custom.name()]
     
-    func name() -> String{
+    public func name() -> String{
         switch self {
         case .text      : return "text"
         case .image     : return "image"
@@ -47,7 +47,7 @@ import SwiftyJSON
         case .carousel  : return "carousel"
         }
     }
-    init(name:String) {
+    public init(name:String) {
         switch name {
         case "text","button_postback_response"     : self = .text ; break
         case "image"            : self = .image ; break
@@ -68,7 +68,7 @@ import SwiftyJSON
     }
 }
 
-public class QComment: CommentModel {
+extension CommentModel {
 //    public var createdAt : Int{
 //        get{
 //            return unixTimestamp
@@ -79,7 +79,7 @@ public class QComment: CommentModel {
 //    }
 //
     
-    //need room name from QComment
+    //need room name from CommentModel
     public var roomName : String{
         get{
             return roomName
@@ -90,37 +90,37 @@ public class QComment: CommentModel {
         }
     }
     
-    //need payload string from QComment
-    public var payloadData : String{
-        get{
-            return "payload still harcode"
-        }
-
-        set{
-            //payloadData = newValue
-        }
-    }
-
-    //need extras string from QComment
-    public var extrasData : String {
-        get{
-            return "extras still harcode"
-        }
-
-        set{
-           // extrasData = newValue
-        }
-    }
+//    //need payload string from CommentModel
+//    public var payloadData : String{
+//        get{
+//            return "payload still harcode"
+//        }
+//
+//        set{
+//            //payloadData = newValue
+//        }
+//    }
+//
+//    //need extras string from CommentModel
+//    public var extrasData : String {
+//        get{
+//            return "extras still harcode"
+//        }
+//
+//        set{
+//           // extrasData = newValue
+//        }
+//    }
     
-    public var typeMessage: QCommentType{
+    public var typeMessage: CommentModelType{
         get{
-            return QCommentType(rawValue: type.hashValue)!
+            return CommentModelType(rawValue: type.hashValue)!
         }
         
     }
     
     //Todo search comment from local
-    internal class func comments(searchQuery: String, onSuccess:@escaping (([QComment])->Void), onFailed: @escaping ((String)->Void)){
+    internal class func comments(searchQuery: String, onSuccess:@escaping (([CommentModel])->Void), onFailed: @escaping ((String)->Void)){
         
         let comments = QiscusCore.database.comment.all().filter({ (comment) -> Bool in
             return comment.message.lowercased().contains(searchQuery.lowercased())
@@ -129,7 +129,7 @@ public class QComment: CommentModel {
         if(comments.count == 0){
             onFailed("Comment not found")
         }else{
-            onSuccess(comments as! [QComment])
+            onSuccess(comments as! [CommentModel])
         }
     }
     
@@ -139,9 +139,9 @@ public class QComment: CommentModel {
         let comments = QiscusCore.database.comment.all().filter({ (comment) in comment.status.rawValue.lowercased() == "failed".lowercased() ||  comment.status.rawValue.lowercased() == "pending".lowercased() })
         
         for comment in comments {
-            QRoom.getRoom(withId: comment.roomId) { (qRoomData, error) in
+            RoomModel.getRoom(withId: comment.roomId) { (qRoomData, error) in
                 if let qRoom = qRoomData {
-                    qRoomData?.post(comment: comment as! QComment)
+                    qRoomData?.post(comment: comment as! CommentModel)
                 }
             }
         }
@@ -166,18 +166,18 @@ public class QComment: CommentModel {
         return data
     }
     
-    public class QCommentInfo: NSObject {
-        public var comment:QComment?
+    public class CommentModelInfo: NSObject {
+        public var comment:CommentModel?
         public var deliveredUser = [QParticipant]()
         public var readUser = [QParticipant]()
         public var undeliveredUser = [QParticipant]()
     }
     
     //TODO Need To be implement
-    public var statusInfo:QCommentInfo? {
+    public var statusInfo:CommentModelInfo? {
         get{
 //            if let room = QRoom.room(withId: self.roomId) {
-//                let commentInfo = QCommentInfo()
+//                let commentInfo = CommentModelInfo()
 //                commentInfo.comment = self
 //                commentInfo.deliveredUser = [QParticipant]()
 //                commentInfo.readUser = [QParticipant]()
@@ -207,14 +207,10 @@ public class QComment: CommentModel {
     ///   - onSuccess: will return success
     ///   - onError: will return error message
     public func forward(toRoomWithId roomId: String, onSuccess:@escaping ()->Void, onError:@escaping (String)->Void){
-        QiscusCore.shared.sendMessage(roomID: roomId, comment: self) { (qCommentData, error) in
-            if let qComment = qCommentData {
-                onSuccess()
-            }else{
-                if let errorMessage = error {
-                    onError(errorMessage.message)
-                }
-            }
+        QiscusCore.shared.sendMessage(roomID: roomId, comment: self, onSuccess: { (commentModel) in
+            onSuccess()
+        }) { (error) in
+            onError(error.message)
         }
         
     }
@@ -225,16 +221,12 @@ public class QComment: CommentModel {
     ///   - uniqueID: comment unique id
     ///   - type: forMe or ForEveryone
     ///   - completion: Response Comments your deleted
-    public func deleteMessage(uniqueIDs id: [String], type: DeleteType, onSuccess:@escaping ([QComment])->Void, onError:@escaping (String)->Void) {
+    public func deleteMessage(uniqueIDs id: [String], type: DeleteType, onSuccess:@escaping ([CommentModel])->Void, onError:@escaping (String)->Void) {
        
-        QiscusCore.shared.deleteMessage(uniqueIDs: id, type: type) { (qComments, error) in
-            if let qCommentsData = qComments{
-                onSuccess(qCommentsData as! [QComment])
-            }else{
-                if let errorMessage = error {
-                    onError(errorMessage.message)
-                }
-            }
+        QiscusCore.shared.deleteMessage(uniqueIDs: id, type: type, onSuccess: { (commentsModel) in
+             onSuccess(commentsModel as! [CommentModel])
+        }) { (error) in
+            onError(error.message)
         }
     }
     

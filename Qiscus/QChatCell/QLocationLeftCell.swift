@@ -26,6 +26,7 @@ class QLocationLeftCell: UIBaseChatCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
+        self.setMenu()
         let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(QLocationLeftCell.openMap))
         self.mapView.addGestureRecognizer(tapRecognizer)
         self.locationContainer.tintColor = QiscusColorConfiguration.sharedInstance.leftBaloonColor
@@ -33,7 +34,7 @@ class QLocationLeftCell: UIBaseChatCell {
 
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-
+        self.setMenu()
         // Configure the view for the selected state
     }
     

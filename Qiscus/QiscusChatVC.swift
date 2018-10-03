@@ -31,13 +31,13 @@ public protocol QiscusChatVCCellDelegate{
 public protocol QiscusChatVCConfigDelegate{
 //    func chatVCConfigDelegate(usingSoftDeleteOn viewController:QiscusChatVC)->Bool
 //    func chatVCConfigDelegate(deletedMessageTextFor viewController:QiscusChatVC, selfMessage isSelf:Bool)->String
-//    func chatVCConfigDelegate(enableReplyMenuItem viewController:QiscusChatVC, forComment comment: QComment)->Bool
-//    func chatVCConfigDelegate(enableForwardMenuItem viewController:QiscusChatVC, forComment comment: QComment)->Bool
-//    func chatVCConfigDelegate(enableResendMenuItem viewController:QiscusChatVC, forComment comment: QComment)->Bool
-//    func chatVCConfigDelegate(enableDeleteMenuItem viewController:QiscusChatVC, forComment comment: QComment)->Bool
-//    func chatVCConfigDelegate(enableDeleteForMeMenuItem viewController:QiscusChatVC, forComment comment: QComment)->Bool
-//    func chatVCConfigDelegate(enableShareMenuItem viewController:QiscusChatVC, forComment comment: QComment)->Bool
-//    func chatVCConfigDelegate(enableInfoMenuItem viewController:QiscusChatVC, forComment comment: QComment)->Bool
+//    func chatVCConfigDelegate(enableReplyMenuItem viewController:QiscusChatVC, forComment comment: CommentModel)->Bool
+//    func chatVCConfigDelegate(enableForwardMenuItem viewController:QiscusChatVC, forComment comment: CommentModel)->Bool
+//    func chatVCConfigDelegate(enableResendMenuItem viewController:QiscusChatVC, forComment comment: CommentModel)->Bool
+//    func chatVCConfigDelegate(enableDeleteMenuItem viewController:QiscusChatVC, forComment comment: CommentModel)->Bool
+//    func chatVCConfigDelegate(enableDeleteForMeMenuItem viewController:QiscusChatVC, forComment comment: CommentModel)->Bool
+//    func chatVCConfigDelegate(enableShareMenuItem viewController:QiscusChatVC, forComment comment: CommentModel)->Bool
+//    func chatVCConfigDelegate(enableInfoMenuItem viewController:QiscusChatVC, forComment comment: CommentModel)->Bool
 //    
 //    func chatVCConfigDelegate(usingNavigationSubtitleTyping viewController:QiscusChatVC)->Bool
 //    func chatVCConfigDelegate(usingTypingCell viewController:QiscusChatVC)->Bool
@@ -50,17 +50,17 @@ public protocol QiscusChatVCDelegate{
     func chatVC(enableInfoAction viewController:QiscusChatVC)->Bool
     func chatVC(overrideBackAction viewController:QiscusChatVC)->Bool
     //
-    func chatVC(backAction viewController:QiscusChatVC, room:QRoom?, data:Any?)
-    func chatVC(titleAction viewController:QiscusChatVC, room:QRoom?, data:Any?)
-    func chatVC(viewController:QiscusChatVC, onForwardComment comment:QComment, data:Any?)
-    func chatVC(viewController:QiscusChatVC, infoActionComment comment:QComment,data:Any?)
+    func chatVC(backAction viewController:QiscusChatVC, room:RoomModel?, data:Any?)
+    func chatVC(titleAction viewController:QiscusChatVC, room:RoomModel?, data:Any?)
+    func chatVC(viewController:QiscusChatVC, onForwardComment comment:CommentModel, data:Any?)
+    func chatVC(viewController:QiscusChatVC, infoActionComment comment:CommentModel,data:Any?)
     
     func chatVC(onViewDidLoad viewController:QiscusChatVC)
     func chatVC(viewController:QiscusChatVC, willAppear animated:Bool)
     func chatVC(viewController:QiscusChatVC, willDisappear animated:Bool)
-    func chatVC(didTapAttachment actionSheet: UIAlertController, viewController: QiscusChatVC, onRoom: QRoom?)
+    func chatVC(didTapAttachment actionSheet: UIAlertController, viewController: QiscusChatVC, onRoom: RoomModel?)
     
-    func chatVC(viewController:QiscusChatVC, willPostComment comment:QComment, room:QRoom?, data:Any?)->QComment?
+    func chatVC(viewController:QiscusChatVC, willPostComment comment:CommentModel, room:RoomModel?, data:Any?)->CommentModel?
     
     func chatVC(viewController:QiscusChatVC, didFailLoadRoom error:String)
 }
@@ -83,7 +83,7 @@ public class QiscusChatVC: UIChatViewController {
     public var chatUser:String?
     public var data:Any?
     public var chatRoomId:String?
-    //public var chatTarget:QComment?
+    //public var chatTarget:CommentModel?
     var didFindLocation = true
     let locationManager = CLLocationManager()
     var presentingLoading = false
@@ -105,7 +105,7 @@ public class QiscusChatVC: UIChatViewController {
         view.endEditing(true)
         if let delegate = self.delegate{
             if delegate.chatVC(overrideBackAction: self){
-                delegate.chatVC(backAction: self, room: self.room as! QRoom, data: data)
+                delegate.chatVC(backAction: self, room: self.room as! RoomModel, data: data)
             }else{
                 let _ = self.navigationController?.popViewController(animated: true)
             }
@@ -137,18 +137,18 @@ public class QiscusChatVC: UIChatViewController {
     }
     
     public override func viewDidLoad() {
+        self.chatDelegate = self
+        // Set delegate before super
         super.viewDidLoad()
         if let roomid = chatRoomId  {
             // loading
             self.showLoading()
-            QiscusCore.shared.getRoom(withID: roomid) { (roomData, error) in
-                self.dismissLoading()
-                if let data = roomData {
-                    self.room = data
-                }else {
-                    // show error
-                    Qiscus.printLog(text: "error load room \(String(describing: error?.message))")
-                }
+            QiscusCore.shared.getRoom(withID: roomid, onSuccess: { (roomModel, _) in
+                 self.dismissLoading()
+                 self.room = roomModel
+            }) { (error) in
+                 self.dismissLoading()
+                Qiscus.printLog(text: "error load room \(String(describing: error.message))")
             }
         }
         
@@ -175,28 +175,11 @@ public class QiscusChatVC: UIChatViewController {
         picker.delegate = self
     }
     
-    override public func chatViewController(viewController: UIChatViewController, performAction action: Selector, forRowAt message: CommentModel, withSender sender: Any?) {
-        if action == #selector(UIResponderStandardEditActions.copy(_:)) {
-            let pasteboard = UIPasteboard.general
-            pasteboard.string = message.message
-        }
-    }
-    
-    override public func chatViewController(viewController: UIChatViewController, canPerformAction action: Selector, forRowAtmessage: CommentModel, withSender sender: Any?) -> Bool {
-        switch action.description {
-        case "copy:":
-            return true
-        case "reply:":
-            return true
-        default:
-            return false
-        }
-    }
-    
     func setupNotification(){
         let center: NotificationCenter = NotificationCenter.default
         center.addObserver(self, selector: #selector(QiscusChatVC.didSaveContact(_:)), name: QiscusNotification.DID_TAP_SAVE_CONTACT, object: nil)
         center.addObserver(self, selector: #selector(QiscusChatVC.didClickReply(_:)), name: QiscusNotification.DID_TAP_MENU_REPLY, object: nil)
+        center.addObserver(self, selector: #selector(QiscusChatVC.didClickShare(_:)), name: QiscusNotification.DID_TAP_MENU_SHARE, object: nil)
     }
     
     @objc private func didClickReply(_ notification: Notification){
@@ -231,6 +214,38 @@ public class QiscusChatVC: UIChatViewController {
             unkvc.allowsActions = false
             self.navigationController?.navigationBar.backgroundColor =  Qiscus.shared.styleConfiguration.color.topColor
             self.navigationController?.pushViewController(unkvc, animated: true)
+        }
+    }
+    
+    @objc private func didClickShare(_ notification: Notification){
+        if let userInfo = notification.userInfo {
+            let comment = userInfo["comment"] as! CommentModel
+            
+            switch comment.type {
+            case "file_attachment":
+                guard let payload = comment.payload else {
+                    return
+                }
+                let fileURL = payload["url"] as? String
+                
+                if let fileURL = NSURL(string: fileURL!) {
+                    let items:[Any] = [fileURL]
+                    let activityViewController = UIActivityViewController(activityItems: items, applicationActivities: nil)
+                    
+                    activityViewController.popoverPresentationController?.sourceView = self.view
+                    self.present(activityViewController, animated: true, completion: nil)
+                }
+                break
+            case "text":
+                let activityViewController = UIActivityViewController(activityItems: [comment.message], applicationActivities: nil)
+                
+                activityViewController.popoverPresentationController?.sourceView = self.view
+                self.present(activityViewController, animated: true, completion: nil)
+                break
+            default:
+                break
+            }
+            
         }
     }
     
@@ -291,81 +306,6 @@ public class QiscusChatVC: UIChatViewController {
         return UIBarButtonItem(customView: backButton)
     }
     
-    override public func indentifierFor(message: CommentModel, atUIChatViewController : UIChatViewController) -> String {
-        if message.type == "text" {
-            if (message.isMyComment() == true){
-                return "qTextRightCell"
-            }else{
-                return "qTextLeftCell"
-            }
-        }else if message.type == "file_attachment" {
-            let type = self.getType(message: message)
-            switch type {
-            case .image:
-                if (message.isMyComment() == true){
-                    return "qImageRightCell"
-                }else{
-                    return "qImageLeftCell"
-                }
-            case .video:
-                if (message.isMyComment() == true){
-                    return "qTextRightCell"
-                }else{
-                    return "qTextLeftCell"
-                }
-            case .audio:
-                if (message.isMyComment() == true){
-                    return "qAudioRightCell"
-                }else{
-                    return "qAudioLeftCell"
-                }
-            case .pdf:
-                if (message.isMyComment() == true){
-                    return "qDocumentRightCell"
-                }else{
-                    return "qDocumentLeftCell"
-                }
-            case .document:
-                if (message.isMyComment() == true){
-                    return "qDocumentRightCell"
-                }else{
-                    return "qDocumentLeftCell"
-                }
-            default:
-                if (message.isMyComment() == true){
-                    return "qDocumentRightCell"
-                }else{
-                    return "qDocumentLeftCell"
-                }
-            }
-        }else if message.type == "system_event" {
-            return "qSystemCell"
-        }else if message.type == "reply" {
-            if (message.isMyComment() == true){
-                return "qReplyRightCell"
-            }else{
-                return "qReplyLeftCell"
-            }
-            
-        }else if message.type == "location" {
-            if (message.isMyComment() == true){
-                return "qLocationRightCell"
-            }else{
-                return "qLocationLeftCell"
-            }
-        }else if message.type == "contact_person" {
-            if (message.isMyComment() == true){
-                return "qContactRightCell"
-            }else{
-                return "qContactLeftCell"
-            }
-        }else {
-            Qiscus.printLog(text: "message.type ini =\(message.type)")
-            return super.indentifierFor(message: message, atUIChatViewController: atUIChatViewController)
-        }
-    }
-    
-    
     func getType(message: CommentModel) -> QiscusFileType{
         let json = message.payload
         var type = QiscusFileType.file
@@ -373,7 +313,7 @@ public class QiscusChatVC: UIChatViewController {
             return type
         }
         let fileURL = payload["url"] as? String
-        var filename = QComment().fileName(text: fileURL!)
+        var filename = CommentModel().fileName(text: fileURL!)
         
         if filename.contains("-"){
             let nameArr = filename.split(separator: "-")
@@ -395,7 +335,7 @@ public class QiscusChatVC: UIChatViewController {
         }
         
         switch ext {
-        case "jpg","jpg_","png","png_","gif","gif_", "heic":
+        case "jpg","jpeg","jpg_","png","png_","gif","gif_", "heic":
             type = QiscusFileType.image
         case "mov","mov_","mp4","mp4_":
             type = QiscusFileType.video
@@ -410,11 +350,128 @@ public class QiscusChatVC: UIChatViewController {
         return type
     }
     
-    // MARK: How to implement custom input chat
-    // register custom input
-    override public func chatInputBar() -> UIChatInput? {
-        
-        
+}
+
+extension QiscusChatVC : UIChatView {
+    public func uiChat(viewController: UIChatViewController, performAction action: Selector, forRowAt message: CommentModel, withSender sender: Any?) {
+        if action == #selector(UIResponderStandardEditActions.copy(_:)) {
+            let pasteboard = UIPasteboard.general
+            pasteboard.string = message.message
+        }
+    }
+    
+    public func uiChat(viewController: UIChatViewController, canPerformAction action: Selector, forRowAtmessage: CommentModel, withSender sender: Any?) -> Bool {
+        print("action.description =\(action.description)")
+        switch action.description {
+        case "copy:":
+            return true
+        case "reply:":
+            return true
+        case "forward:":
+            return true
+        case "share:":
+            return true
+        case "info:":
+            return true
+        case "deleteComment:":
+            return true
+        case "deleteCommentForMe:":
+            return true
+        default:
+            return false
+        }
+    }
+    
+    public func uiChat(viewController: UIChatViewController, cellForMessage message: CommentModel) -> UIBaseChatCell? {
+        if message.type == "text" {
+            if (message.isMyComment() == true){
+                return self.reusableCell(withIdentifier: "qTextRightCell", for: message) as! QTextRightCell
+            }else{
+                
+                let cell = self.reusableCell(withIdentifier: "qTextLeftCell", for: message) as! QTextLeftCell
+                if self.room?.type == .group {
+                    cell.isPublic = true
+                }else {
+                    cell.isPublic = false
+                }
+                return cell
+            }
+        }else if message.type == "file_attachment" {
+            let type = self.getType(message: message)
+            switch type {
+            case .image:
+                if (message.isMyComment() == true){
+                    return self.reusableCell(withIdentifier: "qImageRightCell", for: message) as! QImageRightCell
+                }else{
+                    return self.reusableCell(withIdentifier: "qImageLeftCell", for: message) as! QImageLeftCell
+                }
+            case .video:
+                if (message.isMyComment() == true){
+                    return self.reusableCell(withIdentifier: "qTextRightCell", for: message) as! QTextRightCell
+                }else{
+                    return self.reusableCell(withIdentifier: "qTextLeftCell", for: message) as! QTextLeftCell
+                }
+            case .audio:
+                if (message.isMyComment() == true){
+                    return self.reusableCell(withIdentifier: "qAudioRightCell", for: message) as! QAudioRightCell
+                }else{
+                    return self.reusableCell(withIdentifier: "qAudioLeftCell", for: message) as! QAudioLeftCell
+                }
+            case .pdf:
+                if (message.isMyComment() == true){
+                    return self.reusableCell(withIdentifier: "qDocumentRightCell", for: message) as! QDocumentRightCell
+                }else{
+                    return self.reusableCell(withIdentifier: "qDocumentLeftCell", for: message) as! QDocumentLeftCell
+                }
+            case .document:
+                if (message.isMyComment() == true){
+                    return self.reusableCell(withIdentifier: "qDocumentRightCell", for: message) as! QDocumentRightCell
+                }else{
+                    return self.reusableCell(withIdentifier: "qDocumentLeftCell", for: message) as! QDocumentLeftCell
+                }
+            default:
+                if (message.isMyComment() == true){
+                    return self.reusableCell(withIdentifier: "qDocumentRightCell", for: message) as! QDocumentRightCell
+                }else{
+                    return self.reusableCell(withIdentifier: "qDocumentLeftCell", for: message) as! QDocumentLeftCell
+                }
+            }
+        }else if message.type == "system_event" {
+            return self.reusableCell(withIdentifier: "qSystemCell", for: message) as! QSystemCell
+        }else if message.type == "reply" {
+            if (message.isMyComment() == true){
+                return self.reusableCell(withIdentifier: "qReplyRightCell", for: message) as! QReplyRightCell
+            }else{
+                return self.reusableCell(withIdentifier: "qReplyLeftCell", for: message) as! QReplyLeftCell
+            }
+            
+        }else if message.type == "location" {
+            if (message.isMyComment() == true){
+                return self.reusableCell(withIdentifier: "qLocationRightCell", for: message) as! QLocationRightCell
+            }else{
+                return self.reusableCell(withIdentifier: "qLocationLeftCell", for: message) as! QLocationLeftCell
+            }
+        }else if message.type == "contact_person" {
+            if (message.isMyComment() == true){
+                return self.reusableCell(withIdentifier: "qContactRightCell", for: message) as! QContactRightCell
+            }else{
+                return self.reusableCell(withIdentifier: "qContactLeftCell", for: message) as! QContactLeftCell
+            }
+        }else {
+            Qiscus.printLog(text: "message.type ini =\(message.type)")
+            return nil
+        }
+    }
+    
+    public func uiChat(viewController: UIChatViewController, didSelectMessage message: CommentModel) {
+        //
+    }
+    
+    public func uiChat(viewController: UIChatViewController, firstMessage message: CommentModel, viewForHeaderInSection section: Int) -> UIView? {
+        return nil
+    }
+    
+    public func uiChat(input InViewController: UIChatViewController) -> UIChatInput? {
         let sendImage = Qiscus.image(named: "send")?.withRenderingMode(.alwaysTemplate)
         let attachmentImage = Qiscus.image(named: "share_attachment")?.withRenderingMode(.alwaysTemplate)
         inputBar.sendButton.setImage(sendImage, for: .normal)

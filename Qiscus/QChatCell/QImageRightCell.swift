@@ -36,6 +36,7 @@ class QImageRightCell: UIBaseChatCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
+        self.setMenu()
         self.ivComment.contentMode = .scaleAspectFill
         self.ivComment.clipsToBounds = true
         self.ivComment.backgroundColor = UIColor.black
@@ -51,7 +52,7 @@ class QImageRightCell: UIBaseChatCell {
 
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-
+        self.setMenu()
         // Configure the view for the selected state
     }
     

@@ -1,5 +1,5 @@
 //
-//  QRoom.swift
+//  RoomModel.swift
 //  Qiscus
 //
 //  Created by Qiscus on 07/08/18.
@@ -19,10 +19,10 @@ import SwiftyJSON
     case pdf
 }
 
-public class QRoom: RoomModel {
-    public var lastCommentMessage: QComment{
+extension RoomModel {
+    public var lastCommentMessage: CommentModel{
         get{
-            return lastComment as! QComment
+            return lastComment as! CommentModel
         }
     }
     
@@ -40,20 +40,19 @@ public class QRoom: RoomModel {
     
     /// getAllRooms from local db
     ///
-    /// - Returns: will return QRoom
-    public class func all() -> [QRoom]?{
-        let rooms = QiscusCore.database.room.all() as! [QRoom]
+    /// - Returns: will return RoomModel
+    public class func all() -> [RoomModel]?{
+        let rooms = QiscusCore.database.room.all() as! [RoomModel]
         return rooms
         
     }
     
-    public class func getRoom(withId: String, completion: @escaping (QRoom?, String?) -> Void) {
-        QiscusCore.shared.getRoom(withID: withId) { (qRoom,error) in
-            if let qRoomData = qRoom {
-                 completion(qRoom as! QRoom,nil)
-            }else{
-                completion(nil,error?.message)
-            }
+    public class func getRoom(withId: String, completion: @escaping (RoomModel?, String?) -> Void) {
+        
+        QiscusCore.shared.getRoom(withID: withId, onSuccess: { (RoomModel,_) in
+             completion(RoomModel as! RoomModel,nil)
+        }) { (error) in
+            completion(nil,error.message)
         }
     }
     
@@ -62,20 +61,18 @@ public class QRoom: RoomModel {
     /// - Parameters:
     ///   - withLimit: limit is optional, default limit is 100
     ///   - page: page is optional, default page is 1
-    ///   - onSuccess: will return qRooms and totalRooms
+    ///   - onSuccess: will return RoomModels and totalRooms
     ///   - onFailed: will return error message
-    public class func roomList(withLimit limit:Int = 100, page:Int? = 1, showParticipant:Bool = true, onSuccess:@escaping (([QRoom],Int)->Void), onFailed: @escaping ((String)->Void)){
+    public class func roomList(withLimit limit:Int = 100, page:Int? = 1, showParticipant:Bool = true, onSuccess:@escaping (([RoomModel],Int)->Void), onFailed: @escaping ((String)->Void)){
         
-        QiscusCore.shared.getAllRoom(limit: limit, page: page) { (qRoom, metaData, error) in
-            if let qRoomData = qRoom {
-                if(metaData != nil){
-                    onSuccess(qRoomData as! [QRoom],(metaData?.totalRoom)!)
-                }else{
-                    onSuccess(qRoomData as! [QRoom], qRoomData.count)
-                }
+        QiscusCore.shared.getAllRoom(limit: limit, page: page, onSuccess: { (RoomModelData, metaData) in
+            if(metaData != nil){
+                onSuccess(RoomModelData as! [RoomModel],(metaData?.totalRoom)!)
             }else{
-                onFailed((error?.message)!)
+                onSuccess(RoomModelData as! [RoomModel], RoomModelData.count)
             }
+        }) { (error) in
+            onFailed(error.message)
         }
     }
     
@@ -84,24 +81,20 @@ public class QRoom: RoomModel {
     /// - Parameters:
     ///   - limit: default limit 100
     ///   - page: default page 1
-    ///   - onSuccess: will return QRoom object and total room
+    ///   - onSuccess: will return RoomModel object and total room
     ///   - onFailed: will return error message
-    public class func getAllRoom(withLimit limit:Int? = 100, page:Int? = 1, onSuccess:@escaping (([QRoom],Int)->Void), onFailed: @escaping ((String)->Void)){
-        QiscusCore.shared.getAllRoom(limit: limit, page: page) { (qRoom, metaData, error) in
-            if let qRoomData = qRoom {
-                if(metaData != nil){
-                    onSuccess(qRoomData as! [QRoom],(metaData?.totalRoom)!)
-                }else{
-                     onSuccess(qRoomData as! [QRoom], qRoomData.count)
-                }
+    public class func getAllRoom(withLimit limit:Int? = 100, page:Int? = 1, onSuccess:@escaping (([RoomModel],Int)->Void), onFailed: @escaping ((String)->Void)){
+        
+        QiscusCore.shared.getAllRoom(limit: limit, page: page, onSuccess: { (roomModel, metaData) in
+            if(metaData != nil){
+                onSuccess(roomModel as! [RoomModel],(metaData?.totalRoom)!)
             }else{
-                if let error = error?.message {
-                    onFailed(error)
-                }else{
-                     onFailed("error getAllRoom")
-                }
+                onSuccess(roomModel as! [RoomModel], roomModel.count)
             }
+        }) { (error) in
+            onFailed(error.message)
         }
+        
     }
     
     
@@ -109,15 +102,15 @@ public class QRoom: RoomModel {
     ///
     /// - Parameter completion: will return unreadCount
     public class func getUnreadCount(completion: @escaping (Int) -> Void){
-        QiscusCore.shared.getAllRoom() { (qRoom,meta,error) in
+        QiscusCore.shared.getAllRoom(onSuccess: { (roomModel, meta) in
             var countUnread = 0
-            if let qRoomData = qRoom {
-                for room in qRoomData.enumerated() {
-                    countUnread = countUnread + room.element.unreadCount
-                }
+            for room in roomModel.enumerated() {
+                countUnread = countUnread + room.element.unreadCount
             }
             
-            completion(countUnread)
+             completion(countUnread)
+        }) { (error) in
+            completion(0)
         }
     }
     
@@ -125,9 +118,9 @@ public class QRoom: RoomModel {
     ///
     /// - Parameter completion: will return unreadCount
     public class func getLocalUnreadCount(completion: @escaping (Int) -> Void){
-        let qRooms = QiscusCore.database.room.all()
+        let RoomModels = QiscusCore.database.room.all()
         var countUnread = 0
-        for room in qRooms.enumerated() {
+        for room in RoomModels.enumerated() {
             countUnread = countUnread + room.element.unreadCount
         }
         
@@ -142,24 +135,19 @@ public class QRoom: RoomModel {
     ///   - roomName: room of name
     ///   - roomAvatarURL: avatar of room
     ///   - roomOptions: roomOption
-    ///   - onSuccess: will return QRoom model
+    ///   - onSuccess: will return RoomModel model
     ///   - onError: will return error message
-    public func update(withID: String, roomName:String? = nil, roomAvatarURL:String? = nil, roomOptions:String? = nil, onSuccess:@escaping ((_ room: QRoom)->Void),onError:@escaping ((_ error: String)->Void)){
+    public func update(withID: String, roomName:String? = nil, roomAvatarURL:String? = nil, roomOptions:String? = nil, onSuccess:@escaping ((_ room: RoomModel)->Void),onError:@escaping ((_ error: String)->Void)){
         
         var roomAvatarUrl: URL? = nil
         if(roomAvatarURL != nil){
             roomAvatarUrl = URL(string: roomAvatarURL!)
         }
         
-        QiscusCore.shared.updateRoom(withID: withID, name: roomName, avatarURL: roomAvatarUrl, options: roomOptions) { (qRoom, error) in
-            if let qRoomData = qRoom {
-                onSuccess(qRoom as! QRoom)
-            }else{
-                if let errorMessage = error {
-                    onError(errorMessage.message)
-                }
-            }
-            
+        QiscusCore.shared.updateRoom(withID: withID, name: roomName, avatarURL: roomAvatarUrl, options: roomOptions, onSuccess: { (roomModel) in
+             onSuccess(roomModel as! RoomModel)
+        }) { (error) in
+            onError(error.message)
         }
         
     }
@@ -170,11 +158,11 @@ public class QRoom: RoomModel {
     /// - Parameters:
     ///   - text: message comment
     ///   - payload: payload
-    ///   - type: QCommentType, default is text
-    /// - Returns: will return QComment model
-    public func newComment(roomId: String, text:String, payload:JSON? = nil,type:QCommentType = .text)->QComment{
+    ///   - type: CommentModelType, default is text
+    /// - Returns: will return CommentModel model
+    public func newComment(roomId: String, text:String, payload:JSON? = nil,type:CommentModelType = .text)->CommentModel{
         // create object comment
-        let message = QComment.init()
+        let message = CommentModel.init()
         message.message = text
         message.type = type.name()
         if payload != nil {
@@ -190,9 +178,9 @@ public class QRoom: RoomModel {
     ///   - type: type
     ///   - payload: payload
     ///   - text: text
-    /// - Returns: will return QComment model
-    public func newCustomComment(type:String, payload:String, text:String? = nil )->QComment{
-        let comment = QComment.init()
+    /// - Returns: will return CommentModel model
+    public func newCustomComment(type:String, payload:String, text:String? = nil )->CommentModel{
+        let comment = CommentModel.init()
         let payloadData = JSON(parseJSON: payload)
         var contentString = "\"\""
         if payloadData == JSON.null{
@@ -220,13 +208,14 @@ public class QRoom: RoomModel {
     ///   - comment: commment model
     ///   - type: type is optional
     ///   - payload: payload is optional
-    public func post(comment:QComment, type:String? = nil, payload:JSON? = nil){
+    public func post(comment:CommentModel, type:String? = nil, payload:JSON? = nil){
         comment.payload = payload?.dictionary
         if type != nil && !(type?.isEmpty)! {
             comment.type  = type!
         }
-       
-        QiscusCore.shared.sendMessage(roomID: self.id, comment: comment) { (message, error) in
+        QiscusCore.shared.sendMessage(roomID: self.id, comment: comment, onSuccess: { (commentModel) in
+            comment.onChange(comment)
+        }) { (error) in
             comment.onChange(comment)
         }
     }
@@ -240,9 +229,9 @@ public class QRoom: RoomModel {
     ///   - caption: caption
     ///   - data: data
     ///   - thumbImage: thumbImage
-    /// - Returns: will return QComment model
-    public func newFileComment(type: QiscusFileType, filename:String = "", caption:String = "", data:Data? = nil, thumbImage:UIImage? = nil)->QComment{
-        let comment = QComment.init()
+    /// - Returns: will return CommentModel model
+    public func newFileComment(type: QiscusFileType, filename:String = "", caption:String = "", data:Data? = nil, thumbImage:UIImage? = nil)->CommentModel{
+        let comment = CommentModel.init()
         let fileNameArr = filename.split(separator: ".")
         let fileExt = String(fileNameArr.last!).lowercased()
         
@@ -259,7 +248,7 @@ public class QRoom: RoomModel {
         //        comment.createdAt = Double(Date().timeIntervalSince1970)
         //        comment.senderEmail = QiscusMe.sharedInstance.email
         //        comment.senderName = QiscusMe.sharedInstance.userName
-        //        comment.statusRaw = QCommentStatus.sending.rawValue
+        //        comment.statusRaw = CommentModelStatus.sending.rawValue
         //        comment.isUploading = true
         //        comment.progress = 0
         //        comment.data = payload
@@ -277,7 +266,7 @@ public class QRoom: RoomModel {
         //
         switch type {
         case .audio:
-            //            comment.typeRaw = QCommentType.audio.name()
+            //            comment.typeRaw = CommentModelType.audio.name()
             //            file.localPath = QFile.saveFile(data!, fileName: fileName)
             break
         case .image:
@@ -301,7 +290,7 @@ public class QRoom: RoomModel {
             //                file.localThumbPath = QFile.saveFile(data!, fileName: "thumb-\(fileName)")
             //            }
             //
-            //            comment.typeRaw = QCommentType.image.name()
+            //            comment.typeRaw = CommentModelType.image.name()
             //            file.localPath = QFile.saveFile(data!, fileName: fileName)
             break
         case .video:
@@ -315,12 +304,12 @@ public class QRoom: RoomModel {
             //            }
             //            let thumbData = UIImagePNGRepresentation(thumbImage!)
             //            file.localThumbPath = QFile.saveFile(thumbData!, fileName: "thumb-\(fileNameOnly).png")
-            //            comment.typeRaw = QCommentType.video.name()
+            //            comment.typeRaw = CommentModelType.video.name()
             //            file.localPath = QFile.saveFile(data!, fileName: fileName)
             break
         default:
             //            file.localPath = QFile.saveFile(data!, fileName: fileName)
-            //            comment.typeRaw = QCommentType.file.name()
+            //            comment.typeRaw = CommentModelType.file.name()
             break
         }
         
@@ -334,14 +323,12 @@ public class QRoom: RoomModel {
     ///   - id: Room ID
     ///   - limit: by default set 20, min 0 and max 100
     ///   - completion: Response new Qiscus Array of Comment Object and error if exist.
-    public func loadComments(roomID id: String, limit: Int? = 20, completion: @escaping ([QComment]?, String?) -> Void) {
+    public func loadComments(roomID id: String, limit: Int? = 20, completion: @escaping ([CommentModel]?, String?) -> Void) {
         // Load message by default 20
-        QiscusCore.shared.loadComments(roomID: id, limit: limit) { (qComments, error) in
-            if let qCommentsData = qComments{
-                completion(qCommentsData as! [QComment], nil)
-            }else{
-                completion(nil, error?.message)
-            }
+        QiscusCore.shared.loadComments(roomID: id, limit: limit, onSuccess: { (commentsModel) in
+            completion(commentsModel as! [CommentModel], nil)
+        }) { (error) in
+             completion(nil, error.message)
         }
     }
     
@@ -352,26 +339,23 @@ public class QRoom: RoomModel {
     ///   - roomID: roomId
     ///   - lastCommentID: lastCommentId
     ///   - limit: default limit is 20
-    ///   - onSuccess: will return array of QComment
+    ///   - onSuccess: will return array of CommentModel
     ///   - onError: will return error message
-    public func loadMore(roomID: String, lastCommentID: Int, limit: Int? = 20, onSuccess:@escaping ([QComment],Bool)->Void, onError:@escaping (String)->Void){
-        QiscusCore.shared.loadMore(roomID: roomID, lastCommentID: lastCommentID, limit: limit) { (qComments, error) in
-            if let qCommentsData = qComments{
-                var hasMoreMessages : Bool = true
-                if qCommentsData.count == 0 {
-                    hasMoreMessages = false
-                }
-                onSuccess(qCommentsData as! [QComment], hasMoreMessages)
-            }else{
-                if let errorMessage = error {
-                     onError(errorMessage.message)
-                }
+    public func loadMore(roomID: String, lastCommentID: Int, limit: Int? = 20, onSuccess:@escaping ([CommentModel],Bool)->Void, onError:@escaping (String)->Void){
+        
+        QiscusCore.shared.loadMore(roomID: roomID, lastCommentID: lastCommentID, limit: limit, onSuccess: { (commentsModel) in
+            var hasMoreMessages : Bool = true
+            if commentsModel.count == 0 {
+                hasMoreMessages = false
             }
+            onSuccess(commentsModel as! [CommentModel], hasMoreMessages)
+        }) { (error) in
+            onError(error.message)
         }
     }
     
     //TODO NEED TO BE IMPLEMENT FROM SDKCore
-    public func downloadMedia(onComment comment:QComment, thumbImageRef: UIImage? = nil, isAudioFile: Bool = false, onSuccess: ((QComment)->Void)? = nil, onError:((String)->Void)? = nil, onProgress:((Double)->Void)? = nil){
+    public func downloadMedia(onComment comment:CommentModel, thumbImageRef: UIImage? = nil, isAudioFile: Bool = false, onSuccess: ((CommentModel)->Void)? = nil, onError:((String)->Void)? = nil, onProgress:((Double)->Void)? = nil){
        
     }
     

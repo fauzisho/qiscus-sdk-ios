@@ -112,8 +112,8 @@ class QRoomListDefaultCell: QRoomListCell {
             self.descriptionLabel.text = ""
         }
     }
-    override func onRoomChange(room: QRoom) {}
-    override func gotNewComment(comment: QComment) {}
+    override func onRoomChange(room: RoomModel) {}
+    //override func gotNewComment(comment: CommentModel) {}
     
     override func roomUnreadCountChange() {
         setupUnreadIndicator()

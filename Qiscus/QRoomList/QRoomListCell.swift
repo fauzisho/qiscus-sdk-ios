@@ -17,7 +17,7 @@ open class QRoomListCell: UITableViewCell {
         }
     }
     
-    public var room:QRoom? {
+    public var room:RoomModel? {
         didSet{
             setupUI()
             
@@ -67,11 +67,11 @@ open class QRoomListCell: UITableViewCell {
     
    // open func onUserTyping(user:QUser, typing:Bool){}
     
-    open func onRoomChange(room: QRoom){
+    open func onRoomChange(room: RoomModel){
         self.room = room
     }
     
-    open func gotNewComment(comment:QComment){
+    open func gotNewComment(comment:CommentModel){
 //        self.room = comment.room!
     }
     
@@ -92,7 +92,7 @@ open class QRoomListCell: UITableViewCell {
         if let userInfo = notification.userInfo {
             if let currentRoom = self.room {
                 
-                if let comment = userInfo["comment"] as? QComment{
+                if let comment = userInfo["comment"] as? CommentModel{
                     self.gotNewComment(comment: comment)
                 }
             }
@@ -101,7 +101,7 @@ open class QRoomListCell: UITableViewCell {
     
     @objc private func roomChangeNotif(_ notification: Notification){
         if let userInfo = notification.userInfo {
-            if let room = userInfo["room"] as? QRoom {
+            if let room = userInfo["room"] as? RoomModel {
                 
                 
 //                    if let property = userInfo["property"] as? QRoomProperty {

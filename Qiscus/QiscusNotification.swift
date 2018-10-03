@@ -32,6 +32,7 @@ public class QiscusNotification: NSObject {
     public static let ERROR_CLOUD_SYNC = NSNotification.Name("qiscus_finishedCloudSync")
     public static let DID_TAP_SAVE_CONTACT = NSNotification.Name("qiscus_didTapSaveContact")
     public static let DID_TAP_MENU_REPLY = NSNotification.Name("qiscus_didClickReply")
+    public static let DID_TAP_MENU_SHARE = NSNotification.Name("qiscus_didClickShare")
     
     override private init(){
         super.init()
@@ -72,6 +73,16 @@ public class QiscusNotification: NSObject {
     private func publishDidClickReply(message:CommentModel){
         let userInfo = ["comment" : message]
         self.nc.post(name: QiscusNotification.DID_TAP_MENU_REPLY, object: nil, userInfo: userInfo)
+    }
+    
+    public class func publishDidClickShare(message : CommentModel){
+        let notification = QiscusNotification.shared
+        notification.publishDidClickShare(message: message)
+    }
+    
+    private func publishDidClickShare(message:CommentModel){
+        let userInfo = ["comment" : message]
+        self.nc.post(name: QiscusNotification.DID_TAP_MENU_SHARE, object: nil, userInfo: userInfo)
     }
 
     
