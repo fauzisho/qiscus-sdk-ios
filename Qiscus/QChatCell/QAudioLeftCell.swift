@@ -22,7 +22,7 @@ class QAudioLeftCell: UIBaseChatCell {
     @IBOutlet weak var durationLabel: UILabel!
     @IBOutlet weak var progressView: UIView!
     @IBOutlet weak var progressImageView: UIImageView!
-    
+    var menuConfig = enableMenuConfig()
     var player: AVPlayer?
     var _timeFormatter: DateComponentsFormatter?
     var timeFormatter: DateComponentsFormatter? {
@@ -61,13 +61,13 @@ class QAudioLeftCell: UIBaseChatCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        self.setMenu()
+        self.setMenu(forward: menuConfig.forward, info: menuConfig.info)
         // Initialization code
     }
     
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-        self.setMenu()
+        self.setMenu(forward: menuConfig.forward, info: menuConfig.info)
         // Configure the view for the selected state
     }
     

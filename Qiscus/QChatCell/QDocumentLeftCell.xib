@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14313.18" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14283.14"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -23,7 +23,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="399" height="100.5"/>
                         <subviews>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="redraw" horizontalHuggingPriority="251" verticalHuggingPriority="249" translatesAutoresizingMaskIntoConstraints="NO" id="nN2-Lu-JjU">
-                                <rect key="frame" x="-1" y="26" width="218" height="74.5"/>
+                                <rect key="frame" x="-1" y="5" width="218" height="96"/>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute type="number" keyPath="cornerRadiuss">
                                         <real key="value" value="6"/>
@@ -116,10 +116,10 @@
                             <constraint firstItem="z7J-UI-6MJ" firstAttribute="top" secondItem="1hO-D6-CLV" secondAttribute="bottom" constant="2" id="5W5-H3-dI0"/>
                             <constraint firstItem="yll-Pk-9Kd" firstAttribute="top" secondItem="NpO-XA-C6n" secondAttribute="top" constant="5" id="6hR-EZ-jmz"/>
                             <constraint firstItem="Xos-Tm-Zmw" firstAttribute="top" secondItem="1hO-D6-CLV" secondAttribute="bottom" id="EMz-MO-ASN"/>
-                            <constraint firstItem="mvh-JW-FFh" firstAttribute="top" secondItem="nN2-Lu-JjU" secondAttribute="top" constant="5" id="Ev1-P1-vEQ"/>
+                            <constraint firstItem="mvh-JW-FFh" firstAttribute="top" secondItem="nN2-Lu-JjU" secondAttribute="top" constant="26" id="Ev1-P1-vEQ"/>
                             <constraint firstItem="mvh-JW-FFh" firstAttribute="leading" secondItem="nN2-Lu-JjU" secondAttribute="leading" constant="21" id="INX-Mx-wHp"/>
                             <constraint firstItem="1hO-D6-CLV" firstAttribute="top" secondItem="yll-Pk-9Kd" secondAttribute="bottom" constant="5" id="JvS-M7-70e"/>
-                            <constraint firstItem="nN2-Lu-JjU" firstAttribute="height" secondItem="1hO-D6-CLV" secondAttribute="height" constant="20" id="PDj-tI-alI"/>
+                            <constraint firstItem="nN2-Lu-JjU" firstAttribute="height" secondItem="1hO-D6-CLV" secondAttribute="height" constant="41.5" id="PDj-tI-alI"/>
                             <constraint firstItem="yll-Pk-9Kd" firstAttribute="leading" secondItem="NpO-XA-C6n" secondAttribute="leading" constant="15" id="R7Z-Om-bcs"/>
                             <constraint firstItem="Xos-Tm-Zmw" firstAttribute="leading" secondItem="z7J-UI-6MJ" secondAttribute="trailing" constant="3" id="VPW-dn-5n0"/>
                             <constraint firstItem="Xos-Tm-Zmw" firstAttribute="trailing" secondItem="nN2-Lu-JjU" secondAttribute="trailing" constant="-5" id="XaM-RY-1Dx"/>
@@ -129,7 +129,7 @@
                             <constraint firstItem="7Qd-hk-TFW" firstAttribute="leading" secondItem="nN2-Lu-JjU" secondAttribute="leading" constant="21" id="gUg-pI-2iV"/>
                             <constraint firstItem="1hO-D6-CLV" firstAttribute="leading" secondItem="yll-Pk-9Kd" secondAttribute="leading" constant="5" id="pXt-id-rG5"/>
                             <constraint firstItem="mvh-JW-FFh" firstAttribute="bottom" secondItem="1hO-D6-CLV" secondAttribute="bottom" id="sVE-ua-Gqw"/>
-                            <constraint firstItem="nN2-Lu-JjU" firstAttribute="centerY" secondItem="1hO-D6-CLV" secondAttribute="centerY" constant="5" id="teI-jj-YTm"/>
+                            <constraint firstItem="nN2-Lu-JjU" firstAttribute="centerY" secondItem="1hO-D6-CLV" secondAttribute="centerY" constant="-5.25" id="teI-jj-YTm"/>
                             <constraint firstItem="nN2-Lu-JjU" firstAttribute="centerX" secondItem="1hO-D6-CLV" secondAttribute="centerX" constant="-8" id="y8a-S1-3ha"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="MWc-eH-kdW"/>
@@ -162,7 +162,7 @@
         </tableViewCell>
     </objects>
     <resources>
-        <image name="ic_file" width="57" height="66"/>
+        <image name="ic_file" width="19" height="22"/>
         <image name="ic_read" width="72" height="72"/>
     </resources>
 </document>

@@ -93,13 +93,13 @@ public class QiscusChatVC: UIChatViewController {
     internal var currentNavbarTint = UINavigationBar.appearance().tintColor
     //static let currentNavbarTint = UINavigationBar.appearance().tintColor
     let picker = UIImagePickerController()
-    
     var UTIs:[String]{
         get{
             return ["public.jpeg", "public.png","com.compuserve.gif","public.text", "public.archive", "com.microsoft.word.doc", "com.microsoft.excel.xls", "com.microsoft.powerpoint.​ppt", "com.adobe.pdf","public.mpeg-4"]
         }
     }
     
+
     @objc func back() {
         self.isPresence = false
         view.endEditing(true)
@@ -133,27 +133,43 @@ public class QiscusChatVC: UIChatViewController {
 
     public override func viewWillAppear(_ animated: Bool) {
        super.viewWillAppear(animated)
-       self.tabBarController?.tabBar.isHidden = true
+        self.tabBarController?.tabBar.isHidden = true
+        if let delegate = self.delegate{
+            delegate.chatVC(viewController: self, willAppear: animated)
+        }
+    }
+    
+    public override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if let delegate = self.delegate{
+            delegate.chatVC(viewController: self, willDisappear: animated)
+        }
     }
     
     public override func viewDidLoad() {
         self.chatDelegate = self
         // Set delegate before super
         super.viewDidLoad()
-        if let roomid = chatRoomId  {
-            // loading
-            self.showLoading()
-            QiscusCore.shared.getRoom(withID: roomid, onSuccess: { (roomModel, _) in
-                 self.dismissLoading()
-                 self.room = roomModel
-            }) { (error) in
-                 self.dismissLoading()
-                Qiscus.printLog(text: "error load room \(String(describing: error.message))")
+        if (room == nil){
+            if let roomid = chatRoomId  {
+                // loading
+                //self.showLoading()
+                QiscusCore.shared.getRoom(withID: roomid, onSuccess: { (roomModel, _) in
+                    //self.dismissLoading()
+                    self.room = roomModel
+                    self.setupNavigationTitle()
+                }) { (error) in
+                    //self.dismissLoading()
+                    Qiscus.printLog(text: "error load room \(String(describing: error.message))")
+                }
             }
         }
         
         self.setupUI()
         NotificationCenter.default.addObserver(self, selector:#selector(willEnterFromForeground), name: NSNotification.Name.UIApplicationWillEnterForeground, object: nil)
+        if let delegate = self.delegate{
+            delegate.chatVC(onViewDidLoad: self)
+        }
     }
     
     @objc func willEnterFromForeground(){
@@ -180,6 +196,9 @@ public class QiscusChatVC: UIChatViewController {
         center.addObserver(self, selector: #selector(QiscusChatVC.didSaveContact(_:)), name: QiscusNotification.DID_TAP_SAVE_CONTACT, object: nil)
         center.addObserver(self, selector: #selector(QiscusChatVC.didClickReply(_:)), name: QiscusNotification.DID_TAP_MENU_REPLY, object: nil)
         center.addObserver(self, selector: #selector(QiscusChatVC.didClickShare(_:)), name: QiscusNotification.DID_TAP_MENU_SHARE, object: nil)
+        center.addObserver(self, selector: #selector(QiscusChatVC.didClickInfo(_:)), name: QiscusNotification.DID_TAP_MENU_INFO, object: nil)
+        center.addObserver(self, selector: #selector(QiscusChatVC.didClickForward(_:)), name: QiscusNotification.DID_TAP_MENU_FORWARD, object: nil)
+        
     }
     
     @objc private func didClickReply(_ notification: Notification){
@@ -214,6 +233,24 @@ public class QiscusChatVC: UIChatViewController {
             unkvc.allowsActions = false
             self.navigationController?.navigationBar.backgroundColor =  Qiscus.shared.styleConfiguration.color.topColor
             self.navigationController?.pushViewController(unkvc, animated: true)
+        }
+    }
+    
+    @objc private func didClickInfo(_ notification: Notification){
+        if let userInfo = notification.userInfo {
+            let comment = userInfo["comment"] as! CommentModel
+            if let delegate = self.delegate{
+                delegate.chatVC(viewController: self, infoActionComment: comment, data: data)
+            }
+        }
+    }
+    
+    @objc private func didClickForward(_ notification: Notification){
+        if let userInfo = notification.userInfo {
+            let comment = userInfo["comment"] as! CommentModel
+            if let delegate = self.delegate{
+                delegate.chatVC(viewController: self, onForwardComment: comment, data: data)
+            }
         }
     }
     
@@ -284,6 +321,35 @@ public class QiscusChatVC: UIChatViewController {
         let backButton = self.backButton(self, action: #selector(self.back))
         self.navigationItem.setHidesBackButton(true, animated: false)
         self.navigationItem.leftBarButtonItems = [backButton]
+        
+        if chatTitle != nil {
+            self.titleLabel.text = chatTitle
+        }
+        
+        if chatSubtitle != nil {
+            self.subtitleLabel.text = chatSubtitle
+        }
+        
+        if chatAvatarURL != nil {
+            self.roomAvatar.af_setImage(withURL: URL(string: chatAvatarURL!)!)
+        }
+        
+        self.titleLabel.textColor       = Qiscus.style.color.tintColor
+        self.subtitleLabel.textColor    = Qiscus.style.color.tintColor
+        self.titleLabel.font            = titleLabel.font.withSize(14)
+        self.subtitleLabel.font         = subtitleLabel.font.withSize(12)
+       
+        let tap = UITapGestureRecognizer(target: self, action: #selector(self.tapFunction))
+        titleLabel.isUserInteractionEnabled = true
+        titleLabel.addGestureRecognizer(tap)
+        
+        
+    }
+    
+    @objc func tapFunction(sender:UITapGestureRecognizer) {
+        if let delegate = self.delegate {
+            delegate.chatVC(titleAction: self, room: room, data: self.data)
+        }
     }
     
     private func backButton(_ target: UIViewController, action: Selector) -> UIBarButtonItem{
@@ -383,11 +449,22 @@ extension QiscusChatVC : UIChatView {
     }
     
     public func uiChat(viewController: UIChatViewController, cellForMessage message: CommentModel) -> UIBaseChatCell? {
+        var menuConfig = enableMenuConfig()
+        if let isEnable = delegate?.chatVC(enableInfoAction: self) {
+            menuConfig.info = isEnable
+        }
+        
+        if let isEnable = delegate?.chatVC(enableForwardAction: self) {
+            menuConfig.forward = isEnable
+        }
+        
+
         if message.type == "text" {
             if (message.isMyComment() == true){
-                return self.reusableCell(withIdentifier: "qTextRightCell", for: message) as! QTextRightCell
+                let cell =  self.reusableCell(withIdentifier: "qTextRightCell", for: message) as! QTextRightCell
+                cell.menuConfig = menuConfig
+                return cell
             }else{
-                
                 let cell = self.reusableCell(withIdentifier: "qTextLeftCell", for: message) as! QTextLeftCell
                 if self.room?.type == .group {
                     cell.isPublic = true
@@ -401,61 +478,103 @@ extension QiscusChatVC : UIChatView {
             switch type {
             case .image:
                 if (message.isMyComment() == true){
-                    return self.reusableCell(withIdentifier: "qImageRightCell", for: message) as! QImageRightCell
+                    let cell =  self.reusableCell(withIdentifier: "qImageRightCell", for: message) as! QImageRightCell
+                    cell.menuConfig = menuConfig
+                    return cell
                 }else{
-                    return self.reusableCell(withIdentifier: "qImageLeftCell", for: message) as! QImageLeftCell
+                    let cell = self.reusableCell(withIdentifier: "qImageLeftCell", for: message) as! QImageLeftCell
+                        cell.menuConfig = menuConfig
+                    if self.room?.type == .group {
+                        cell.isPublic = true
+                    }else {
+                        cell.isPublic = false
+                    }
+                    
+                    return cell
                 }
             case .video:
                 if (message.isMyComment() == true){
-                    return self.reusableCell(withIdentifier: "qTextRightCell", for: message) as! QTextRightCell
+                    let cell =  self.reusableCell(withIdentifier: "qDocumentRightCell", for: message) as! QDocumentRightCell
+                    cell.menuConfig = menuConfig
+                    return cell
                 }else{
-                    return self.reusableCell(withIdentifier: "qTextLeftCell", for: message) as! QTextLeftCell
+                    let cell = self.reusableCell(withIdentifier: "qDocumentLeftCell", for: message) as! QDocumentLeftCell
+                    cell.menuConfig = menuConfig
+                    return cell
                 }
             case .audio:
                 if (message.isMyComment() == true){
-                    return self.reusableCell(withIdentifier: "qAudioRightCell", for: message) as! QAudioRightCell
+                    let cell = self.reusableCell(withIdentifier: "qAudioRightCell", for: message) as! QAudioRightCell
+                    cell.menuConfig = menuConfig
+                    return cell
                 }else{
-                    return self.reusableCell(withIdentifier: "qAudioLeftCell", for: message) as! QAudioLeftCell
+                    let cell = self.reusableCell(withIdentifier: "qAudioLeftCell", for: message) as! QAudioLeftCell
+                    cell.menuConfig = menuConfig
+                    return cell
                 }
             case .pdf:
                 if (message.isMyComment() == true){
-                    return self.reusableCell(withIdentifier: "qDocumentRightCell", for: message) as! QDocumentRightCell
+                    let cell =  self.reusableCell(withIdentifier: "qDocumentRightCell", for: message) as! QDocumentRightCell
+                    cell.menuConfig = menuConfig
+                    return cell
                 }else{
-                    return self.reusableCell(withIdentifier: "qDocumentLeftCell", for: message) as! QDocumentLeftCell
+                    let cell = self.reusableCell(withIdentifier: "qDocumentLeftCell", for: message) as! QDocumentLeftCell
+                    cell.menuConfig = menuConfig
+                    return cell
                 }
             case .document:
                 if (message.isMyComment() == true){
-                    return self.reusableCell(withIdentifier: "qDocumentRightCell", for: message) as! QDocumentRightCell
+                    let cell = self.reusableCell(withIdentifier: "qDocumentRightCell", for: message) as! QDocumentRightCell
+                    cell.menuConfig = menuConfig
+                    return cell
                 }else{
-                    return self.reusableCell(withIdentifier: "qDocumentLeftCell", for: message) as! QDocumentLeftCell
+                    let cell = self.reusableCell(withIdentifier: "qDocumentLeftCell", for: message) as! QDocumentLeftCell
+                    cell.menuConfig = menuConfig
+                    return cell
                 }
             default:
                 if (message.isMyComment() == true){
-                    return self.reusableCell(withIdentifier: "qDocumentRightCell", for: message) as! QDocumentRightCell
+                    let cell = self.reusableCell(withIdentifier: "qDocumentRightCell", for: message) as! QDocumentRightCell
+                    cell.menuConfig = menuConfig
+                    return cell
                 }else{
-                    return self.reusableCell(withIdentifier: "qDocumentLeftCell", for: message) as! QDocumentLeftCell
+                    let cell = self.reusableCell(withIdentifier: "qDocumentLeftCell", for: message) as! QDocumentLeftCell
+                    cell.menuConfig = menuConfig
+                    return cell
                 }
             }
         }else if message.type == "system_event" {
             return self.reusableCell(withIdentifier: "qSystemCell", for: message) as! QSystemCell
         }else if message.type == "reply" {
             if (message.isMyComment() == true){
-                return self.reusableCell(withIdentifier: "qReplyRightCell", for: message) as! QReplyRightCell
+                let cell = self.reusableCell(withIdentifier: "qReplyRightCell", for: message) as! QReplyRightCell
+                cell.menuConfig = menuConfig
+                return cell
             }else{
-                return self.reusableCell(withIdentifier: "qReplyLeftCell", for: message) as! QReplyLeftCell
+                let cell = self.reusableCell(withIdentifier: "qReplyLeftCell", for: message) as! QReplyLeftCell
+                cell.menuConfig = menuConfig
+                return cell
             }
             
         }else if message.type == "location" {
             if (message.isMyComment() == true){
-                return self.reusableCell(withIdentifier: "qLocationRightCell", for: message) as! QLocationRightCell
+                let cell =  self.reusableCell(withIdentifier: "qLocationRightCell", for: message) as! QLocationRightCell
+                cell.menuConfig = menuConfig
+                return cell
             }else{
-                return self.reusableCell(withIdentifier: "qLocationLeftCell", for: message) as! QLocationLeftCell
+                let cell = self.reusableCell(withIdentifier: "qLocationLeftCell", for: message) as! QLocationLeftCell
+                cell.menuConfig = menuConfig
+                return cell
             }
         }else if message.type == "contact_person" {
             if (message.isMyComment() == true){
-                return self.reusableCell(withIdentifier: "qContactRightCell", for: message) as! QContactRightCell
+                let cell =  self.reusableCell(withIdentifier: "qContactRightCell", for: message) as! QContactRightCell
+                cell.menuConfig = menuConfig
+                return cell
             }else{
-                return self.reusableCell(withIdentifier: "qContactLeftCell", for: message) as! QContactLeftCell
+                let cell = self.reusableCell(withIdentifier: "qContactLeftCell", for: message) as! QContactLeftCell
+                cell.menuConfig = menuConfig
+                return cell
             }
         }else {
             Qiscus.printLog(text: "message.type ini =\(message.type)")
@@ -496,6 +615,17 @@ extension QiscusChatVC: CNContactViewControllerDelegate{
 }
 
 extension QiscusChatVC : CustomChatInputDelegate {
+    func sendMessage(message: CommentModel) {
+         var postedComment = message
+        if let delegate = self.delegate{
+            if let comment = delegate.chatVC(viewController: self, willPostComment: message, room: self.room, data: self.data){
+                postedComment = comment
+            }
+        }
+        
+        self.send(message: message)
+    }
+    
     func sendAttachment() {
         let optionMenu = UIAlertController()
         if Qiscus.shared.cameraUpload {

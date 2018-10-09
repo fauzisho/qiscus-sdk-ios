@@ -25,7 +25,7 @@ class QSearchListDefaultCell: QSearchListCell {
     }
     
     override func setupUI() {
-        self.titleLabel.text = comment!.roomName
+        //self.titleLabel.text = 
         
     }
     override func searchTextChanged() {

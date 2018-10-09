@@ -14,6 +14,7 @@ open class QRoomList: UIChatListViewController {
     override open func viewDidLoad() {
         super.viewDidLoad()
         self.title = "Chat List"
+        QiscusUI.delegate = self
     }
     
     override open func didReceiveMemoryWarning() {
@@ -35,6 +36,41 @@ open class QRoomList: UIChatListViewController {
     open override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.tabBarController?.tabBar.isHidden = false
+    }
+}
+
+extension QRoomList : UIChatDelegate {
+    public func onRoom(update room: RoomModel) {
+        QiscusNotification.publish(roomChange: room)
+    }
+    
+    public func onRoom(_ room: RoomModel, gotNewComment comment: CommentModel) {
+        QiscusNotification.publish(gotNewComment: comment, room: room)
+        QiscusNotification.publish(roomOrder: true)
+    }
+    
+    public func onRoom(_ room: RoomModel, didChangeComment comment: CommentModel, changeStatus status: CommentStatus) {
+        QiscusNotification.publish(messageStatus: comment, status: status, room: room)
+        
+        if(status == .deleted){
+            QiscusNotification.publish(commentDeleteOnRoom: room, comment: comment, status: status)
+        }
+    }
+    
+    public func onRoom(_ room: RoomModel, thisParticipant user: MemberModel, isTyping typing: Bool) {
+        QiscusNotification.publish(userTyping: user, room: room, typing: typing)
+    }
+    
+    public func onChange(user: MemberModel, isOnline online: Bool, at time: Date) {
+        QiscusNotification.publish(userPresence: user, isOnline: online, at: time)
+    }
+    
+    public func gotNew(room: RoomModel) {
+        QiscusNotification.publish(gotNewRoom: room)
+    }
+    
+    public func remove(room: RoomModel) {
+        QiscusNotification.publish(roomDeleted: room.id)
     }
 }
 

@@ -21,16 +21,16 @@ class QTextRightCell: UIBaseChatCell {
     @IBOutlet weak var lbNameHeight: NSLayoutConstraint!
     @IBOutlet weak var lbNameLeading: NSLayoutConstraint!
     @IBOutlet weak var lbNameTrailing: NSLayoutConstraint!
-    
+    var menuConfig = enableMenuConfig()
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
-        self.setMenu()
+        self.setMenu(forward: menuConfig.forward, info: menuConfig.info)
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-        self.setMenu()
+         self.setMenu(forward: menuConfig.forward, info: menuConfig.info)
         // Configure the view for the selected state
     }
     

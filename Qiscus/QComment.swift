@@ -69,49 +69,7 @@ import SwiftyJSON
 }
 
 extension CommentModel {
-//    public var createdAt : Int{
-//        get{
-//            return unixTimestamp
-//        }
-//        set{
-//            unixTimestamp = newValue
-//        }
-//    }
-//
-    
-    //need room name from CommentModel
-    public var roomName : String{
-        get{
-            return roomName
-        }
-        
-        set{
-            roomName = newValue
-        }
-    }
-    
-//    //need payload string from CommentModel
-//    public var payloadData : String{
-//        get{
-//            return "payload still harcode"
-//        }
-//
-//        set{
-//            //payloadData = newValue
-//        }
-//    }
-//
-//    //need extras string from CommentModel
-//    public var extrasData : String {
-//        get{
-//            return "extras still harcode"
-//        }
-//
-//        set{
-//           // extrasData = newValue
-//        }
-//    }
-    
+
     public var typeMessage: CommentModelType{
         get{
             return CommentModelType(rawValue: type.hashValue)!
@@ -207,7 +165,20 @@ extension CommentModel {
     ///   - onSuccess: will return success
     ///   - onError: will return error message
     public func forward(toRoomWithId roomId: String, onSuccess:@escaping ()->Void, onError:@escaping (String)->Void){
-        QiscusCore.shared.sendMessage(roomID: roomId, comment: self, onSuccess: { (commentModel) in
+        var comment = CommentModel.init()
+        if(comment.type == "file_attachment"){
+            comment.type = "file_attachment"
+            comment.payload = self.payload
+            comment.message = "Send Attachment"
+        }else{
+            comment.type = self.type
+            comment.message = self.message
+        }
+        
+        
+       
+        
+        QiscusCore.shared.sendMessage(roomID: roomId, comment: comment, onSuccess: { (commentModel) in
             onSuccess()
         }) { (error) in
             onError(error.message)

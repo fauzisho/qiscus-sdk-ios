@@ -33,11 +33,12 @@ class QImageLeftCell: UIBaseChatCell {
     @IBOutlet weak var rightConstraint: NSLayoutConstraint!
     @IBOutlet weak var leftConstraint: NSLayoutConstraint!
     @IBOutlet weak var progressHeight: NSLayoutConstraint!
-    
+    var isPublic: Bool = false
+    var menuConfig = enableMenuConfig()
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
-        self.setMenu()
+        self.setMenu(forward: menuConfig.forward, info: menuConfig.info)
         self.ivComment.contentMode = .scaleAspectFill
         self.ivComment.clipsToBounds = true
         self.ivComment.backgroundColor = UIColor.black
@@ -69,9 +70,7 @@ class QImageLeftCell: UIBaseChatCell {
         self.setupBalon()
         
         // get image
-        self.lbName.text = message.username
         self.lbTime.text = self.hour(date: message.date())
-        Qiscus.printLog(text: "payload: \(message.payload)")
         guard let payload = message.payload else { return }
         let caption = payload["caption"] as? String
         
@@ -79,8 +78,16 @@ class QImageLeftCell: UIBaseChatCell {
         self.tvContent.textColor = QiscusColorConfiguration.sharedInstance.leftBaloonTextColor
         if let url = payload["url"] as? String {
             ivComment.sd_setShowActivityIndicatorView(true)
-            ivComment.sd_setIndicatorStyle(.gray)
+            ivComment.sd_setIndicatorStyle(.whiteLarge)
             ivComment.sd_setImage(with: URL(string: url)!)
+        }
+        
+        if(isPublic == true){
+            self.lbName.text = message.username
+            lbNameHeight.constant = 21
+        }else{
+            self.lbName.text = ""
+            lbNameHeight.constant = 0
         }
         
     }

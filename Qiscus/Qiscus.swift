@@ -22,7 +22,7 @@ public protocol QiscusConfigDelegate {
     func qiscus(didConnect succes:Bool, error:String?)
     func qiscus(didRegisterPushNotification success:Bool, deviceToken:String, error:String?)
     func qiscus(didUnregisterPushNotification success:Bool, error:String?)
-    func qiscus(didTapLocalNotification comment: CommentModel, userInfo:[AnyHashable : Any])
+    func qiscus(didTapLocalNotification userInfo:[AnyHashable : Any])
     
     func qiscusStartSyncing()
     func qiscus(finishSync success:Bool, error:String?)
@@ -148,7 +148,7 @@ public class Qiscus {
     ///check qiscus user login status
     @objc public class var isLoggedIn:Bool{
         get{
-            return QiscusCore.isLogined
+            return QiscusClient.isLoggedIn//QiscusCore.isLogined
         }
     }
     
@@ -200,9 +200,9 @@ public class Qiscus {
         center.addObserver(self, selector: #selector(Qiscus.applicationDidBecomeActife), name: .UIApplicationDidBecomeActive, object: nil)
         center.addObserver(self, selector: #selector(Qiscus.goToBackgroundMode), name: .UIApplicationDidEnterBackground, object: nil)
         
-        if Qiscus.isLoggedIn {
-            Qiscus.mqttConnect()
-        }
+//        if Qiscus.isLoggedIn {
+//            Qiscus.mqttConnect()
+//        }
     }
     
     //Todo need to be fix
@@ -503,12 +503,8 @@ public class Qiscus {
                 if isQiscusdata {
                     if let commentId = notification.userInfo!["qiscus_id"] as? String {
                         
-                        if let comment = QiscusCore.database.comment.find(predicate: NSPredicate(format: "id == \(commentId)")){
-                            
-                            Qiscus.sharedInstance.lastCommentID.removeAll()
-
-                            Qiscus.sharedInstance.configDelegate?.qiscus(didTapLocalNotification: comment.first!, userInfo: notification.userInfo!)
-                        }
+                        Qiscus.sharedInstance.lastCommentID.removeAll()
+                        Qiscus.sharedInstance.configDelegate?.qiscus(didTapLocalNotification: notification.userInfo!)
                     }
                 }
             }
@@ -542,9 +538,6 @@ public class Qiscus {
     
     @objc func applicationDidBecomeActife(){
         Qiscus.setupReachability()
-        if Qiscus.isLoggedIn{
-            Qiscus.sharedInstance.RealtimeConnect()
-        }
         if !Qiscus.sharedInstance.styleConfiguration.rewriteChatFont {
             Qiscus.sharedInstance.styleConfiguration.chatFont = UIFont.preferredFont(forTextStyle: UIFontTextStyle.body)
         }
@@ -552,7 +545,7 @@ public class Qiscus {
             chatView.isPresence = true
             
         }
-        Qiscus.connect()
+        //Qiscus.connect()
         Qiscus.sync(cloud: true)
     }
     
@@ -719,12 +712,15 @@ public class Qiscus {
         }
         if(avatarURL != nil){
             QiscusCore.shared.updateProfile(displayName: userName, avatarUrl: URL(string: avatarURL!), onSuccess: { (qUser) in
+                QiscusNotification.publish(userAvatarChange: qUser)
+                QiscusNotification.publish(userNameChange: qUser)
                 onSuccess()
             }) { (error) in
                 onFailed(error.message)
             }
         }else{
             QiscusCore.shared.updateProfile(displayName: userName, avatarUrl: nil, onSuccess: { (qUser) in
+                QiscusNotification.publish(userNameChange: qUser)
                 onSuccess()
             }) { (error) in
                 onFailed(error.message)

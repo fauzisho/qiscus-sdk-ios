@@ -13,6 +13,7 @@ import SwiftyJSON
 
 protocol CustomChatInputDelegate {
     func sendAttachment()
+    func sendMessage(message: CommentModel)
 }
 
 class CustomChatInput: UIChatInput {
@@ -43,19 +44,6 @@ class CustomChatInput: UIChatInput {
             let comment = CommentModel()
             if(replyData != nil){
                 var senderName = replyData?.username
-
-//                var payloadArray: [(String,Any)] = [
-//                    ("replied_comment_sender_email",replyData?.userEmail),
-//                    ("replied_comment_id", replyData?.id),
-//                    ("text", text),
-//                    ("replied_comment_message", replyData?.message),
-//                    ("replied_comment_sender_username", senderName),
-//                    ("replied_comment_payload", replyData?.payload)
-//                ]
-//
-                
-//                payload = JSON(dictionaryLiteral: payloadArray)
-//
                 comment.type = "reply"
                 comment.message = text
                 comment.payload = [
@@ -65,11 +53,8 @@ class CustomChatInput: UIChatInput {
                     "replied_comment_message"   : replyData?.message,
                     "replied_comment_sender_username" : senderName,
                     "replied_comment_payload" : replyData?.payload,
-                    "replied_comment_type" : "text"
+                    "replied_comment_type" : replyData?.type
                 ]
-                //if reply.type == .location || reply.type == .contact {
-                //                   payloadArray.append(("replied_comment_type",reply.typeRaw))
-                //                }
                 self.replyData = nil
             }else{
                
@@ -77,12 +62,8 @@ class CustomChatInput: UIChatInput {
                 comment.message = text
                 
             }
-            
-            self.send(message: comment)
-           
+            self.delegate?.sendMessage(message: comment)
         }
-        
-        
         
         self.textView.text = ""
         textView.textColor = UIColor.lightGray

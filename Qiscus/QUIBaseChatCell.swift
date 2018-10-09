@@ -9,22 +9,45 @@ import Foundation
 import QiscusCore
 import QiscusUI
 
+open class enableMenuConfig : NSObject {
+    internal var forward    : Bool = false
+    internal var info       : Bool = false
+    
+    public init(forward: Bool = false, info : Bool = true) {
+        self.forward        = forward
+        self.info           = info
+    }
+}
 extension UIBaseChatCell {
     
-    open func setMenu() {
+    open func setMenu(forward : Bool = false , info : Bool = false) {
         
         let reply = UIMenuItem(title: "Reply", action: #selector(reply(_:)))
-        let forward = UIMenuItem(title: "Forward", action: #selector(forward(_:)))
+        let forwardMessage = UIMenuItem(title: "Forward", action: #selector(forward(_:)))
         let share = UIMenuItem(title: "Share", action: #selector(share(_:)))
-        let info = UIMenuItem(title: "Info", action: #selector(info(_:)))
+        let infoMessage = UIMenuItem(title: "Info", action: #selector(info(_:)))
         let delete = UIMenuItem(title: "Delete", action: #selector(deleteComment(_:)))
         let deleteForMe = UIMenuItem(title: "Delete For Me", action: #selector(deleteCommentForMe(_:)))
         
+        var menuItems: [UIMenuItem] = [UIMenuItem]()
+        menuItems.append(reply)
+        menuItems.append(share)
+        if(forward == true){
+            menuItems.append(forwardMessage)
+        }
+        menuItems.append(deleteForMe)
+        
         if let myComment = self.comment?.isMyComment() {
             if(myComment){
-                UIMenuController.shared.menuItems = [reply,info,share,forward,delete,deleteForMe]
+                //UIMenuController.shared.menuItems = [reply,infoMessage,share,forwardMessage,delete,deleteForMe]
+                if(info == true){
+                    menuItems.append(infoMessage)
+                }
+                menuItems.append(delete)
+                UIMenuController.shared.menuItems = menuItems
             }else{
-                UIMenuController.shared.menuItems = [reply,share,forward,deleteForMe]
+                //UIMenuController.shared.menuItems = [reply,share,forwardMessage,deleteForMe]
+                UIMenuController.shared.menuItems = menuItems
             }
             
             UIMenuController.shared.update()
@@ -39,7 +62,7 @@ extension UIBaseChatCell {
     }
     
     @objc open func forward(_ send:AnyObject){
-        //QiscusNotification.publishDidClickReply(message: self.comment!)
+        QiscusNotification.publishDidClickForward(message: self.comment!)
     }
     
     @objc open func share(_ send:AnyObject){
@@ -71,7 +94,7 @@ extension UIBaseChatCell {
     }
     
     @objc open func info(_ send:AnyObject){
-        //QiscusNotification.publishDidClickReply(message: self.comment!)
+        QiscusNotification.publishDidClickInfo(message: self.comment!)
     }
 }
 

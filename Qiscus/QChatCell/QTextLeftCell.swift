@@ -20,15 +20,16 @@ class QTextLeftCell: UIBaseChatCell {
     @IBOutlet weak var lbNameTrailing: NSLayoutConstraint!
     @IBOutlet weak var leftConstraint: NSLayoutConstraint!
     var isPublic: Bool = false
+    var menuConfig = enableMenuConfig()
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
-        self.setMenu()
+        self.setMenu(forward: menuConfig.forward, info: menuConfig.info)
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-        self.setMenu()
+        self.setMenu(forward: menuConfig.forward, info: menuConfig.info)
         // Configure the view for the selected state
     }
     
@@ -45,14 +46,15 @@ class QTextLeftCell: UIBaseChatCell {
     func bindData(message: CommentModel){
         self.setupBalon()
         
-        self.lbName.text = message.username
         self.lbTime.text = self.hour(date: message.date())
         self.tvContent.text = message.message
         self.tvContent.textColor = QiscusColorConfiguration.sharedInstance.leftBaloonTextColor
         
         if(isPublic == true){
+            self.lbName.text = message.username
             lbNameHeight.constant = 21
         }else{
+            self.lbName.text = ""
             lbNameHeight.constant = 0
         }
     }

@@ -32,11 +32,11 @@ class QImageRightCell: UIBaseChatCell {
     @IBOutlet weak var rightConstraint: NSLayoutConstraint!
     @IBOutlet weak var leftConstraint: NSLayoutConstraint!
     @IBOutlet weak var progressHeight: NSLayoutConstraint!
-    
+    var menuConfig = enableMenuConfig()
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
-        self.setMenu()
+        self.setMenu(forward: menuConfig.forward, info: menuConfig.info)
         self.ivComment.contentMode = .scaleAspectFill
         self.ivComment.clipsToBounds = true
         self.ivComment.backgroundColor = UIColor.black
@@ -52,7 +52,7 @@ class QImageRightCell: UIBaseChatCell {
 
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-        self.setMenu()
+        self.setMenu(forward: menuConfig.forward, info: menuConfig.info)
         // Configure the view for the selected state
     }
     
@@ -71,7 +71,6 @@ class QImageRightCell: UIBaseChatCell {
         // get image
         self.lbName.text = "You"
         self.lbTime.text = self.hour(date: message.date())
-        print("payload: \(message.payload)")
         guard let payload = message.payload else { return }
         let caption = payload["caption"] as? String
         
@@ -80,7 +79,7 @@ class QImageRightCell: UIBaseChatCell {
         if let url = payload["url"] as? String {
             if let url = payload["url"] as? String {
                 ivComment.sd_setShowActivityIndicatorView(true)
-                ivComment.sd_setIndicatorStyle(.gray)
+                ivComment.sd_setIndicatorStyle(.whiteLarge)
                 ivComment.sd_setImage(with: URL(string: url)!)
             }
         }

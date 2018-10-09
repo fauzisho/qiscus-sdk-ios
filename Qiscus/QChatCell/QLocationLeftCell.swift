@@ -14,19 +14,17 @@ import SwiftyJSON
 class QLocationLeftCell: UIBaseChatCell {
     @IBOutlet weak var lbName: UILabel!
     @IBOutlet weak var lbTime: UILabel!
-    
     @IBOutlet weak var ivBaloon: UIImageView!
     @IBOutlet weak var ivStatus: UIImageView!
     @IBOutlet weak var locationContainer: UIView!
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var addressView: UITextView!
-    
     @IBOutlet weak var locationLabel: UILabel!
-    
+    var menuConfig = enableMenuConfig()
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
-        self.setMenu()
+        self.setMenu(forward: menuConfig.forward, info: menuConfig.info)
         let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(QLocationLeftCell.openMap))
         self.mapView.addGestureRecognizer(tapRecognizer)
         self.locationContainer.tintColor = QiscusColorConfiguration.sharedInstance.leftBaloonColor
@@ -34,7 +32,7 @@ class QLocationLeftCell: UIBaseChatCell {
 
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-        self.setMenu()
+        self.setMenu(forward: menuConfig.forward, info: menuConfig.info)
         // Configure the view for the selected state
     }
     

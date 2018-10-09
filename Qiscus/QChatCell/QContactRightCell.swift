@@ -20,15 +20,16 @@ class QContactRightCell: UIBaseChatCell {
     @IBOutlet weak var lbTime: UILabel!
     @IBOutlet weak var ivStatus: UIImageView!
     @IBOutlet weak var viewLine: UIView!
+    var menuConfig = enableMenuConfig()
     override func awakeFromNib() {
         super.awakeFromNib()
-        self.setMenu()
+        self.setMenu(forward: menuConfig.forward, info: menuConfig.info)
         // Initialization code
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-        self.setMenu()
+        self.setMenu(forward: menuConfig.forward, info: menuConfig.info)
         self.viewLine.backgroundColor = QiscusColorConfiguration.sharedInstance.rightBaloonColor
         // Configure the view for the selected state
     }

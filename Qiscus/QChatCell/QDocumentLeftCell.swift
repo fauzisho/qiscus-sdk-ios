@@ -17,17 +17,16 @@ class QDocumentLeftCell: UIBaseChatCell {
     @IBOutlet weak var fileIcon: UIImageView!
     @IBOutlet weak var fileNameLabel: UILabel!
     @IBOutlet weak var fileTypeLabel: UILabel!
-    
     @IBOutlet weak var ivStatus: UIImageView!
     
     var fileName: String = ""
     var url: String = ""
-    
+    var menuConfig = enableMenuConfig()
     
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
-        self.setMenu()
+        self.setMenu(forward: menuConfig.forward, info: menuConfig.info)
         fileIcon.image = Qiscus.image(named: "ic_file")?.withRenderingMode(.alwaysTemplate)
         fileIcon.contentMode = .scaleAspectFit
         fileIcon.tintColor = QiscusColorConfiguration.sharedInstance.leftBaloonColor
@@ -38,7 +37,7 @@ class QDocumentLeftCell: UIBaseChatCell {
 
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-        self.setMenu()
+        self.setMenu(forward: menuConfig.forward, info: menuConfig.info)
         // Configure the view for the selected state
     }
     
@@ -72,11 +71,11 @@ class QDocumentLeftCell: UIBaseChatCell {
         
         let ext = getExt(message: message)
         
-        if ext == "doc" || ext == "docx" || ext == "ppt" || ext == "pptx" || ext == "xls" || ext == "xlsx" || ext == "txt" {
+       // if ext == "doc" || ext == "docx" || ext == "ppt" || ext == "pptx" || ext == "xls" || ext == "xlsx" || ext == "txt" {
             fileTypeLabel.text = "\(ext.uppercased()) File"
-        }else{
-            fileTypeLabel.text = "Unknown File"
-        }
+//        }else{
+//            fileTypeLabel.text = "Unknown File"
+//        }
         
         
     }
