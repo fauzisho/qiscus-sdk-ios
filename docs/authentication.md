@@ -527,7 +527,7 @@ func qiscusConnected() {
    // do anything after successfully connected to Qiscus Chat SDK
 }
     
-func qiscus(gotSilentNotification comment: QComment) {
+func qiscus(gotSilentNotification comment: CommentModel) {
    //do anything if got new message in silent mode
 }
 

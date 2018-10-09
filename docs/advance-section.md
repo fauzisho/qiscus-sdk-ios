@@ -159,7 +159,7 @@ func qiscusConnected() {
 
 This event handler is called when your user turned off the notification on his/her phone.
 ```swift
-func qiscus(gotSilentNotification comment: QComment) {
+func qiscus(gotSilentNotification comment: CommentModel) {
    //do anything if got new message in silent mode
 }
 ```
@@ -324,15 +324,6 @@ extension ChatManager: QiscusChatVCDelegate {
         
     func chatVC(viewController:QiscusChatVC, willPostComment comment:QComment, room:QRoom?, data:Any?)->QComment? {
         // call your method while SDK is posting any comment
-    }
-        
-    func chatVC(viewController:QiscusChatVC, cellForComment comment:QComment)->QChatCell? {
-        // to change SDK cell with your own cell
-    }
-    
-    func chatVC(viewController:QiscusChatVC, heightForComment comment:QComment)->QChatCellHeight? {
-        // change the height of cell, if you use your own cell
-        // PS: Don't change the height of default cell, this will broke the view
     }
 }
 ```
