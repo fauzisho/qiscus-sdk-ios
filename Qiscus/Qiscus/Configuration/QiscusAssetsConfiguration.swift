@@ -12,11 +12,11 @@ import UIKit
 public class QiscusAssetsConfiguration: NSObject {
     static var shared = QiscusAssetsConfiguration()
     
-    public var emptyChat:UIImage = Qiscus.image(named: "empty-chat")!.withRenderingMode(.alwaysTemplate)
+    @objc public var emptyChat:UIImage = Qiscus.image(named: "empty-chat")!.withRenderingMode(.alwaysTemplate)
     
     // MARK: - Chat balloon
-    public var leftBallonLast:UIImage? = Qiscus.image(named: "text_balloon_last_l")
-    public var leftBallonNormal:UIImage? = Qiscus.image(named: "text_balloon_left")
-    public var rightBallonLast:UIImage? = Qiscus.image(named: "text_balloon_last_r")
-    public var rightBallonNormal:UIImage? = Qiscus.image(named: "text_balloon_right")
+    @objc public var leftBallonLast:UIImage? = Qiscus.image(named: "text_balloon_last_l")
+    @objc public var leftBallonNormal:UIImage? = Qiscus.image(named: "text_balloon_left")
+    @objc public var rightBallonLast:UIImage? = Qiscus.image(named: "text_balloon_last_r")
+    @objc public var rightBallonNormal:UIImage? = Qiscus.image(named: "text_balloon_right")
 }

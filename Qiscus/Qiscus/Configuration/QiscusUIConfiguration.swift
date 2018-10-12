@@ -13,11 +13,11 @@ import UIKit
 open class QiscusUIConfiguration: NSObject {
     static var sharedInstance = QiscusUIConfiguration()
     
-    open var color = QiscusColorConfiguration.sharedInstance
-    open var copyright = QiscusTextConfiguration.sharedInstance
-    public var assets = QiscusAssetsConfiguration.shared
+    @objc open var color = QiscusColorConfiguration.sharedInstance
+    @objc open var copyright = QiscusTextConfiguration.sharedInstance
+    @objc public var assets = QiscusAssetsConfiguration.shared
     
-    open var chatFont = UIFont.preferredFont(forTextStyle: UIFontTextStyle.body){
+    @objc open var chatFont = UIFont.preferredFont(forTextStyle: UIFontTextStyle.body){
         didSet{
             if chatFont.pointSize != UIFont.preferredFont(forTextStyle: UIFontTextStyle.body).pointSize{
                 if chatFont.fontName != UIFont.preferredFont(forTextStyle: UIFontTextStyle.body).fontName {
@@ -27,16 +27,16 @@ open class QiscusUIConfiguration: NSObject {
         }
     }
     
-    public var rewriteChatFont = false
+    @objc public var rewriteChatFont = false
     
     
     /// To set read only or not, Default value : false
-    open var readOnly = false
+    @objc open var readOnly = false
     
-    static var chatTextMaxWidth:CGFloat = 0.7 * QiscusHelper.screenWidth()
+    @objc static var chatTextMaxWidth:CGFloat = 0.7 * QiscusHelper.screenWidth()
     open var topicId:Int = 0
     open var chatUsers:[String] = [String]()
-    open var baseColor:UIColor{
+    @objc open var baseColor:UIColor{
         get{
             return self.color.topColor
         }
@@ -44,7 +44,7 @@ open class QiscusUIConfiguration: NSObject {
     fileprivate override init() {}
     
     /// Class function to set default style
-    open func defaultStyle(){
+   @objc open func defaultStyle(){
         let defaultUIStyle = QiscusUIConfiguration()
         QiscusUIConfiguration.sharedInstance = defaultUIStyle
     }
