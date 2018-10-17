@@ -24,7 +24,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="135" height="161"/>
                         <subviews>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="redraw" horizontalHuggingPriority="251" verticalHuggingPriority="249" translatesAutoresizingMaskIntoConstraints="NO" id="Iu0-VT-qD4">
-                                <rect key="frame" x="0.0" y="7" width="77" height="154"/>
+                                <rect key="frame" x="0.0" y="5" width="77" height="151"/>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute type="number" keyPath="cornerRadiuss">
                                         <real key="value" value="6"/>
@@ -36,12 +36,12 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="21" id="BKz-dc-qGo"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="17"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bEE-ol-nUK">
-                                <rect key="frame" x="27" y="149" width="42" height="10"/>
+                                <rect key="frame" x="27" y="144" width="42" height="10"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="42" id="orN-M3-PNV"/>
                                 </constraints>
@@ -60,23 +60,22 @@
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
+                            <constraint firstAttribute="bottom" secondItem="Iu0-VT-qD4" secondAttribute="bottom" constant="5" id="30X-t3-2Fs"/>
                             <constraint firstItem="ok4-GL-9Bo" firstAttribute="width" secondItem="p3w-fh-zvu" secondAttribute="width" id="33a-Lx-1Lj"/>
                             <constraint firstItem="Iu0-VT-qD4" firstAttribute="leading" secondItem="5hh-dE-BIu" secondAttribute="leadingMargin" constant="-8" id="3GN-ji-C4q"/>
                             <constraint firstItem="bEE-ol-nUK" firstAttribute="trailing" secondItem="ok4-GL-9Bo" secondAttribute="trailing" id="4bE-HT-yMv"/>
-                            <constraint firstItem="Iu0-VT-qD4" firstAttribute="top" secondItem="5hh-dE-BIu" secondAttribute="top" constant="7" id="7Si-IL-YSC"/>
+                            <constraint firstItem="Iu0-VT-qD4" firstAttribute="top" secondItem="5hh-dE-BIu" secondAttribute="top" constant="5" id="7Si-IL-YSC"/>
                             <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="Iu0-VT-qD4" secondAttribute="trailing" constant="58" id="H3V-84-uj6"/>
-                            <constraint firstAttribute="bottom" secondItem="Iu0-VT-qD4" secondAttribute="bottom" id="PG4-OX-UR7"/>
                             <constraint firstItem="ok4-GL-9Bo" firstAttribute="top" secondItem="p3w-fh-zvu" secondAttribute="bottom" constant="4" id="V03-AL-g9V"/>
                             <constraint firstItem="Iu0-VT-qD4" firstAttribute="width" secondItem="ok4-GL-9Bo" secondAttribute="width" constant="31" id="VnV-Zp-RHp"/>
                             <constraint firstItem="p3w-fh-zvu" firstAttribute="leading" secondItem="5hh-dE-BIu" secondAttribute="leading" constant="23" id="Ylq-DN-Cca"/>
-                            <constraint firstAttribute="bottom" secondItem="Iu0-VT-qD4" secondAttribute="bottom" id="dgC-FA-CQ8"/>
                             <constraint firstItem="ok4-GL-9Bo" firstAttribute="leading" secondItem="p3w-fh-zvu" secondAttribute="leading" constant="5" id="frE-sW-8ke"/>
                             <constraint firstAttribute="bottom" secondItem="ok4-GL-9Bo" secondAttribute="bottom" constant="15" id="ldo-eN-D3e"/>
                             <constraint firstItem="p3w-fh-zvu" firstAttribute="top" secondItem="5hh-dE-BIu" secondAttribute="top" constant="10" id="mVh-A7-HyY"/>
                             <constraint firstItem="p3w-fh-zvu" firstAttribute="leading" secondItem="ok4-GL-9Bo" secondAttribute="leading" id="q2C-cY-zFC"/>
-                            <constraint firstItem="bEE-ol-nUK" firstAttribute="top" secondItem="ok4-GL-9Bo" secondAttribute="bottom" constant="3" id="qDz-s1-vmR"/>
+                            <constraint firstItem="bEE-ol-nUK" firstAttribute="top" secondItem="ok4-GL-9Bo" secondAttribute="bottom" constant="-2" id="qDz-s1-vmR"/>
                         </constraints>
                         <variation key="default">
                             <mask key="constraints">
@@ -85,6 +84,7 @@
                         </variation>
                     </view>
                 </subviews>
+                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 <constraints>
                     <constraint firstItem="5hh-dE-BIu" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="5dS-ES-Huw"/>
                     <constraint firstAttribute="bottom" secondItem="5hh-dE-BIu" secondAttribute="bottom" id="AQ6-eO-sw1"/>
@@ -92,6 +92,7 @@
                     <constraint firstItem="5hh-dE-BIu" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" id="eL2-S3-Mjq"/>
                 </constraints>
             </tableViewCellContentView>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
             <connections>
                 <outlet property="ivBaloonLeft" destination="Iu0-VT-qD4" id="422-cT-RKi"/>

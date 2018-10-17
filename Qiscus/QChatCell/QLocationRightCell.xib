@@ -87,7 +87,7 @@
                                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                     </textView>
                                 </subviews>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="backgroundColor" red="0.94901960780000005" green="0.94901960780000005" blue="0.94901960780000005" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="bottom" secondItem="Ajo-Uf-VuB" secondAttribute="bottom" constant="2.5" id="CtZ-95-Wfg"/>
                                     <constraint firstAttribute="trailing" secondItem="Ajo-Uf-VuB" secondAttribute="trailing" constant="5" id="Dl2-lv-UiJ"/>
@@ -109,7 +109,7 @@
                                 </userDefinedRuntimeAttributes>
                             </view>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="ijD-Qz-Bd2" firstAttribute="width" secondItem="Rlk-R0-cSp" secondAttribute="width" constant="213" id="42c-qu-qho"/>
                             <constraint firstItem="ijD-Qz-Bd2" firstAttribute="top" secondItem="NIz-Nz-xHb" secondAttribute="top" constant="3" id="AAA-9n-7jk"/>
@@ -130,6 +130,7 @@
                         <viewLayoutGuide key="safeArea" id="NIz-Nz-xHb"/>
                     </view>
                 </subviews>
+                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 <constraints>
                     <constraint firstItem="jwu-WM-yfp" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="9mH-Nh-iyy"/>
                     <constraint firstItem="jwu-WM-yfp" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" id="MMk-nI-0bl"/>
@@ -137,6 +138,7 @@
                     <constraint firstAttribute="bottom" secondItem="jwu-WM-yfp" secondAttribute="bottom" id="lxG-sG-6hK"/>
                 </constraints>
             </tableViewCellContentView>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
             <connections>
                 <outlet property="addressView" destination="Ajo-Uf-VuB" id="kDa-cu-yG1"/>

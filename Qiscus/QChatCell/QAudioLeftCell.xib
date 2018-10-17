@@ -35,7 +35,7 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="21" id="MVP-Xb-ki9"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="17"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
@@ -157,7 +157,7 @@
                                 </userDefinedRuntimeAttributes>
                             </view>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="F6e-lY-9G3" firstAttribute="leading" secondItem="PLb-nE-3nV" secondAttribute="leading" id="6Kn-VQ-PNr"/>
                             <constraint firstItem="PLb-nE-3nV" firstAttribute="width" secondItem="r5t-0T-PCc" secondAttribute="width" id="AOg-77-JYn"/>
@@ -186,6 +186,7 @@
                         </variation>
                     </view>
                 </subviews>
+                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 <constraints>
                     <constraint firstItem="jTW-k6-vwo" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="EFq-gJ-tKx"/>
                     <constraint firstAttribute="bottom" secondItem="jTW-k6-vwo" secondAttribute="bottom" id="Ly7-F0-ezp"/>
@@ -193,6 +194,7 @@
                     <constraint firstAttribute="trailing" secondItem="jTW-k6-vwo" secondAttribute="trailing" id="zJn-Kk-c0g"/>
                 </constraints>
             </tableViewCellContentView>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
             <connections>
                 <outlet property="balloonView" destination="cY7-hp-hxZ" id="hE9-zg-t55"/>

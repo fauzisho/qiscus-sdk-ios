@@ -181,10 +181,16 @@ public class QiscusChatVC: UIChatViewController {
     }
     
     func setupUI(){
+         self.setupBackgroundChat()
          self.registerCell()
          self.setupNavigationTitle()
          self.setupNotification()
          self.setupChatInput()
+        
+    }
+    
+    func setupBackgroundChat(){
+        self.setBackground(with: Qiscus.style.assets.backgroundChat!)
     }
     
     func setupChatInput(){
@@ -500,6 +506,11 @@ extension QiscusChatVC : UIChatView {
                 }else{
                     let cell = self.reusableCell(withIdentifier: "qDocumentLeftCell", for: message) as! QDocumentLeftCell
                     cell.menuConfig = menuConfig
+                    if self.room?.type == .group {
+                        cell.isPublic = true
+                    }else {
+                        cell.isPublic = false
+                    }
                     return cell
                 }
             case .audio:
@@ -519,6 +530,11 @@ extension QiscusChatVC : UIChatView {
                     return cell
                 }else{
                     let cell = self.reusableCell(withIdentifier: "qDocumentLeftCell", for: message) as! QDocumentLeftCell
+                    if self.room?.type == .group {
+                        cell.isPublic = true
+                    }else {
+                        cell.isPublic = false
+                    }
                     cell.menuConfig = menuConfig
                     return cell
                 }
@@ -529,6 +545,11 @@ extension QiscusChatVC : UIChatView {
                     return cell
                 }else{
                     let cell = self.reusableCell(withIdentifier: "qDocumentLeftCell", for: message) as! QDocumentLeftCell
+                    if self.room?.type == .group {
+                        cell.isPublic = true
+                    }else {
+                        cell.isPublic = false
+                    }
                     cell.menuConfig = menuConfig
                     return cell
                 }
@@ -539,6 +560,11 @@ extension QiscusChatVC : UIChatView {
                     return cell
                 }else{
                     let cell = self.reusableCell(withIdentifier: "qDocumentLeftCell", for: message) as! QDocumentLeftCell
+                    if self.room?.type == .group {
+                        cell.isPublic = true
+                    }else {
+                        cell.isPublic = false
+                    }
                     cell.menuConfig = menuConfig
                     return cell
                 }
@@ -552,6 +578,11 @@ extension QiscusChatVC : UIChatView {
                 return cell
             }else{
                 let cell = self.reusableCell(withIdentifier: "qReplyLeftCell", for: message) as! QReplyLeftCell
+                if self.room?.type == .group {
+                    cell.isPublic = true
+                }else {
+                    cell.isPublic = false
+                }
                 cell.menuConfig = menuConfig
                 return cell
             }
@@ -574,6 +605,11 @@ extension QiscusChatVC : UIChatView {
             }else{
                 let cell = self.reusableCell(withIdentifier: "qContactLeftCell", for: message) as! QContactLeftCell
                 cell.menuConfig = menuConfig
+                if self.room?.type == .group {
+                    cell.isPublic = true
+                }else {
+                    cell.isPublic = false
+                }
                 return cell
             }
         }else {

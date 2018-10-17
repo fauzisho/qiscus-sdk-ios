@@ -19,4 +19,6 @@ public class QiscusAssetsConfiguration: NSObject {
     public var leftBallonNormal:UIImage? = Qiscus.image(named: "text_balloon_left")
     public var rightBallonLast:UIImage? = Qiscus.image(named: "text_balloon_last_r")
     public var rightBallonNormal:UIImage? = Qiscus.image(named: "text_balloon_right")
+    public var backgroundChat:UIImage? = Qiscus.image(named: "chat_bg")
 }
+

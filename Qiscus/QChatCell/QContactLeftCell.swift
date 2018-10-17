@@ -11,6 +11,8 @@ import QiscusCore
 import SwiftyJSON
 
 class QContactLeftCell: UIBaseChatCell {
+    
+    @IBOutlet weak var lbNameCons: NSLayoutConstraint!
     @IBOutlet weak var nameContact: UILabel!
     @IBOutlet weak var noTelp: UILabel!
     @IBOutlet weak var saveButton: UIButton!
@@ -20,6 +22,7 @@ class QContactLeftCell: UIBaseChatCell {
     @IBOutlet weak var ivStatus: UIImageView!
     @IBOutlet weak var viewLine: UIView!
     var menuConfig = enableMenuConfig()
+    var isPublic: Bool = false
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
@@ -47,12 +50,20 @@ class QContactLeftCell: UIBaseChatCell {
         self.setupBalon()
         self.status(message: message)
         
-        self.lbName.text = message.username
         self.lbTime.text = message.hour()
         let data = message.payload
         let payloadJSON = JSON(data)
         self.nameContact.text = payloadJSON["name"].stringValue
         self.noTelp.text = payloadJSON["value"].stringValue
+        
+        if(isPublic == true){
+            self.lbName.text = message.username
+            self.lbName.textColor = Qiscus.style.color.randomColorLabelName.randomItem()
+            lbNameCons.constant = 21
+        }else{
+            self.lbName.text = ""
+            lbNameCons.constant = 0
+        }
         
     }
     

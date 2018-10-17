@@ -11,6 +11,7 @@ import QiscusCore
 
 class QReplyLeftCell: UIBaseChatCell {
     
+    @IBOutlet weak var lblNameHeightCons: NSLayoutConstraint!
     @IBOutlet weak var ivCommentImageWidhtCons: NSLayoutConstraint!
     @IBOutlet weak var lbCommentSender: UILabel!
     @IBOutlet weak var tvCommentContent: UITextView!
@@ -20,6 +21,7 @@ class QReplyLeftCell: UIBaseChatCell {
     @IBOutlet weak var lbName: UILabel!
     @IBOutlet weak var ivBaloon: UIImageView!
     var menuConfig = enableMenuConfig()
+    var isPublic: Bool = false
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
@@ -111,7 +113,14 @@ class QReplyLeftCell: UIBaseChatCell {
         self.lbCommentSender.text = username
         self.lbContent.text = message.message
         self.lbTime.text = self.hour(date: message.date())
-        self.lbName.text = message.username
+        if(isPublic == true){
+            self.lbName.text = message.username
+            self.lbName.textColor = Qiscus.style.color.randomColorLabelName.randomItem()
+            self.lblNameHeightCons.constant = 21
+        }else{
+            self.lbName.text = ""
+            self.lblNameHeightCons.constant = 0
+        }
     }
     
     func setupBalon(){

@@ -52,6 +52,7 @@ class QTextLeftCell: UIBaseChatCell {
         
         if(isPublic == true){
             self.lbName.text = message.username
+            self.lbName.textColor = Qiscus.style.color.randomColorLabelName.randomItem()
             lbNameHeight.constant = 21
         }else{
             self.lbName.text = ""

@@ -10,6 +10,8 @@ import QiscusUI
 import QiscusCore
 
 class QDocumentLeftCell: UIBaseChatCell {
+    
+    @IBOutlet weak var lblNameHeightCons: NSLayoutConstraint!
     @IBOutlet weak var lbName: UILabel!
     @IBOutlet weak var lbTime: UILabel!
     @IBOutlet weak var balloonView: UIImageView!
@@ -22,12 +24,12 @@ class QDocumentLeftCell: UIBaseChatCell {
     var fileName: String = ""
     var url: String = ""
     var menuConfig = enableMenuConfig()
-    
+    var isPublic: Bool = false
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
         self.setMenu(forward: menuConfig.forward, info: menuConfig.info)
-        fileIcon.image = Qiscus.image(named: "ic_file")?.withRenderingMode(.alwaysTemplate)
+        fileIcon.image = Qiscus.image(named: "ic_file")
         fileIcon.contentMode = .scaleAspectFit
         fileIcon.tintColor = QiscusColorConfiguration.sharedInstance.leftBaloonColor
         
@@ -66,7 +68,6 @@ class QDocumentLeftCell: UIBaseChatCell {
     func bindData(message: CommentModel){
         self.setupBalon()
         
-        self.lbName.text = message.username
         self.lbTime.text = self.hour(date: message.date())
         
         let ext = getExt(message: message)
@@ -77,6 +78,14 @@ class QDocumentLeftCell: UIBaseChatCell {
 //            fileTypeLabel.text = "Unknown File"
 //        }
         
+        if(isPublic == true){
+            self.lbName.text = message.username
+            self.lbName.textColor = Qiscus.style.color.randomColorLabelName.randomItem()
+            lblNameHeightCons.constant = 21
+        }else{
+            self.lbName.text = ""
+            lblNameHeightCons.constant = 0
+        }
         
     }
     

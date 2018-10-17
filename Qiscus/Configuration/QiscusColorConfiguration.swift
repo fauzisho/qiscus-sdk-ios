@@ -82,13 +82,20 @@ open class QiscusColorConfiguration: NSObject {
         UIColor(red: 0, green: 230/255, blue: 118/255, alpha: 1),
         UIColor(red: 245/255, green: 0, blue: 87/255, alpha: 1),
         UIColor(red: 0, green: 229/255, blue: 1, alpha: 1)
-        ]{
-        didSet{
-            
-        }
-    }
+        ]
     
-    
+    public var randomColorLabelName:[UIColor] = [
+        UIColor(red: 131/255, green: 147/255, blue: 202/255, alpha: 1),
+        UIColor(red: 53/255, green: 205/255, blue: 150/255, alpha: 1),
+        UIColor(red: 186/255, green: 51/255, blue: 220/255, alpha: 1),
+        UIColor(red: 2/255, green: 157/255, blue: 0/255, alpha: 1),
+        UIColor(red: 253/255, green: 133/255, blue: 212/255, alpha: 1),
+        UIColor(red: 139/255, green: 122/255, blue: 221/255, alpha: 1),
+        UIColor(red: 223/255, green: 182/255, blue: 16/255, alpha: 1),
+        UIColor(red: 176/255, green: 70/255, blue: 50, alpha: 1),
+        UIColor(red: 41/255, green: 169/255, blue: 42/255, alpha: 1),
+        UIColor.black
+    ]
     
     public var baseColor:UIColor{
         get{
