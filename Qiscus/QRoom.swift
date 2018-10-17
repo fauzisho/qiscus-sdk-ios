@@ -102,15 +102,14 @@ extension RoomModel {
     ///
     /// - Parameter completion: will return unreadCount
     public class func getUnreadCount(completion: @escaping (Int) -> Void){
-        QiscusCore.shared.getAllRoom(onSuccess: { (roomModel, meta) in
-            var countUnread = 0
-            for room in roomModel.enumerated() {
-                countUnread = countUnread + room.element.unreadCount
+        QiscusCore.shared.unreadCount { (unread, error) in
+            if error == nil {
+                completion(unread)
+            }else{
+                if let errorMessage = error{
+                    completion(0)
+                }
             }
-            
-             completion(countUnread)
-        }) { (error) in
-            completion(0)
         }
     }
     
