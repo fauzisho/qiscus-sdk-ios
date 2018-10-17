@@ -13,7 +13,7 @@ internal extension QRoom {
     internal class func allRoom()->[QRoom]{
         let realm = try! Realm(configuration: Qiscus.dbConfiguration)
         realm.refresh()
-        let data = realm.objects(QRoom.self).sorted(byKeyPath: "lastCommentCreatedAt", ascending: false)
+        let data = realm.objects(QRoom.self).sorted(byKeyPath: "lastCommentUnixTimeStamp", ascending: false)
         
         if data.count > 0 {
             return Array(data)
@@ -253,6 +253,7 @@ internal extension QRoom {
                     room.lastCommentUniqueId = c.uniqueId
                     room.lastCommentBeforeId = c.beforeId
                     room.lastCommentCreatedAt = c.createdAt
+                    room.lastCommentUnixTimeStamp = c.unixTimeStamp
                     room.lastCommentSenderEmail = c.senderEmail
                     room.lastCommentSenderName = c.senderName
                     room.lastCommentStatusRaw = c.statusRaw

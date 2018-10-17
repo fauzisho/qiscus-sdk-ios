@@ -983,7 +983,7 @@ var QiscusDBThread = DispatchQueue(label: "com.qiscus.db", attributes: .concurre
         if notification.userInfo != nil {
             if let comment = QComment.decodeDictionary(data: notification.userInfo!) {
                 var userData:[AnyHashable : Any]? = [AnyHashable : Any]()
-                let qiscusKey:[AnyHashable] = ["qiscus_commentdata","qiscus_uniqueId","qiscus_id","qiscus_roomId","qiscus_beforeId","qiscus_text","qiscus_createdAt","qiscus_senderEmail","qiscus_senderName","qiscus_statusRaw","qiscus_typeRaw","qiscus_data"]
+                let qiscusKey:[AnyHashable] = ["qiscus_commentdata","qiscus_uniqueId","qiscus_id","qiscus_roomId","qiscus_beforeId","qiscus_text","qiscus_createdAt","qiscus_unixTimeStamp","qiscus_senderEmail","qiscus_senderName","qiscus_statusRaw","qiscus_typeRaw","qiscus_data"]
                 for (key,value) in notification.userInfo! {
                     if !qiscusKey.contains(key) {
                         userData![key] = value
@@ -1004,7 +1004,7 @@ var QiscusDBThread = DispatchQueue(label: "com.qiscus.db", attributes: .concurre
     public class func didReceiveUNUserNotification(withUserInfo userInfo:[AnyHashable:Any]){
         if let comment = QComment.decodeDictionary(data: userInfo) {
             var userData:[AnyHashable : Any]? = [AnyHashable : Any]()
-            let qiscusKey:[AnyHashable] = ["qiscus_commentdata","qiscus_uniqueId","qiscus_id","qiscus_roomId","qiscus_beforeId","qiscus_text","qiscus_createdAt","qiscus_senderEmail","qiscus_senderName","qiscus_statusRaw","qiscus_typeRaw","qiscus_data"]
+            let qiscusKey:[AnyHashable] = ["qiscus_commentdata","qiscus_uniqueId","qiscus_id","qiscus_roomId","qiscus_beforeId","qiscus_text","qiscus_createdAt","qiscus_unixTimeStamp","qiscus_senderEmail","qiscus_senderName","qiscus_statusRaw","qiscus_typeRaw","qiscus_data"]
             for (key,value) in userInfo {
                 if !qiscusKey.contains(key) {
                     userData![key] = value

@@ -70,6 +70,7 @@ public class QRoom:Object {
     @objc internal dynamic var lastCommentUniqueId: String = ""
     @objc internal dynamic var lastCommentBeforeId:Int = 0
     @objc internal dynamic var lastCommentCreatedAt: Double = 0
+    @objc internal dynamic var lastCommentUnixTimeStamp: Double = 0
     @objc internal dynamic var lastCommentSenderEmail:String = ""
     @objc internal dynamic var lastCommentSenderName:String = ""
     @objc internal dynamic var lastCommentStatusRaw:Int = QCommentStatus.sending.rawValue
@@ -89,14 +90,14 @@ public class QRoom:Object {
         get{
             var comments = [QComment]()
             if self.rawComments.count > 0 {
-                comments = Array(self.rawComments.sorted(byKeyPath: "createdAt", ascending: true))
+                comments = Array(self.rawComments.sorted(byKeyPath: "unixTimeStamp", ascending: true))
             }
             return comments
         }
     }
     public func comments(withFilter query:NSPredicate?)->[QComment]{
         var comments = [QComment]()
-        var results = self.rawComments.sorted(byKeyPath: "createdAt", ascending: true)
+        var results = self.rawComments.sorted(byKeyPath: "unixTimeStamp", ascending: true)
 
         if query != nil {
             results = results.filter(query!)
@@ -135,12 +136,15 @@ public class QRoom:Object {
         let time = Double(Date().timeIntervalSince1970)
         let timeToken = UInt64(time * 10000)
         let uniqueID = "ios-\(timeToken)"
-        
+        let unixTimeStamp = Int(Date().timeIntervalSince1970)
+        //miliseconds
+        let unixTimeStamps = unixTimeStamp * 1000000000
         comment.uniqueId = uniqueID
         comment.id = 0
         comment.roomId = self.id
         comment.text = "\(name) - \(value)"
         comment.createdAt = Double(Date().timeIntervalSince1970)
+        comment.unixTimeStamp =  Double(unixTimeStamps)
         comment.senderEmail = Qiscus.client.email
         comment.senderName = Qiscus.client.userName
         comment.statusRaw = QCommentStatus.sending.rawValue
@@ -193,11 +197,16 @@ public class QRoom:Object {
         let timeToken = UInt64(time * 10000)
         let uniqueID = "ios-\(timeToken)"
         
+        let unixTimeStamp = Int(Date().timeIntervalSince1970)
+        //miliseconds
+        let unixTimeStamps = unixTimeStamp * 1000000000
+        
         comment.uniqueId = uniqueID
         comment.id = 0
         comment.roomId = self.id
         comment.text = ""
         comment.createdAt = Double(Date().timeIntervalSince1970)
+        comment.unixTimeStamp = Double(unixTimeStamps)
         comment.senderEmail = Qiscus.client.email
         comment.senderName = Qiscus.client.userName
         comment.statusRaw = QCommentStatus.sending.rawValue
@@ -229,11 +238,15 @@ public class QRoom:Object {
             comment.text = text!
         }
         
+        let unixTimeStamp = Int(Date().timeIntervalSince1970)
+        //miliseconds
+        let unixTimeStamps = unixTimeStamp * 1000000000
+        
         comment.uniqueId = uniqueID
         comment.id = 0
         comment.roomId = self.id
-        
         comment.createdAt = Double(Date().timeIntervalSince1970)
+        comment.unixTimeStamp = Double(unixTimeStamps)
         comment.senderEmail = Qiscus.client.email
         comment.senderName = Qiscus.client.userName
         comment.statusRaw = QCommentStatus.sending.rawValue
@@ -268,6 +281,10 @@ public class QRoom:Object {
                 "url" : fileName,
                 "caption" : caption
             ]
+        
+            let unixTimeStamp = Int(Date().timeIntervalSince1970)
+            //miliseconds
+            let unixTimeStamps = unixTimeStamp * 1000000000
             
             comment.uniqueId = uniqueID
             comment.id = 0
@@ -275,6 +292,7 @@ public class QRoom:Object {
             
             comment.text = "[file]\(fileName) [/file]"
             comment.createdAt = Double(Date().timeIntervalSince1970)
+            comment.unixTimeStamp = Double(unixTimeStamps)
             comment.senderEmail = Qiscus.client.email
             comment.senderName = Qiscus.client.userName
             comment.statusRaw = QCommentStatus.sending.rawValue
@@ -361,12 +379,17 @@ public class QRoom:Object {
             "caption" : caption
         ]
         
+        let unixTimeStamp = Int(Date().timeIntervalSince1970)
+        //miliseconds
+        let unixTimeStamps = unixTimeStamp * 1000000000
+        
         comment.uniqueId = uniqueID
         comment.id = 0
         comment.roomId = self.id
         
         comment.text = "[file]\(fileName) [/file]"
         comment.createdAt = Double(Date().timeIntervalSince1970)
+        comment.unixTimeStamp = Double(unixTimeStamps)
         comment.senderEmail = Qiscus.client.email
         comment.senderName = Qiscus.client.userName
         comment.statusRaw = QCommentStatus.sending.rawValue
@@ -489,11 +512,16 @@ public class QRoom:Object {
         let timeToken = UInt64(time * 10000)
         let uniqueID = "ios-\(timeToken)"
         
+        let unixTimeStamp = Int(Date().timeIntervalSince1970)
+        //miliseconds
+        let unixTimeStamps = unixTimeStamp * 1000000000
+        
         comment.uniqueId = uniqueID
         comment.id = 0
         comment.roomId = self.id
         comment.text = text
         comment.createdAt = Double(Date().timeIntervalSince1970)
+        comment.unixTimeStamp = Double(unixTimeStamps)
         comment.senderEmail = Qiscus.client.email
         comment.senderName = Qiscus.client.userName
         comment.statusRaw = QCommentStatus.sending.rawValue
@@ -516,11 +544,16 @@ public class QRoom:Object {
         let timeToken = UInt64(time * 10000)
         let uniqueID = "ios-\(timeToken)"
         
+        let unixTimeStamp = Int(Date().timeIntervalSince1970)
+        //miliseconds
+        let unixTimeStamps = unixTimeStamp * 1000000000
+        
         comment.uniqueId = uniqueID
         comment.id = 0
         comment.roomId = self.id
         comment.text = text
         comment.createdAt = Double(Date().timeIntervalSince1970)
+        comment.unixTimeStamp = Double(unixTimeStamps)
         comment.senderEmail = Qiscus.client.email
         comment.senderName = Qiscus.client.userName
         comment.statusRaw = QCommentStatus.sending.rawValue
@@ -753,7 +786,7 @@ public class QRoom:Object {
         QiscusDBThread.async {
             let realm = try! Realm(configuration: Qiscus.dbConfiguration)
             realm.refresh()
-            let unreadData =  realm.objects(QComment.self).filter("roomId == '\(id)' AND isRead ==  false").sorted(byKeyPath: "createdAt", ascending: true)
+            let unreadData =  realm.objects(QComment.self).filter("roomId == '\(id)' AND isRead ==  false").sorted(byKeyPath: "unixTimeStamp", ascending: true)
             
             if let last = unreadData.last {
                 last.read()
@@ -996,7 +1029,7 @@ public class QRoom:Object {
             }
             let realm = try! Realm(configuration: Qiscus.dbConfiguration)
             realm.refresh()
-            let data =  realm.objects(QComment.self).filter("roomId == '\(self.id)' AND id > \(commentId)").sorted(byKeyPath: "createdAt", ascending: true)
+            let data =  realm.objects(QComment.self).filter("roomId == '\(self.id)' AND id > \(commentId)").sorted(byKeyPath: "unixTimeStamp", ascending: true)
             if data.count >= limit {
                 var comments = [QComment]()
                 var i = 0
@@ -1027,7 +1060,7 @@ public class QRoom:Object {
             }
             let realm = try! Realm(configuration: Qiscus.dbConfiguration)
             realm.refresh()
-            let data =  realm.objects(QComment.self).filter("roomId == '\(self.id)' AND id < \(commentId)").sorted(byKeyPath: "createdAt", ascending: true)
+            let data =  realm.objects(QComment.self).filter("roomId == '\(self.id)' AND id < \(commentId)").sorted(byKeyPath: "unixTimeStamp", ascending: true)
             if data.count >= limit {
                 var comments = [QComment]()
                 var i = 0
@@ -1121,7 +1154,7 @@ public class QRoom:Object {
             var iteration = 0
             
             for rawComment in self.rawComments.sorted(by: { (q1, q2) -> Bool in
-                return q1.createdAt < q2.createdAt
+                return q1.unixTimeStamp < q2.unixTimeStamp
                 }).reversed() {
                 if iteration < 30 {
                     tempRawComment.insert(rawComment, at: 0)

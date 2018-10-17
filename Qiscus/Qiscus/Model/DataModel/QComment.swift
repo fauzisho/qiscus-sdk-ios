@@ -129,6 +129,7 @@ public class QComment:Object {
     @objc public dynamic var beforeId:Int = 0
     @objc public dynamic var text:String = ""
     @objc public dynamic var createdAt: Double = 0
+    @objc public dynamic var unixTimeStamp: Double = 0
     @objc public dynamic var senderEmail:String = ""
     @objc public dynamic var senderName:String = ""
     @objc public dynamic var senderAvatarURL:String = ""
@@ -267,7 +268,8 @@ public class QComment:Object {
     }
     public var date: String {
         get {
-            let date = Date(timeIntervalSince1970: self.createdAt)
+            let unixTimeStamp = Date(timeIntervalSince1970: TimeInterval(self.unixTimeStamp / 1000000000))
+            let date = unixTimeStamp
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "d MMMM yyyy"
             let dateString = dateFormatter.string(from: date)
@@ -313,7 +315,8 @@ public class QComment:Object {
     
     public var time: String {
         get {
-            let date = Date(timeIntervalSince1970: self.createdAt)
+            let unixTimeStamp = Date(timeIntervalSince1970: TimeInterval(self.unixTimeStamp / 1000000000))
+            let date = unixTimeStamp
             let timeFormatter = DateFormatter()
             timeFormatter.timeZone = NSTimeZone.local
             timeFormatter.dateFormat = "h:mm a"
@@ -616,7 +619,7 @@ public class QComment:Object {
     internal class func countComments(afterId id:Int, roomId:String)->Int{
         let realm = try! Realm(configuration: Qiscus.dbConfiguration)
         realm.refresh()
-        let data =  realm.objects(QComment.self).filter("id > \(id) AND roomId = \'(roomId)'").sorted(byKeyPath: "createdAt", ascending: true)
+        let data =  realm.objects(QComment.self).filter("id > \(id) AND roomId = \'(roomId)'").sorted(byKeyPath: "unixTimeStamp", ascending: true)
         
         return data.count
     }
@@ -684,11 +687,15 @@ public class QComment:Object {
         let time = Double(Date().timeIntervalSince1970)
         let timeToken = UInt64(time * 10000)
         let uniqueID = "ios-\(timeToken)"
-        
+        let unixTimeStamp = Int(Date().timeIntervalSince1970)
+        //miliseconds
+        let unixTimeStamps = unixTimeStamp * 1000000000
+
         comment.uniqueId = uniqueID
         comment.roomId = roomId
         comment.text = self.text
         comment.createdAt = Double(Date().timeIntervalSince1970)
+        comment.unixTimeStamp = Double(unixTimeStamps)
         comment.senderEmail = Qiscus.client.email
         comment.senderName = Qiscus.client.userName
         comment.statusRaw = QCommentStatus.sending.rawValue
@@ -971,6 +978,9 @@ public class QComment:Object {
                 if let createdAt = data["qiscus_createdAt"] as? Double{
                     temp.createdAt = createdAt
                 }
+                if let createdAt = data["qiscus_unixTimeStamp"] as? Double{
+                    temp.unixTimeStamp = createdAt
+                }
                 if let email = data["qiscus_senderEmail"] as? String{
                     temp.senderEmail = email
                 }
@@ -1008,7 +1018,7 @@ public class QComment:Object {
                 }
                 if check {
                      if comment.isInvalidated {return}
-                    let data = realm.objects(QComment.self).filter("isRead == false AND createdAt < \(comment.createdAt) AND roomId == '\(comment.roomId)'")
+                    let data = realm.objects(QComment.self).filter("isRead == false AND unixTimeStamp < \(comment.unixTimeStamp) AND roomId == '\(comment.roomId)'")
                     for olderComment in data {
                         try! realm.write {
                             if !olderComment.isInvalidated {
@@ -1057,6 +1067,7 @@ public class QComment:Object {
         data["qiscus_beforeId"] = self.beforeId
         data["qiscus_text"] = self.text
         data["qiscus_createdAt"] = self.createdAt
+        data["qiscus_unixTimeStamp"] = self.unixTimeStamp
         data["qiscus_senderEmail"] = self.senderEmail
         data["qiscus_senderName"] = self.senderName
         data["qiscus_statusRaw"] = self.statusRaw
@@ -1074,6 +1085,7 @@ public class QComment:Object {
         let commentSenderName = json["username"].stringValue
         let commentSenderAvatarURL = json["user_avatar_url"].stringValue
         let commentCreatedAt = json["unix_timestamp"].doubleValue
+        let commentUnixTimeStamp = json["unix_nano_timestamp"].doubleValue
         let commentBeforeId = json["comment_before_id"].intValue
         let senderEmail = json["email"].stringValue
         let commentType = json["type"].stringValue
@@ -1095,6 +1107,7 @@ public class QComment:Object {
         temp.senderName = commentSenderName
         temp.senderAvatarURL = commentSenderAvatarURL
         temp.createdAt = commentCreatedAt
+        temp.unixTimeStamp = commentUnixTimeStamp
         temp.beforeId = commentBeforeId
         temp.senderEmail = senderEmail
         temp.cellPosRaw = QCellPosition.single.rawValue

@@ -802,7 +802,7 @@ public class QChatService:NSObject {
             df.dateFormat = "y-MM-dd H:m:ss"
             return df.string(from: date)
         }
-        QiscusRequestThread.sync {
+        QiscusRequestThread.async {
             Qiscus.printLog(text: "Start syncing on  \(getTime())")
             QChatService.inSyncProcess = true
             let loadURL = QiscusConfig.SYNC_URL
