@@ -23,6 +23,7 @@ class QAudioLeftCell: UIBaseChatCell {
     @IBOutlet weak var progressView: UIView!
     @IBOutlet weak var progressImageView: UIImageView!
     var menuConfig = enableMenuConfig()
+    var colorName : UIColor = UIColor.black
     var player: AVPlayer?
     var _timeFormatter: DateComponentsFormatter?
     var timeFormatter: DateComponentsFormatter? {
@@ -84,6 +85,7 @@ class QAudioLeftCell: UIBaseChatCell {
     func bindData(message: CommentModel){
         self.setupBalon()
         self.userNameLabel.text = message.username
+        self.userNameLabel.textColor = colorName
         self.dateLabel.text = self.comment?.hour()
         guard let payload = self.comment?.payload else { return }
         if let url = payload["url"] as? String {

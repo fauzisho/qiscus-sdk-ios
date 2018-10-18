@@ -35,6 +35,7 @@ class QImageLeftCell: UIBaseChatCell {
     @IBOutlet weak var progressHeight: NSLayoutConstraint!
     var isPublic: Bool = false
     var menuConfig = enableMenuConfig()
+    var colorName : UIColor = UIColor.black
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
@@ -84,6 +85,7 @@ class QImageLeftCell: UIBaseChatCell {
         
         if(isPublic == true){
             self.lbName.text = message.username
+            self.lbName.textColor = colorName
             lbNameHeight.constant = 21
         }else{
             self.lbName.text = ""

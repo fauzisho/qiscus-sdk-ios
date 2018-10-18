@@ -25,6 +25,7 @@ class QDocumentLeftCell: UIBaseChatCell {
     var url: String = ""
     var menuConfig = enableMenuConfig()
     var isPublic: Bool = false
+    var colorName : UIColor = UIColor.black
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
@@ -80,7 +81,7 @@ class QDocumentLeftCell: UIBaseChatCell {
         
         if(isPublic == true){
             self.lbName.text = message.username
-            self.lbName.textColor = Qiscus.style.color.randomColorLabelName.randomItem()
+            self.lbName.textColor = colorName
             lblNameHeightCons.constant = 21
         }else{
             self.lbName.text = ""

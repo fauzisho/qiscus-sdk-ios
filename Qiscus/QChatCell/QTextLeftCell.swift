@@ -21,6 +21,7 @@ class QTextLeftCell: UIBaseChatCell {
     @IBOutlet weak var leftConstraint: NSLayoutConstraint!
     var isPublic: Bool = false
     var menuConfig = enableMenuConfig()
+    var colorName : UIColor = UIColor.black
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
@@ -52,7 +53,7 @@ class QTextLeftCell: UIBaseChatCell {
         
         if(isPublic == true){
             self.lbName.text = message.username
-            self.lbName.textColor = Qiscus.style.color.randomColorLabelName.randomItem()
+            self.lbName.textColor = colorName
             lbNameHeight.constant = 21
         }else{
             self.lbName.text = ""

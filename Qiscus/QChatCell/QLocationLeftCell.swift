@@ -21,6 +21,7 @@ class QLocationLeftCell: UIBaseChatCell {
     @IBOutlet weak var addressView: UITextView!
     @IBOutlet weak var locationLabel: UILabel!
     var menuConfig = enableMenuConfig()
+    var colorName : UIColor = UIColor.black
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
@@ -50,6 +51,7 @@ class QLocationLeftCell: UIBaseChatCell {
         self.setupBalon()
         
         self.lbName.text = message.username
+        self.lbName.textColor = colorName
         self.lbTime.text = message.hour()
         let data = message.payload
         let payload = JSON(data)

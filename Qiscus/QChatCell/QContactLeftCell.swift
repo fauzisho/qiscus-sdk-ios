@@ -23,6 +23,7 @@ class QContactLeftCell: UIBaseChatCell {
     @IBOutlet weak var viewLine: UIView!
     var menuConfig = enableMenuConfig()
     var isPublic: Bool = false
+    var colorName : UIColor = UIColor.black
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
@@ -58,7 +59,7 @@ class QContactLeftCell: UIBaseChatCell {
         
         if(isPublic == true){
             self.lbName.text = message.username
-            self.lbName.textColor = Qiscus.style.color.randomColorLabelName.randomItem()
+            self.lbName.textColor = colorName
             lbNameCons.constant = 21
         }else{
             self.lbName.text = ""

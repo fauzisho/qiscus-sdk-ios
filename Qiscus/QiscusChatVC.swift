@@ -13,6 +13,12 @@ import ContactsUI
 import Photos
 import MobileCoreServices
 
+struct UserNameColor {
+    var userEmail            : String    = ""
+    var color               : UIColor   = UIColor.black
+}
+    
+
 public protocol QiscusChatVCCellDelegate{
     func chatVC(viewController:QiscusChatVC, didTapLinkButtonWithURL url:URL )
     
@@ -88,6 +94,7 @@ public class QiscusChatVC: UIChatViewController {
     let locationManager = CLLocationManager()
     var presentingLoading = false
     var inputBar = CustomChatInput()
+    var usersColor = [UserNameColor]()
     
     var latestNavbarTint = UINavigationBar.appearance().tintColor
     internal var currentNavbarTint = UINavigationBar.appearance().tintColor
@@ -170,6 +177,16 @@ public class QiscusChatVC: UIChatViewController {
         if let delegate = self.delegate{
             delegate.chatVC(onViewDidLoad: self)
         }
+        self.usersColor.removeAll()
+        if let room = self.room{
+            for user in (room.participants?.enumerated())!{
+                var data = UserNameColor()
+                data.userEmail = user.element.email
+                data.color = Qiscus.style.color.randomColorLabelName.randomItem()!
+                self.usersColor.append(data)
+            }
+        }
+       
     }
     
     @objc func willEnterFromForeground(){
@@ -455,6 +472,13 @@ extension QiscusChatVC : UIChatView {
     }
     
     public func uiChat(viewController: UIChatViewController, cellForMessage message: CommentModel) -> UIBaseChatCell? {
+        var colorName:UIColor = UIColor.black
+        for user in usersColor.enumerated(){
+            if(message.userEmail == user.element.userEmail){
+                colorName = user.element.color
+            }
+        }
+        
         var menuConfig = enableMenuConfig()
         if let isEnable = delegate?.chatVC(enableInfoAction: self) {
             menuConfig.info = isEnable
@@ -464,7 +488,6 @@ extension QiscusChatVC : UIChatView {
             menuConfig.forward = isEnable
         }
         
-
         if message.type == "text" {
             if (message.isMyComment() == true){
                 let cell =  self.reusableCell(withIdentifier: "qTextRightCell", for: message) as! QTextRightCell
@@ -473,6 +496,7 @@ extension QiscusChatVC : UIChatView {
             }else{
                 let cell = self.reusableCell(withIdentifier: "qTextLeftCell", for: message) as! QTextLeftCell
                 if self.room?.type == .group {
+                    cell.colorName = colorName
                     cell.isPublic = true
                 }else {
                     cell.isPublic = false
@@ -492,6 +516,7 @@ extension QiscusChatVC : UIChatView {
                         cell.menuConfig = menuConfig
                     if self.room?.type == .group {
                         cell.isPublic = true
+                        cell.colorName = colorName
                     }else {
                         cell.isPublic = false
                     }
@@ -507,6 +532,7 @@ extension QiscusChatVC : UIChatView {
                     let cell = self.reusableCell(withIdentifier: "qDocumentLeftCell", for: message) as! QDocumentLeftCell
                     cell.menuConfig = menuConfig
                     if self.room?.type == .group {
+                        cell.colorName = colorName
                         cell.isPublic = true
                     }else {
                         cell.isPublic = false
@@ -521,6 +547,7 @@ extension QiscusChatVC : UIChatView {
                 }else{
                     let cell = self.reusableCell(withIdentifier: "qAudioLeftCell", for: message) as! QAudioLeftCell
                     cell.menuConfig = menuConfig
+                    cell.colorName = colorName
                     return cell
                 }
             case .pdf:
@@ -531,6 +558,7 @@ extension QiscusChatVC : UIChatView {
                 }else{
                     let cell = self.reusableCell(withIdentifier: "qDocumentLeftCell", for: message) as! QDocumentLeftCell
                     if self.room?.type == .group {
+                        cell.colorName = colorName
                         cell.isPublic = true
                     }else {
                         cell.isPublic = false
@@ -546,6 +574,7 @@ extension QiscusChatVC : UIChatView {
                 }else{
                     let cell = self.reusableCell(withIdentifier: "qDocumentLeftCell", for: message) as! QDocumentLeftCell
                     if self.room?.type == .group {
+                        cell.colorName = colorName
                         cell.isPublic = true
                     }else {
                         cell.isPublic = false
@@ -561,6 +590,7 @@ extension QiscusChatVC : UIChatView {
                 }else{
                     let cell = self.reusableCell(withIdentifier: "qDocumentLeftCell", for: message) as! QDocumentLeftCell
                     if self.room?.type == .group {
+                        cell.colorName = colorName
                         cell.isPublic = true
                     }else {
                         cell.isPublic = false
@@ -580,6 +610,7 @@ extension QiscusChatVC : UIChatView {
                 let cell = self.reusableCell(withIdentifier: "qReplyLeftCell", for: message) as! QReplyLeftCell
                 if self.room?.type == .group {
                     cell.isPublic = true
+                    cell.colorName = colorName
                 }else {
                     cell.isPublic = false
                 }
@@ -595,6 +626,7 @@ extension QiscusChatVC : UIChatView {
             }else{
                 let cell = self.reusableCell(withIdentifier: "qLocationLeftCell", for: message) as! QLocationLeftCell
                 cell.menuConfig = menuConfig
+                cell.colorName = colorName
                 return cell
             }
         }else if message.type == "contact_person" {
@@ -607,6 +639,23 @@ extension QiscusChatVC : UIChatView {
                 cell.menuConfig = menuConfig
                 if self.room?.type == .group {
                     cell.isPublic = true
+                    cell.colorName = colorName
+                }else {
+                    cell.isPublic = false
+                }
+                return cell
+            }
+        }else if message.type == "contact_person" {
+            if (message.isMyComment() == true){
+                let cell =  self.reusableCell(withIdentifier: "qContactRightCell", for: message) as! QContactRightCell
+                cell.menuConfig = menuConfig
+                return cell
+            }else{
+                let cell = self.reusableCell(withIdentifier: "qContactLeftCell", for: message) as! QContactLeftCell
+                cell.menuConfig = menuConfig
+                if self.room?.type == .group {
+                    cell.isPublic = true
+                    cell.colorName = colorName
                 }else {
                     cell.isPublic = false
                 }

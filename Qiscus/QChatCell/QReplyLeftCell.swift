@@ -22,6 +22,7 @@ class QReplyLeftCell: UIBaseChatCell {
     @IBOutlet weak var ivBaloon: UIImageView!
     var menuConfig = enableMenuConfig()
     var isPublic: Bool = false
+    var colorName : UIColor = UIColor.black
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
@@ -115,7 +116,7 @@ class QReplyLeftCell: UIBaseChatCell {
         self.lbTime.text = self.hour(date: message.date())
         if(isPublic == true){
             self.lbName.text = message.username
-            self.lbName.textColor = Qiscus.style.color.randomColorLabelName.randomItem()
+            self.lbName.textColor = colorName
             self.lblNameHeightCons.constant = 21
         }else{
             self.lbName.text = ""
