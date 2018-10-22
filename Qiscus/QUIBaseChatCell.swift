@@ -20,6 +20,29 @@ open class enableMenuConfig : NSObject {
 }
 extension UIBaseChatCell {
     
+    var textAttribute:[NSAttributedStringKey: Any]{
+        get{
+            var foregroundColorAttributeName = QiscusColorConfiguration.sharedInstance.leftBaloonTextColor
+            return [
+                NSAttributedStringKey.foregroundColor: foregroundColorAttributeName,
+                NSAttributedStringKey.font: Qiscus.style.chatFont
+            ]
+        }
+    }
+    
+    var linkTextAttributes:[String: Any]{
+        get{
+            var foregroundColorAttributeName = QiscusColorConfiguration.sharedInstance.leftBaloonLinkColor
+            var underlineColorAttributeName = QiscusColorConfiguration.sharedInstance.leftBaloonLinkColor
+            return [
+                NSAttributedStringKey.foregroundColor.rawValue: foregroundColorAttributeName,
+                NSAttributedStringKey.underlineColor.rawValue: underlineColorAttributeName,
+                NSAttributedStringKey.underlineStyle.rawValue: NSUnderlineStyle.styleSingle.rawValue,
+                NSAttributedStringKey.font.rawValue: Qiscus.style.chatFont
+            ]
+        }
+    }
+    
     open func setMenu(forward : Bool = false , info : Bool = false) {
         
         let reply = UIMenuItem(title: "Reply", action: #selector(reply(_:)))
@@ -105,5 +128,6 @@ extension Array {
         return self[index]
     }
 }
+
 
 

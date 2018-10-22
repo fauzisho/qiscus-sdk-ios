@@ -31,7 +31,7 @@
                                 </userDefinedRuntimeAttributes>
                             </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="halo" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MsS-mP-HBr">
-                                <rect key="frame" x="59" y="88" width="297" height="48"/>
+                                <rect key="frame" x="59" y="83" width="297" height="43"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -128,7 +128,7 @@
                             <constraint firstAttribute="trailing" secondItem="VY1-Tj-fZi" secondAttribute="trailing" id="2p3-QW-Con"/>
                             <constraint firstItem="cAQ-8q-WMv" firstAttribute="leading" secondItem="2DX-7T-UW9" secondAttribute="trailing" constant="5" id="6LF-Km-5tT"/>
                             <constraint firstItem="MsS-mP-HBr" firstAttribute="trailing" secondItem="VY1-Tj-fZi" secondAttribute="trailing" constant="-19" id="A4L-Ip-UbE"/>
-                            <constraint firstItem="MsS-mP-HBr" firstAttribute="top" secondItem="lD1-CS-kGf" secondAttribute="bottom" constant="10" id="AdI-Lp-fsW"/>
+                            <constraint firstItem="MsS-mP-HBr" firstAttribute="top" secondItem="lD1-CS-kGf" secondAttribute="bottom" constant="5" id="AdI-Lp-fsW"/>
                             <constraint firstItem="VY1-Tj-fZi" firstAttribute="leading" secondItem="fbA-Kr-gQb" secondAttribute="leading" constant="50" id="B5y-N8-IyB"/>
                             <constraint firstAttribute="bottom" secondItem="VY1-Tj-fZi" secondAttribute="bottom" constant="5" id="BoP-9r-GYT"/>
                             <constraint firstItem="cAQ-8q-WMv" firstAttribute="trailing" secondItem="MsS-mP-HBr" secondAttribute="trailing" id="GbT-KC-OCw"/>
@@ -138,7 +138,7 @@
                             <constraint firstItem="VY1-Tj-fZi" firstAttribute="top" secondItem="2BY-Ve-6Je" secondAttribute="bottom" constant="5" id="drW-62-gD5"/>
                             <constraint firstItem="2BY-Ve-6Je" firstAttribute="leading" secondItem="fbA-Kr-gQb" secondAttribute="leading" constant="90" id="fT6-75-gYe"/>
                             <constraint firstItem="2BY-Ve-6Je" firstAttribute="top" secondItem="fbA-Kr-gQb" secondAttribute="top" constant="8" id="gag-wj-mql"/>
-                            <constraint firstAttribute="bottom" secondItem="MsS-mP-HBr" secondAttribute="bottom" constant="8.5" id="kee-oq-3vX"/>
+                            <constraint firstAttribute="bottom" secondItem="MsS-mP-HBr" secondAttribute="bottom" constant="18.5" id="kee-oq-3vX"/>
                             <constraint firstAttribute="trailing" secondItem="2BY-Ve-6Je" secondAttribute="trailing" constant="18" id="mZc-pj-zjG"/>
                             <constraint firstAttribute="bottom" secondItem="2DX-7T-UW9" secondAttribute="bottom" constant="7.5" id="mav-jM-5Cx"/>
                             <constraint firstItem="cAQ-8q-WMv" firstAttribute="bottom" secondItem="2DX-7T-UW9" secondAttribute="bottom" id="rRN-q8-ZZJ"/>
@@ -165,6 +165,7 @@
                 <outlet property="lbName" destination="2BY-Ve-6Je" id="jjV-Dx-cQI"/>
                 <outlet property="lbTime" destination="2DX-7T-UW9" id="tqY-tr-EdO"/>
                 <outlet property="tvCommentContent" destination="NWe-cT-VFS" id="oq1-BB-RAl"/>
+                <outlet property="viewReplyPreview" destination="lD1-CS-kGf" id="rZL-6Q-Tfw"/>
             </connections>
             <point key="canvasLocation" x="139.5" y="206.5"/>
         </tableViewCell>

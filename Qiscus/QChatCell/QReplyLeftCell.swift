@@ -8,9 +8,11 @@
 import UIKit
 import QiscusUI
 import QiscusCore
+import SwiftyJSON
 
 class QReplyLeftCell: UIBaseChatCell {
     
+    @IBOutlet weak var viewReplyPreview: UIView!
     @IBOutlet weak var lblNameHeightCons: NSLayoutConstraint!
     @IBOutlet weak var ivCommentImageWidhtCons: NSLayoutConstraint!
     @IBOutlet weak var lbCommentSender: UILabel!
@@ -23,10 +25,30 @@ class QReplyLeftCell: UIBaseChatCell {
     var menuConfig = enableMenuConfig()
     var isPublic: Bool = false
     var colorName : UIColor = UIColor.black
+    var delegateChat: QiscusChatVC? = nil
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
         self.setMenu(forward: menuConfig.forward, info: menuConfig.info)
+        let tap = UITapGestureRecognizer(target: self, action: #selector(self.handleTap(_:)))
+        
+        viewReplyPreview.addGestureRecognizer(tap)
+        viewReplyPreview.isUserInteractionEnabled = true
+    }
+    
+    @objc func handleTap(_ sender: UITapGestureRecognizer) {
+        if let delegate = delegateChat {
+            guard let replyData = self.comment?.payload else {
+                return
+            }
+            let json = JSON(replyData)
+            var commentID = json["replied_comment_id"].int ?? 0
+            if commentID != 0 {
+                if let comment = QiscusCore.database.comment.find(id: "\(commentID)"){
+                    delegate.scrollToComment(comment: comment)
+                }
+            }
+        }
     }
     
     override func setSelected(_ selected: Bool, animated: Bool) {

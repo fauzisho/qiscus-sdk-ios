@@ -8,8 +8,10 @@
 import UIKit
 import QiscusUI
 import QiscusCore
+import SwiftyJSON
 
 class QReplyRightCell: UIBaseChatCell {
+    @IBOutlet weak var viewReplyPreview: UIView!
     @IBOutlet weak var ivCommentImageWidhtCons: NSLayoutConstraint!
     @IBOutlet weak var lbCommentSender: UILabel!
     @IBOutlet weak var tvCommentContent: UITextView!
@@ -20,16 +22,37 @@ class QReplyRightCell: UIBaseChatCell {
     @IBOutlet weak var ivBaloon: UIImageView!
     @IBOutlet weak var ivStatus: UIImageView!
     var menuConfig = enableMenuConfig()
+    var delegateChat: QiscusChatVC? = nil
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
         self.setMenu(forward: menuConfig.forward, info: menuConfig.info)
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(self.handleTap(_:)))
+        
+        viewReplyPreview.addGestureRecognizer(tap)
+        viewReplyPreview.isUserInteractionEnabled = true
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
         self.setMenu(forward: menuConfig.forward, info: menuConfig.info)
         // Configure the view for the selected state
+    }
+    
+    @objc func handleTap(_ sender: UITapGestureRecognizer) {
+        if let delegate = delegateChat {
+            guard let replyData = self.comment?.payload else {
+                return
+            }
+            let json = JSON(replyData)
+            var commentID = json["replied_comment_id"].int ?? 0
+            if commentID != 0 {
+                if let comment = QiscusCore.database.comment.find(id: "\(commentID)"){
+                    delegate.scrollToComment(comment: comment)
+                }
+            }
+        }
     }
     
     override func present(message: CommentModel) {

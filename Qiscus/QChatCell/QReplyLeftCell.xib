@@ -155,6 +155,7 @@
                 <outlet property="lbTime" destination="2DX-7T-UW9" id="tqY-tr-EdO"/>
                 <outlet property="lblNameHeightCons" destination="fvw-t6-A4t" id="XSI-Fg-Wy4"/>
                 <outlet property="tvCommentContent" destination="NWe-cT-VFS" id="oq1-BB-RAl"/>
+                <outlet property="viewReplyPreview" destination="lD1-CS-kGf" id="mMc-6R-RSe"/>
             </connections>
             <point key="canvasLocation" x="139.5" y="200.5"/>
         </tableViewCell>
