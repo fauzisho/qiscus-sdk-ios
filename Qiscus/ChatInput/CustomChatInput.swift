@@ -18,6 +18,16 @@ protocol CustomChatInputDelegate {
 
 class CustomChatInput: UIChatInput {
     
+    @IBOutlet weak var iconReplyPreviewWidhtCons: NSLayoutConstraint!
+    @IBOutlet weak var iconReplyPreview: UIImageView!
+    @IBOutlet weak var viewColorReplyPreview: UIView!
+    @IBOutlet weak var lbReplyPreviewSenderName: UILabel!
+    @IBOutlet weak var lbReplyPreview: UILabel!
+    @IBOutlet weak var ivReplyPreviewWidth: NSLayoutConstraint!
+    @IBOutlet weak var ivReplyPreview: UIImageView!
+    @IBOutlet weak var cancelReplyPreviewButton: UIButton!
+    @IBOutlet weak var topReplyPreviewCons: NSLayoutConstraint!
+    @IBOutlet weak var replyPreviewCons: NSLayoutConstraint!
     @IBOutlet weak var heightView: NSLayoutConstraint!
     @IBOutlet weak var sendButton: UIButton!
     @IBOutlet weak var attachButton: UIButton!
@@ -26,7 +36,9 @@ class CustomChatInput: UIChatInput {
     @IBOutlet weak var textView: UITextView!
     var delegate : CustomChatInputDelegate? = nil
     var replyData:CommentModel?
-    
+    var defaultInputBarHeight: CGFloat = 50.0
+    var customInputBarHeight: CGFloat = 50.0
+    var colorName : UIColor = UIColor.black
     override func commonInit(nib: UINib) {
         let nib = UINib(nibName: "CustomChatInput", bundle: Qiscus.bundle)
         super.commonInit(nib: nib)
@@ -37,6 +49,97 @@ class CustomChatInput: UIChatInput {
         
     }
     
+    func showPreviewReply(){
+        
+        if let data = replyData {
+            self.lbReplyPreviewSenderName.text = data.username
+            self.lbReplyPreviewSenderName.textColor = colorName
+            self.viewColorReplyPreview.backgroundColor = colorName
+            self.iconReplyPreviewWidhtCons.constant = 20
+            self.ivReplyPreviewWidth.constant = 45
+            
+            if data.type == "text" {
+                self.lbReplyPreview.text = data.message
+                self.ivReplyPreviewWidth.constant = 0
+                self.iconReplyPreviewWidhtCons.constant = 0
+            }else if data.type == "location"{
+                let payload = JSON(data.payload)
+                let address = payload["address"].stringValue
+                self.lbReplyPreview.text = address
+                self.iconReplyPreview.image = Qiscus.image(named: "map_ico")
+                self.ivReplyPreview.image = Qiscus.image(named: "map_ico")
+                self.iconReplyPreviewWidhtCons.constant = 0
+            }else if data.type == "contact_person"{
+                let payloadJSON = JSON(data.payload)
+                self.lbReplyPreview.text = payloadJSON["name"].string ??  payloadJSON["value"].string ?? ""
+                self.iconReplyPreview.image = Qiscus.image(named: "contact")
+                self.ivReplyPreviewWidth.constant = 0
+            }else if data.type == "file_attachment"{
+                let replyType = QiscusChatVC().getType(message: data)
+                switch replyType {
+                case .image:
+                    guard let payload = data.payload else { return }
+                    let caption = payload["caption"] as? String
+                    self.lbReplyPreview.text = caption
+                    if let url = payload["url"] as? String {
+                        ivReplyPreview.sd_setShowActivityIndicatorView(true)
+                        ivReplyPreview.sd_setIndicatorStyle(.whiteLarge)
+                        ivReplyPreview.sd_setImage(with: URL(string: url)!)
+                    }
+                    
+                    self.iconReplyPreview.image = Qiscus.image(named: "ic_image")
+                    
+                case .video:
+                    var filename = data.fileName(text: data.message)
+                    self.lbReplyPreview.text = filename
+                    self.iconReplyPreview.image = Qiscus.image(named: "ic_videocam")?.withRenderingMode(UIImageRenderingMode.alwaysTemplate)
+                    self.iconReplyPreview.tintColor = UIColor.lightGray
+                    self.ivReplyPreviewWidth.constant = 0
+                case .audio:
+                    var filename = data.fileName(text: data.message)
+                    self.lbReplyPreview.text = filename
+                    self.iconReplyPreview.image = Qiscus.image(named: "ar_record")?.withRenderingMode(UIImageRenderingMode.alwaysTemplate)
+                    self.iconReplyPreview.tintColor = UIColor.lightGray
+                    self.ivReplyPreviewWidth.constant = 0
+                case .document:
+                    var filename = data.fileName(text: data.message)
+                    self.lbReplyPreview.text = filename
+                    self.iconReplyPreview.image = Qiscus.image(named: "ic_file")
+                    self.ivReplyPreviewWidth.constant = 0
+                case .file:
+                    var filename = data.fileName(text: data.message)
+                    self.lbReplyPreview.text = filename
+                    self.iconReplyPreview.image = Qiscus.image(named: "ic_file")
+                    self.ivReplyPreviewWidth.constant = 0
+                default:
+                    self.lbReplyPreview.text = data.message
+                    self.iconReplyPreviewWidhtCons.constant = 0
+                    self.iconReplyPreviewWidhtCons.constant = 0
+                }
+            }
+            
+            
+            if(self.topReplyPreviewCons.constant != 0){
+                self.topReplyPreviewCons.constant = 0
+                self.customInputBarHeight = self.heightView.constant + self.replyPreviewCons.constant
+                self.setHeight(self.customInputBarHeight)
+            }
+        }else{
+           self.hidePreviewReply()
+        }
+
+    }
+    
+    func hidePreviewReply(){
+        self.topReplyPreviewCons.constant = -50
+        self.heightTextViewCons.constant = (self.heightView.constant - 10)
+        self.setHeight(self.heightView.constant)
+    }
+    
+    @IBAction func cancelReply(_ sender: Any) {
+        self.replyData = nil
+        self.hidePreviewReply()
+    }
     @IBAction func clickSend(_ sender: Any) {
         guard let text = self.textView.text else {return}
         if !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && text != QiscusTextConfiguration.sharedInstance.textPlaceholder {
@@ -56,6 +159,7 @@ class CustomChatInput: UIChatInput {
                     "replied_comment_type" : replyData?.type
                 ]
                 self.replyData = nil
+                self.hidePreviewReply()
             }else{
                
                 comment.type = "text"
@@ -97,9 +201,17 @@ extension CustomChatInput : UITextViewDelegate {
         if (newSize.height >= 40 && newSize.height <= 100) {
             self.heightTextViewCons.constant = newSize.height
             self.heightView.constant = newSize.height + 10.0
+            if(self.topReplyPreviewCons.constant != 0){
+                self.setHeight(self.heightView.constant)
+            }else{
+                self.setHeight(self.heightView.constant + self.replyPreviewCons.constant)
+            }
             
         }
-        if (newSize.height >= 100) { self.textView.isScrollEnabled = true }
+        
+        if (newSize.height >= 100) {
+            self.textView.isScrollEnabled = true
+        }
     }
     
 }

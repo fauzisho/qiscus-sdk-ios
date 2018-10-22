@@ -11,6 +11,7 @@ import QiscusCore
 import AVFoundation
 
 class QAudioLeftCell: UIBaseChatCell {
+    @IBOutlet weak var heightUsernameCons: NSLayoutConstraint!
     @IBOutlet weak var userNameLabel: UILabel!
     @IBOutlet weak var balloonView: UIImageView!
     @IBOutlet weak var dateLabel: UILabel!
@@ -23,6 +24,7 @@ class QAudioLeftCell: UIBaseChatCell {
     @IBOutlet weak var progressView: UIView!
     @IBOutlet weak var progressImageView: UIImageView!
     var menuConfig = enableMenuConfig()
+    var isPublic: Bool = false
     var colorName : UIColor = UIColor.black
     var player: AVPlayer?
     var _timeFormatter: DateComponentsFormatter?
@@ -84,8 +86,14 @@ class QAudioLeftCell: UIBaseChatCell {
     
     func bindData(message: CommentModel){
         self.setupBalon()
-        self.userNameLabel.text = message.username
-        self.userNameLabel.textColor = colorName
+        if(isPublic == true){
+            self.userNameLabel.text = message.username
+            self.userNameLabel.textColor = colorName
+            heightUsernameCons.constant = 21
+        }else{
+            self.userNameLabel.text = ""
+            heightUsernameCons.constant = 0
+        }
         self.dateLabel.text = self.comment?.hour()
         guard let payload = self.comment?.payload else { return }
         if let url = payload["url"] as? String {
