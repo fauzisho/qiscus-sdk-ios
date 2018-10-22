@@ -65,6 +65,9 @@ open class QiscusColorConfiguration: NSObject {
     
     public var tintColor = UIColor.white
     
+    /// postback button color, using UIColor class, Default value: UIColor(red: 1, green: 1, blue: 1, alpha: 0.7)
+    open var postBackButtonColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.7)
+    
     public var avatarBackgroundColor:[UIColor] = [
         UIColor(red: 1, green: 23/255, blue: 68/255, alpha: 1),
         UIColor(red: 61/255, green: 90/255, blue: 254/255, alpha: 1),

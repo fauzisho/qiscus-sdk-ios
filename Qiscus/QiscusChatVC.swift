@@ -24,8 +24,8 @@ public protocol QiscusChatVCCellDelegate{
     
 //    func didTapCell(viewController:QiscusChatVC, withData data: CommentModel)
 //    func didTouchLink(viewController:QiscusChatVC, onCell cell: UIBaseChatCell)
-//    func didTapPostbackButton(viewController:QiscusChatVC, withData data: JSON)
-//    func didTapAccountLinking(viewController:QiscusChatVC, withData data: JSON)
+    func didTapPostbackButton(viewController:QiscusChatVC, withData data: JSON)
+    func didTapAccountLinking(viewController:QiscusChatVC, withData data: JSON)
 //    func didTapSaveContact(viewController:QiscusChatVC, withData data:CommentModel)
 //    func didShare(viewController:QiscusChatVC, comment: CommentModel)
 //    func didForward(viewController:QiscusChatVC, comment: CommentModel)
@@ -179,12 +179,15 @@ public class QiscusChatVC: UIChatViewController {
         }
         self.usersColor.removeAll()
         if let room = self.room{
-            for user in (room.participants?.enumerated())!{
-                var data = UserNameColor()
-                data.userEmail = user.element.email
-                data.color = Qiscus.style.color.randomColorLabelName.randomItem()!
-                self.usersColor.append(data)
+            if room.participants?.count != 0 {
+                for user in (room.participants?.enumerated())!{
+                    var data = UserNameColor()
+                    data.userEmail = user.element.email
+                    data.color = Qiscus.style.color.randomColorLabelName.randomItem()!
+                    self.usersColor.append(data)
+                }
             }
+            
         }
        
     }
@@ -229,6 +232,14 @@ public class QiscusChatVC: UIChatViewController {
             let comment = userInfo["comment"] as! CommentModel
             
             self.replyData = comment
+            if usersColor.count != 0{
+                for user in usersColor.enumerated(){
+                    if(self.replyData?.userEmail == user.element.userEmail){
+                        self.inputBar.colorName = user.element.color
+                    }
+                }
+            }
+            self.inputBar.showPreviewReply()
             
         }
     }
@@ -325,7 +336,7 @@ public class QiscusChatVC: UIChatViewController {
         self.registerClass(nib: UINib(nibName: "QContactRightCell", bundle: Qiscus.bundle), forMessageCellWithReuseIdentifier: "qContactRightCell")
         self.registerClass(nib: UINib(nibName: "QAudioLeftCell", bundle: Qiscus.bundle), forMessageCellWithReuseIdentifier: "qAudioLeftCell")
         self.registerClass(nib: UINib(nibName: "QAudioRightCell", bundle: Qiscus.bundle), forMessageCellWithReuseIdentifier: "qAudioRightCell")
-        
+        self.registerClass(nib: UINib(nibName: "QPostbackLeftCell", bundle: Qiscus.bundle), forMessageCellWithReuseIdentifier: "postBack")
         
     }
     
@@ -473,9 +484,12 @@ extension QiscusChatVC : UIChatView {
     
     public func uiChat(viewController: UIChatViewController, cellForMessage message: CommentModel) -> UIBaseChatCell? {
         var colorName:UIColor = UIColor.black
-        for user in usersColor.enumerated(){
-            if(message.userEmail == user.element.userEmail){
-                colorName = user.element.color
+        
+        if usersColor.count != 0{
+            for user in usersColor.enumerated(){
+                if(message.userEmail == user.element.userEmail){
+                    colorName = user.element.color
+                }
             }
         }
         
@@ -547,7 +561,12 @@ extension QiscusChatVC : UIChatView {
                 }else{
                     let cell = self.reusableCell(withIdentifier: "qAudioLeftCell", for: message) as! QAudioLeftCell
                     cell.menuConfig = menuConfig
-                    cell.colorName = colorName
+                    if self.room?.type == .group {
+                        cell.colorName = colorName
+                        cell.isPublic = true
+                    }else {
+                        cell.isPublic = false
+                    }
                     return cell
                 }
             case .pdf:
@@ -605,6 +624,7 @@ extension QiscusChatVC : UIChatView {
             if (message.isMyComment() == true){
                 let cell = self.reusableCell(withIdentifier: "qReplyRightCell", for: message) as! QReplyRightCell
                 cell.menuConfig = menuConfig
+                cell.delegateChat = self
                 return cell
             }else{
                 let cell = self.reusableCell(withIdentifier: "qReplyLeftCell", for: message) as! QReplyLeftCell
@@ -614,6 +634,7 @@ extension QiscusChatVC : UIChatView {
                 }else {
                     cell.isPublic = false
                 }
+                cell.delegateChat = self
                 cell.menuConfig = menuConfig
                 return cell
             }
@@ -645,24 +666,20 @@ extension QiscusChatVC : UIChatView {
                 }
                 return cell
             }
-        }else if message.type == "contact_person" {
-            if (message.isMyComment() == true){
-                let cell =  self.reusableCell(withIdentifier: "qContactRightCell", for: message) as! QContactRightCell
-                cell.menuConfig = menuConfig
-                return cell
-            }else{
-                let cell = self.reusableCell(withIdentifier: "qContactLeftCell", for: message) as! QContactLeftCell
-                cell.menuConfig = menuConfig
-                if self.room?.type == .group {
-                    cell.isPublic = true
-                    cell.colorName = colorName
-                }else {
-                    cell.isPublic = false
-                }
-                return cell
-            }
+        }else if message.type == "account_linking" {
+            let cell = self.reusableCell(withIdentifier: "postBack", for: message) as! QPostbackLeftCell
+            cell.delegateChat = self
+            return cell
+        }else if message.type == "buttons" {
+            let cell = self.reusableCell(withIdentifier: "postBack", for: message) as! QPostbackLeftCell
+            cell.delegateChat = self
+            return cell
+        }else if message.type == "button_postback_response" {
+            let cell =  self.reusableCell(withIdentifier: "qTextRightCell", for: message) as! QTextRightCell
+            cell.menuConfig = menuConfig
+            return cell
         }else {
-            Qiscus.printLog(text: "message.type ini =\(message.type)")
+            Qiscus.printLog(text: "message.type =\(message.type)")
             return nil
         }
     }
@@ -678,12 +695,16 @@ extension QiscusChatVC : UIChatView {
     public func uiChat(input InViewController: UIChatViewController) -> UIChatInput? {
         let sendImage = Qiscus.image(named: "send")?.withRenderingMode(.alwaysTemplate)
         let attachmentImage = Qiscus.image(named: "share_attachment")?.withRenderingMode(.alwaysTemplate)
+        let cancel = Qiscus.image(named: "ar_cancel")?.withRenderingMode(.alwaysTemplate)
         inputBar.sendButton.setImage(sendImage, for: .normal)
         inputBar.attachButton.setImage(attachmentImage, for: .normal)
+        inputBar.cancelReplyPreviewButton.setImage(cancel, for: .normal)
         
         inputBar.sendButton.tintColor = Qiscus.shared.styleConfiguration.color.topColor
         inputBar.attachButton.tintColor = Qiscus.shared.styleConfiguration.color.topColor
+         inputBar.cancelReplyPreviewButton.tintColor = Qiscus.shared.styleConfiguration.color.topColor
         inputBar.delegate = self
+        inputBar.hidePreviewReply()
         return inputBar
     }
     
