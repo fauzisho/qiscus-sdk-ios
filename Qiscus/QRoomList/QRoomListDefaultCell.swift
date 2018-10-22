@@ -1,130 +1,118 @@
 //
-//  QRoomListDefaultCell.swift
-//  Example
+//  UIChatListViewCell.swift
+//  QiscusUI
 //
-//  Created by Ahmad Athaullah on 9/15/17.
-//  Copyright © 2017 Ahmad Athaullah. All rights reserved.
+//  Created by Qiscus on 30/07/18.
+//  Copyright © 2018 Qiscus. All rights reserved.
 //
 
 import UIKit
 import QiscusCore
+import AlamofireImage
+import QiscusUI
+import SwiftyJSON
+import SDWebImage
 
-class QRoomListDefaultCell: QRoomListCell {
-
-    @IBOutlet weak var titleLabel: UILabel!
-    @IBOutlet weak var avatarView: UIImageView!
-    @IBOutlet weak var unreadLabel: UILabel!
-    @IBOutlet weak var descriptionLabel: UILabel!
+class QRoomListDefaultCell: BaseChatListCell {
+    @IBOutlet weak var viewBadge: UIView!
+    @IBOutlet weak var imageViewPinRoom: UIImageView!
+    @IBOutlet weak var labelName: UILabel!
+    @IBOutlet weak var labelLastMessage: UILabel!
+    @IBOutlet weak var imageViewRoom: UIImageView!
+    @IBOutlet weak var labelDate: UILabel!
+    @IBOutlet weak var labelBadge: UILabel!
+    
+    var lastMessageCreateAt:String{
+        get{
+            guard let comment = data?.lastComment else { return "" }
+            let createAt = comment.unixTimestamp
+            if createAt == 0 {
+                return ""
+            }else{
+                var result = ""
+                let date = Date(timeIntervalSince1970: Double(createAt))
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "d/MM"
+                let dateString = dateFormatter.string(from: date)
+                
+                let timeFormatter = DateFormatter()
+                timeFormatter.dateFormat = "h:mm a"
+                let timeString = timeFormatter.string(from: date)
+                
+                if date.isToday{
+                    result = "\(timeString)"
+                }
+                else if date.isYesterday{
+                    result = "Yesterday"
+                }else{
+                    result = "\(dateString)"
+                }
+                
+                return result
+            }
+        }
+    }
+    
     override func awakeFromNib() {
         super.awakeFromNib()
-        self.avatarView.layer.cornerRadius = 25.0
-        self.avatarView.clipsToBounds = true
-        self.unreadLabel.layer.cornerRadius = 12.5
-        self.unreadLabel.clipsToBounds = true
+        // Initialization code
+        imageViewRoom.layer.cornerRadius = imageViewRoom.frame.height/2
     }
     
-//    var typingUser:QUser?{
-//        didSet{
-//            if typingUser != nil {
-//                // self.descriptionLabel.text = "\(typingUser!.fullname) is typing ..."
-//                self.descriptionLabel.textColor = UIColor(red: 59/255, green: 147/255, blue: 61/255, alpha: 1)
-//            }else{
-//                if let lastComment = room!.lastComment{
-//                   // self.descriptionLabel.text = "\(lastComment.senderName): \(lastComment.text)"
-//                    self.descriptionLabel.textColor = UIColor.black
-//                }
-//            }
-//        }
-//    }
-    override func setupUI() {
-        //self.typingUser = nil
-        setupAvatar()
-        setupUnreadIndicator()
-        setupName()
-        setupLastComment()
-    }
-    override func searchTextChanged() {
-        let boldAttr = [NSAttributedStringKey.foregroundColor: UIColor.red,
-                        NSAttributedStringKey.font: UIFont.boldSystemFont(ofSize: self.titleLabel.font.pointSize)]
-        let roomName = self.room!.name
-        // check if label text contains search text
-        if let matchRange: Range = roomName.lowercased().range(of: searchText.lowercased()) {
-            
-            let matchRangeStart: Int = roomName.distance(from: roomName.startIndex, to: matchRange.lowerBound)
-            let matchRangeEnd: Int = roomName.distance(from: roomName.startIndex, to: matchRange.upperBound)
-            let matchRangeLength: Int = matchRangeEnd - matchRangeStart
-            
-            let newLabelText = NSMutableAttributedString(string: roomName)
-            newLabelText.setAttributes(boldAttr, range: NSMakeRange(matchRangeStart, matchRangeLength))
-            
-            // set label attributed text
-            self.titleLabel.attributedText = newLabelText
-        }
-    }
-//    override func onUserTyping(user: QUser, typing: Bool) {
-//        if typing {
-//            self.typingUser = user
-//        }else{
-//            if user.email == self.typingUser?.email {
-//                self.typingUser = nil
-//            }
-//        }
-//    }
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-
+        
         // Configure the view for the selected state
     }
-    func setupAvatar(){
-        self.avatarView.image = Qiscus.image(named: "avatar")
-        if let thisRoom = self.room{
-            if let avatarUrl = thisRoom.avatarUrl {
-                 self.avatarView.af_setImage(withURL: avatarUrl)
-            }
-        }
-    }
-    func setupUnreadIndicator(){
-        if let thisRoom = room {
-            if thisRoom.unreadCount > 0 {
-                self.unreadLabel.text = "\(thisRoom.unreadCount)"
-                if room!.unreadCount > 99 {
-                    self.unreadLabel.text = "99+"
-                }
-                self.unreadLabel.isHidden = false
-            }else{
-                self.unreadLabel.isHidden = true
-            }
-        }else{
-            self.unreadLabel.isHidden = true
-        }
-    }
-    func setupName(){
-        self.titleLabel.text = ""
-        if let r = room {
-            self.titleLabel.text = r.name
-        }
-    }
-    func setupLastComment(){
-        self.descriptionLabel.textColor = UIColor.black
-        if let r = room {
-            self.descriptionLabel.text = "\(r.lastCommentMessage.username): \(r.lastCommentMessage.message)"
-        }else{
-            self.descriptionLabel.text = ""
-        }
-    }
-    override func onRoomChange(room: RoomModel) {}
-    //override func gotNewComment(comment: CommentModel) {}
     
-    override func roomUnreadCountChange() {
-        setupUnreadIndicator()
+    override func setupUI() {
+        if let data = data {
+            self.labelName.text = data.name
+            self.labelDate.text = lastMessageCreateAt
+            
+            if let avatar = data.avatarUrl {
+                self.imageViewRoom.af_setImage(withURL: avatar)
+            }
+            if(data.unreadCount == 0){
+                self.hiddenBadge()
+            }else{
+                self.showBadge()
+                self.labelBadge.text = "\(data.unreadCount)"
+            }
+            
+            var message = ""
+            guard let lastComment = data.lastComment else { return }
+            if lastComment.message.range(of:"[file]") != nil {
+                guard let payload = lastComment.payload else { return }
+                let json = JSON(payload)
+                print("json ini =\(json)")
+                let caption = json["caption"].string ?? ""
+                if  !caption.isEmpty {
+                    message = caption
+                }else{
+                    message = "Send Attachment"
+                }
+                
+            }else{
+                message = lastComment.message
+            }
+            
+            if(data.type != .single){
+                self.labelLastMessage.text  =  "\(lastComment.username): \(message)"
+            }else{
+                self.labelLastMessage.text  = message
+            }
+        }
     }
-    override func roomLastCommentChange() {
-        setupLastComment()
+    
+    public func hiddenBadge(){
+        self.viewBadge.isHidden     = true
+        self.labelBadge.isHidden    = true
     }
-    override func roomAvatarChange() {
-        setupAvatar()
+    
+    public func showBadge(){
+        self.viewBadge.isHidden     = false
+        self.labelBadge.isHidden    = false
     }
-    override func roomNameChange() {
-        setupName()
-    }
+    
 }

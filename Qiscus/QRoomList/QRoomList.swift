@@ -14,7 +14,10 @@ open class QRoomList: UIChatListViewController {
     override open func viewDidLoad() {
         super.viewDidLoad()
         self.title = "Chat List"
+        self.delegate = self
         QiscusUI.delegate = self
+        
+        self.registerCell(nib: UINib(nibName: "QRoomListDefaultCell", bundle: Qiscus.bundle), forCellWithReuseIdentifier: "defaultCell")
     }
     
     override open func didReceiveMemoryWarning() {
@@ -36,6 +39,14 @@ open class QRoomList: UIChatListViewController {
     open override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.tabBarController?.tabBar.isHidden = false
+    }
+}
+
+extension QRoomList: UIChatListViewDelegate {
+    public func uiChatList(viewController: UIChatListViewController, cellForRoom room: RoomModel) -> String? {
+        let cell = "defaultCell"
+        
+        return cell
     }
 }
 
