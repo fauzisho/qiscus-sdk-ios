@@ -136,7 +136,7 @@ public class QRoom:Object {
         let time = Double(Date().timeIntervalSince1970)
         let timeToken = UInt64(time * 10000)
         let uniqueID = "ios-\(timeToken)"
-        let unixTimeStamp = Int(Date().timeIntervalSince1970)
+        let unixTimeStamp = Int64(Date().timeIntervalSince1970)
         //miliseconds
         let unixTimeStamps = unixTimeStamp * 1000000000
         comment.uniqueId = uniqueID
@@ -197,7 +197,7 @@ public class QRoom:Object {
         let timeToken = UInt64(time * 10000)
         let uniqueID = "ios-\(timeToken)"
         
-        let unixTimeStamp = Int(Date().timeIntervalSince1970)
+        let unixTimeStamp = Int64(Date().timeIntervalSince1970)
         //miliseconds
         let unixTimeStamps = unixTimeStamp * 1000000000
         
@@ -238,7 +238,7 @@ public class QRoom:Object {
             comment.text = text!
         }
         
-        let unixTimeStamp = Int(Date().timeIntervalSince1970)
+        let unixTimeStamp = Int64(Date().timeIntervalSince1970)
         //miliseconds
         let unixTimeStamps = unixTimeStamp * 1000000000
         
@@ -282,7 +282,7 @@ public class QRoom:Object {
                 "caption" : caption
             ]
         
-            let unixTimeStamp = Int(Date().timeIntervalSince1970)
+            let unixTimeStamp = Int64(Date().timeIntervalSince1970)
             //miliseconds
             let unixTimeStamps = unixTimeStamp * 1000000000
             
@@ -379,7 +379,7 @@ public class QRoom:Object {
             "caption" : caption
         ]
         
-        let unixTimeStamp = Int(Date().timeIntervalSince1970)
+        let unixTimeStamp = Int64(Date().timeIntervalSince1970)
         //miliseconds
         let unixTimeStamps = unixTimeStamp * 1000000000
         
@@ -512,7 +512,7 @@ public class QRoom:Object {
         let timeToken = UInt64(time * 10000)
         let uniqueID = "ios-\(timeToken)"
         
-        let unixTimeStamp = Int(Date().timeIntervalSince1970)
+        let unixTimeStamp = Int64(Date().timeIntervalSince1970)
         //miliseconds
         let unixTimeStamps = unixTimeStamp * 1000000000
         
@@ -544,7 +544,7 @@ public class QRoom:Object {
         let timeToken = UInt64(time * 10000)
         let uniqueID = "ios-\(timeToken)"
         
-        let unixTimeStamp = Int(Date().timeIntervalSince1970)
+        let unixTimeStamp = Int64(Date().timeIntervalSince1970)
         //miliseconds
         let unixTimeStamps = unixTimeStamp * 1000000000
         

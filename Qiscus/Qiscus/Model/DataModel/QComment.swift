@@ -687,7 +687,7 @@ public class QComment:Object {
         let time = Double(Date().timeIntervalSince1970)
         let timeToken = UInt64(time * 10000)
         let uniqueID = "ios-\(timeToken)"
-        let unixTimeStamp = Int(Date().timeIntervalSince1970)
+        let unixTimeStamp = Int64(Date().timeIntervalSince1970)
         //miliseconds
         let unixTimeStamps = unixTimeStamp * 1000000000
 
