@@ -311,6 +311,7 @@ internal extension QRoom {
                         room.lastCommentUniqueId = ""
                         room.lastCommentBeforeId = 0
                         room.lastCommentCreatedAt = 0
+                        room.lastCommentUnixTimeStamp = 0
                         room.lastCommentSenderEmail = ""
                         room.lastCommentSenderName = ""
                         room.lastCommentStatusRaw = QCommentStatus.sending.rawValue
@@ -339,7 +340,7 @@ internal extension QRoom {
         let roomId = self.id
         let lastCommentId = 0
         let predicate = NSPredicate(format: "statusRaw != %d AND id > %d", QCommentStatus.deleted.rawValue,0)
-        let allComment = self.rawComments.sorted(byKeyPath: "createdAt", ascending: true).filter(predicate)
+        let allComment = self.rawComments.sorted(byKeyPath: "unixTimeStamp", ascending: true).filter(predicate)
         
         if let last = allComment.last {
             let realm = try! Realm(configuration: Qiscus.dbConfiguration)
@@ -350,6 +351,7 @@ internal extension QRoom {
                 self.lastCommentUniqueId = last.uniqueId
                 self.lastCommentBeforeId = last.beforeId
                 self.lastCommentCreatedAt = last.createdAt
+                self.lastCommentUnixTimeStamp = last.unixTimeStamp
                 self.lastCommentSenderEmail = last.senderEmail
                 self.lastCommentSenderName = last.senderName
                 self.lastCommentStatusRaw = last.statusRaw
@@ -382,6 +384,7 @@ internal extension QRoom {
         let cUniqueId = comment.uniqueId
         let cBeforeId = comment.beforeId
         let cCreatedAt = comment.createdAt
+        let cUnixTimeStamp = comment.unixTimeStamp
         let cSenderEmail = comment.senderEmail
         let cSenderName = comment.senderName
         let cStatusRaw = comment.statusRaw
@@ -391,7 +394,7 @@ internal extension QRoom {
         QiscusDBThread.async {
             if let room = QRoom.threadSaveRoom(withId: id){
                 if !room.isInvalidated {
-                    if cCreatedAt > room.lastCommentCreatedAt || cId > room.lastCommentId || cId == 0 {
+                    if cUnixTimeStamp > room.lastCommentCreatedAt || cId > room.lastCommentId || cId == 0 {
                         let realm = try! Realm(configuration: Qiscus.dbConfiguration)
                         realm.refresh()
                         try! realm.write {
@@ -400,6 +403,7 @@ internal extension QRoom {
                             room.lastCommentUniqueId = cUniqueId
                             room.lastCommentBeforeId = cBeforeId
                             room.lastCommentCreatedAt = cCreatedAt
+                            room.lastCommentUnixTimeStamp = cUnixTimeStamp
                             room.lastCommentSenderEmail = cSenderEmail
                             room.lastCommentSenderName = cSenderName
                             room.lastCommentStatusRaw = cStatusRaw
@@ -520,6 +524,7 @@ internal extension QRoom {
                             room.lastCommentUniqueId = comment.uniqueId
                             room.lastCommentBeforeId = comment.beforeId
                             room.lastCommentCreatedAt = comment.createdAt
+                            room.lastCommentUnixTimeStamp = comment.unixTimeStamp
                             room.lastCommentSenderEmail = comment.senderEmail
                             room.lastCommentSenderName = comment.senderName
                             room.lastCommentStatusRaw = comment.statusRaw
@@ -629,6 +634,7 @@ internal extension QRoom {
         let commentSenderName = json["username"].stringValue
         let commentSenderAvatarURL = json["user_avatar_url"].stringValue
         let commentCreatedAt = json["unix_timestamp"].doubleValue
+        let commentUnixTimeStamp = json["unix_nano_timestamp"].doubleValue
         let commentBeforeId = json["comment_before_id"].intValue
         let senderEmail = json["email"].stringValue
         let commentType = json["type"].stringValue
@@ -665,6 +671,7 @@ internal extension QRoom {
         newComment.text = commentText
         newComment.senderName = commentSenderName
         newComment.createdAt = commentCreatedAt
+        newComment.unixTimeStamp = commentUnixTimeStamp
         newComment.beforeId = commentBeforeId
         newComment.senderEmail = senderEmail
         newComment.cellPosRaw = QCellPosition.single.rawValue
@@ -881,6 +888,7 @@ internal extension QRoom {
                         oldComment.text = newComment.text
                         oldComment.senderName = newComment.senderName
                         oldComment.createdAt = newComment.createdAt
+                        oldComment.unixTimeStamp = newComment.unixTimeStamp
                         oldComment.beforeId = newComment.beforeId
                         oldComment.roomName = room.name
                     }
@@ -919,6 +927,7 @@ internal extension QRoom {
                         oldComment.senderName = newComment.senderName
                         oldComment.senderEmail = newComment.senderEmail
                         oldComment.createdAt = newComment.createdAt
+                        oldComment.unixTimeStamp = newComment.unixTimeStamp
                         oldComment.beforeId = newComment.beforeId
                         oldComment.roomName = room.name
                         oldComment.roomId = room.id

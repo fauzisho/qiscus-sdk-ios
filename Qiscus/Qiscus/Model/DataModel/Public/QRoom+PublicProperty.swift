@@ -76,6 +76,7 @@ public extension QRoom {
                         comment.text = self.lastCommentText
                         comment.senderName = self.lastCommentSenderName
                         comment.createdAt = self.lastCommentCreatedAt
+                        comment.unixTimeStamp = self.lastCommentUnixTimeStamp
                         comment.beforeId = self.lastCommentBeforeId
                         comment.senderEmail = self.lastCommentSenderName
                         comment.roomName = self.name
@@ -105,7 +106,7 @@ public extension QRoom {
             realm.refresh()
             var comments = [QComment]()
             if Thread.isMainThread {
-                let data =  realm.objects(QComment.self).filter("roomId == '\(self.id)'").sorted(byKeyPath: "createdAt", ascending: true)
+                let data =  realm.objects(QComment.self).filter("roomId == '\(self.id)'").sorted(byKeyPath: "unixTimeStamp", ascending: true)
                 for comment in data {
                     let data = QComment.comment(withUniqueId: comment.uniqueId)!
                     comments.append(data)
