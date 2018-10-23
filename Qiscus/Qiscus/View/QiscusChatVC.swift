@@ -63,7 +63,7 @@ import RealmSwift
     @objc optional func chatVC(viewController:QiscusChatVC, didFailLoadRoom error:String)
 }
 
-public class QiscusChatVC: UIViewController{
+ public class QiscusChatVC: UIViewController{
     
     @IBOutlet weak var inputBarHeight: NSLayoutConstraint!
     // MARK: - IBOutlet Properties
@@ -101,9 +101,9 @@ public class QiscusChatVC: UIViewController{
     @IBOutlet weak var linkImageWidth: NSLayoutConstraint!
     @IBOutlet public weak var collectionViewTopMargin: NSLayoutConstraint!
     
-    public var delegate:QiscusChatVCDelegate?
-    public var configDelegate:QiscusChatVCConfigDelegate?
-    public var cellDelegate:QiscusChatVCCellDelegate?
+    @objc public var delegate:QiscusChatVCDelegate?
+    @objc public var configDelegate:QiscusChatVCConfigDelegate?
+    @objc public var cellDelegate:QiscusChatVCCellDelegate?
 
     public var data:Any?
     
