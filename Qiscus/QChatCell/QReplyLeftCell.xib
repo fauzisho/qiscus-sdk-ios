@@ -31,8 +31,8 @@
                                 </userDefinedRuntimeAttributes>
                             </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="halo" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MsS-mP-HBr">
-                                <rect key="frame" x="26" y="101" width="294" height="15"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <rect key="frame" x="26" y="96" width="294" height="20"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
@@ -109,7 +109,7 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="21" id="fvw-t6-A4t"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="17"/>
+                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="15"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
@@ -120,7 +120,7 @@
                             <constraint firstAttribute="trailing" secondItem="VY1-Tj-fZi" secondAttribute="trailing" constant="50" id="2p3-QW-Con"/>
                             <constraint firstItem="2DX-7T-UW9" firstAttribute="trailing" secondItem="VY1-Tj-fZi" secondAttribute="trailing" constant="-8" id="3Bn-ck-82g"/>
                             <constraint firstItem="MsS-mP-HBr" firstAttribute="trailing" secondItem="VY1-Tj-fZi" secondAttribute="trailing" constant="-5" id="A4L-Ip-UbE"/>
-                            <constraint firstItem="MsS-mP-HBr" firstAttribute="top" secondItem="lD1-CS-kGf" secondAttribute="bottom" constant="10" id="AdI-Lp-fsW"/>
+                            <constraint firstItem="MsS-mP-HBr" firstAttribute="top" secondItem="lD1-CS-kGf" secondAttribute="bottom" constant="5" id="AdI-Lp-fsW"/>
                             <constraint firstItem="VY1-Tj-fZi" firstAttribute="leading" secondItem="fbA-Kr-gQb" secondAttribute="leading" id="B5y-N8-IyB"/>
                             <constraint firstItem="MsS-mP-HBr" firstAttribute="leading" secondItem="fbA-Kr-gQb" secondAttribute="leading" constant="26" id="NcL-TD-oYo"/>
                             <constraint firstItem="lD1-CS-kGf" firstAttribute="top" secondItem="2BY-Ve-6Je" secondAttribute="bottom" id="QLu-uk-TfG"/>
