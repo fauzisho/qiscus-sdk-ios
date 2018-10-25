@@ -293,7 +293,7 @@ Currently we recommend to kick user out of specific room through our **REST API*
 We can get room list for the user by executing this function, however no `view` being returned. The function will only return data of the rooms
 
 ```
-Qiscus.roomList(withLimit: 100, page: page, onSuccess: { (rooms, totalRoom) in
+Qiscus.roomList(withLimit: 100, page: page, onSuccess: { (rooms, totalRoom, currentPage) in
             print("room list: \(rooms)")
         }) { (error) in
             print("\(error)")

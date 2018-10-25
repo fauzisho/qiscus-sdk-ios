@@ -8,7 +8,7 @@ Client side call this function.
 
 ```
 import Qiscus
-
+import QiscusCore
 Qiscus.setup( withAppId: "app_id",
                           userEmail: "youremail.com",
                           userKey: "yourpassword",
@@ -37,8 +37,7 @@ extension LoginVC : QiscusConfigDelegate{
 ```
 import Qiscus
 
-Qiscus.setBaseURL("Your Constom URL")
-Qiscus.setRealtimeServer(server : "Your URL", port : "Your port",enableSSL : true/false)
+Qiscus.setRealtimeServer(withBaseUrl baseUrl: URL, realtimeServer:String?, port:Int = 1883)
 ```
 
 ## Authentication
@@ -134,55 +133,44 @@ Qiscus.clear()
 ### Send Text Message
 
 ```
- let comment = room.newComment(text: value) // create new text message on room
- room.post(comment: comment) // post message on room
+ let comment = room.newComment(roomId: "", text: "") // create new text message on room
+ room.post(comment: CommentModel) // post message on room
 ```
 
 ### Send File Attachment
 
 ```
-let comment = room.newFileComment(type: .image, filename: fileName, data: data)
-// data contains fileData with type Data
-// type: can be .image, .video, .audio, .file
-
-room.upload(comment: comment, onSuccess: { (roomResult, commentResult) in
-            roomResult.post(comment: commentResult)
-        }, onError: { (roomResult, commentResult, error) in
-            
-        }) { (progress) in
-            // progress value will be from 0.00 to 1.00
-        }
-```
-
-Example.
-
-```
-let image = UIImage(named: "abc") // assuming you have file abc locally
-let data = UIImagePNGRepresentation(image!)
-let comment = room.newFileComment(type: .image, filename: "abc.png", data: data)
-
-room.upload(comment: comment, onSuccess: { (roomResult, commentResult) in
-    print("COMMENT", commentResult)
-    roomResult.post(comment: commentResult)
-}, onError: { (roomResult, commentResult, error) in
-    print("ERROR", error)
+import QiscusCore
+QiscusCore.shared.upload(data: data, filename: fileName, onSuccess: { (file) in
+    let message = CommentModel()
+    message.type = "file_attachment"
+    message.payload = [
+        "url"       : file.url.absoluteString,
+        "file_name" : file.name,
+        "size"      : file.size,
+        "caption"   : "your caption"
+        ]
+    message.message = "Send Attachment"
+    room.post(comment: message)
+}, onError: { (error) in
+//
 }) { (progress) in
-    print("PROGRESS", progress)
-    // progress value will be from 0.00 to 1.00
+    Qiscus.printLog(text: "upload progress: \(progress)")
 }
+
 ```
 
 ### Send Custom Message
 
 ```
-let comment = room.newCustomComment(text: value, type: .custom, payload:payload) //create new custom message on room
+let comment = room.newCustomComment(type:String, payload:String, text:String? = nil ) //create new custom message on room
 room.post(comment: comment) //post message on room
 ```
 
 Example.
 
 ```
-let comment = room.newCustomComment(type: "custom", payload: "{ \"key\": \"value\"}", text: "THIS IS CUSTOM MESSAGE")
+let comment = room.newCustomComment(type:"custom", payload:"{ \"key\": \"value\"}", text:"THIS IS CUSTOM MESSAGE" )
 room.post(comment: comment)
 ```
 
@@ -195,7 +183,12 @@ room.post(comment: comment)
 ///   - id: Room ID
 ///   - limit: by default set 20, min 0 and max 100
 ///   - completion: Response new Qiscus Array of Comment Object and error if exist.
-room.loadComments(roomID id: String, limit: 20, onSuccess: { (comments) in
+room.loadComments(roomID: "", onSuccess: { (comments) in
+
+}, onError: { (error) in
+
+})
+room.loadComments(roomID: String, limit: 20, onSuccess: { (comments) in
             // comments contain array of QComment objects
         }) { (error) in
             print(error)
@@ -214,23 +207,10 @@ room.loadMore(roomID: "123", lastCommentID: 231, limit: 20, onSuccess: { (commen
 }
 ```
 
-### Download Media
-
-```
-room.downloadMedia(onComment: comment, onSuccess: { (commentResult) in
-            <#code#>
-            print(commentResult.file.localPath)
-        }, onError: { (error) in
-            <#code#>
-        }) { (progress) in
-            <#code#>
-        }
-```
-
 ### Search Message
 
 ```
-QChatService.searchComment(withQuery: (self.searchViewController?.searchBar.text)!, onSuccess: { (comments) in
+Qiscus.searchComment(withQuery: (self.searchViewController?.searchBar.text)!, onSuccess: { (comments) in
             self.filteredComments = comments
             self.tableView.reloadData()
             print("success search comment with result:\n\(comments)")
@@ -363,7 +343,7 @@ Qiscus.channelsInfo(withNames: ["myChannel1","myChannel2"], onSuccess: { (rooms)
 ### Get Room List
 
 ```
-Qiscus.roomList(withLimit: 100, page: 1, onSuccess: { (rooms, totalRoom) in
+Qiscus.roomList(withLimit: 100, page: 1, onSuccess: { (rooms, totalRoom,currentPage) in
             // rooms contains array of room
             // totalRoom = total room in server
         }) { (error) in
@@ -381,7 +361,7 @@ let rooms = QRoom.all()
 
 ```
 var room:QRoom?
-room.update(withID : "123", roomName: roomName, roomAvatarURL: avatar, onSuccess: { (qRoom) in
+room.update(withID : "roomId", roomName: roomName, roomAvatarURL: avatar, onSuccess: { (qRoom) in
                 //success update
             }, onError: { (error) in
                 //error
@@ -397,6 +377,37 @@ Qiscus.room(withId: roomId!, onSuccess: { (room) in
         }) { (error) in
             print("error")
         }
+```
+
+### Add participant in a Room
+
+```
+Qiscus.addParticipant(onRoomId: "String", userEmails: ["email"], onSuccess: { (members) in
+
+}) { (error) in
+
+}
+
+```
+
+### Remove participant in a Room
+
+```
+Qiscus.removeParticipant(onRoomId: "String", userEmails: ["email"], onSuccess: { (members) in
+
+}) { (error) in
+
+}
+```
+
+### Get total unread count
+
+```
+Qiscus.getAllUnreadCount(onSuccess: { (unread) in
+print(" unread count " + "\(unread)")
+}) { (error) in
+print("error " + error)
+}
 ```
 
 ## Statuses
@@ -456,7 +467,7 @@ Qiscus.fetchAllRoom(onSuccess: { (qRoom) in
 }
 
 //or Qiscus.roomList
-Qiscus.roomList(withLimit: 100, page: 1, onSuccess: { (qRooms, totalRooms) in
+Qiscus.roomList(withLimit: 100, page: 1, onSuccess: { (qRooms, totalRooms, currentPage) in
 
 }) { (error) in
 
@@ -480,69 +491,6 @@ func userTyping(_ notification: Notification){
             
             // typing can be true or false
         }
-}
-```
-
-### Message Status Change
-
-Message status is object type QCommentStatus. The value can be .sending , .pending , .sent , .delivered, and .read
-
-Listen to notification.
-
-```
-NotificationCenter.default.addObserver(self, selector: #selector(YOUR_CLASS.messageStatusChange(_:)), name: QiscusNotification.MESSAGE_STATUS, object: nil)
-```
-
-Get data on your selector.
-
-```
-func messageStatusChange(_ notification: Notification){
-        if let userData = notification.userInfo {
-            let comment = userData["comment"] as? QComment
-            let newStatus = userData["status"] as? QCommentStatus
-        }
-    }
-```
-
-### Message Status Change Using Delegate
-
-Message status is object type QCommentStatus. the value can be .sending , .pending , .sent , .delivered, and .read
-
-Declared object QComment in Cell Class.
-
-```
-var comment:QComment?{
-        didSet{
-            if oldValue != nil {
-                oldValue!.delegate = nil
-            }
-            if comment != nil {
-                self.comment?.delegate = self
-                textChat.text = commentRaw?.text
-                textChat.sizeToFit()
-                textChat.layoutIfNeeded()
-                
-               //update your status in here 
-               // the value can be .sending , .pending , .sent , .delivered, .read
-        }
-    }
-```
-
-Extend QCommentDelegate & Implement callback update.
-
-```
-class (YourClassCell) : UITableViewCell , QCommentDelegate{
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-         }
-
-    func comment(didChangeStatus comment: QComment, status: QCommentStatus) {
-        if self.commentRaw?.uniqueId == comment.uniqueId {
-             // update your status in here
-             //  the value can be .sending , .pending , .sent , .delivered, .read
-        }
-    }
 }
 ```
 

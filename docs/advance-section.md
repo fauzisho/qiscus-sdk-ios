@@ -265,6 +265,7 @@ Here is how to do that:
 
 ```swift
 import Qiscus
+import QiscusCore
 
 public class ChatManager: NSObject {
     static var shared = ChatManager()
@@ -294,19 +295,19 @@ extension ChatManager: QiscusChatVCDelegate {
         return true // true to custom back action
     }
         
-    func chatVC(backAction viewController:QiscusChatVC, room:QRoom?, data:Any?) {
+    func chatVC(backAction viewController:QiscusChatVC, room:RoomModel?, data:Any?) {
         // custom back button action
     }
     
-    func chatVC(titleAction viewController:QiscusChatVC, room:QRoom?, data:Any?) {
+    func chatVC(titleAction viewController:QiscusChatVC, room:RoomModel?, data:Any?) {
         // custom title action
     }
     
-    func chatVC(viewController:QiscusChatVC, onForwardComment comment:QComment, data:Any?) {
+    func chatVC(viewController:QiscusChatVC, onForwardComment comment:CommentModel, data:Any?) {
         // custom forward message action
     }
     
-    func chatVC(viewController:QiscusChatVC, infoActionComment comment:QComment,data:Any?) {
+    func chatVC(viewController:QiscusChatVC, infoActionComment comment:CommentModel,data:Any?) {
         // custom info message action
     }
         
@@ -321,8 +322,8 @@ extension ChatManager: QiscusChatVCDelegate {
     func chatVC(viewController:QiscusChatVC, willDisappear animated:Bool) {
         // call your method while view will be disappeared
     }
-        
-    func chatVC(viewController:QiscusChatVC, willPostComment comment:QComment, room:QRoom?, data:Any?)->QComment? {
+      
+    func chatVC(viewController: QiscusChatVC, willPostComment comment: CommentModel, room: RoomModel?, data: Any?) -> CommentModel? {
         // call your method while SDK is posting any comment
     }
 }
