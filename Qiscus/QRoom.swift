@@ -81,16 +81,12 @@ extension RoomModel {
     /// - Parameters:
     ///   - limit: default limit 100
     ///   - page: default page 1
-    ///   - onSuccess: will return RoomModel object and total room
+    ///   - onSuccess: will return RoomModel object, total room, currentPage
     ///   - onFailed: will return error message
-    public class func getAllRoom(withLimit limit:Int? = 100, page:Int? = 1, onSuccess:@escaping (([RoomModel],Int)->Void), onFailed: @escaping ((String)->Void)){
+    public class func getAllRoom(withLimit limit:Int? = 100, page:Int? = 1, onSuccess:@escaping (([RoomModel],Int,Int)->Void), onFailed: @escaping ((String)->Void)){
         
-        QiscusCore.shared.getAllRoom(limit: limit, page: page, onSuccess: { (roomModel, metaData) in
-            if(metaData != nil){
-                onSuccess(roomModel as! [RoomModel],(metaData?.totalRoom)!)
-            }else{
-                onSuccess(roomModel as! [RoomModel], roomModel.count)
-            }
+        QiscusCore.shared.getAllRoom(onSuccess: { (roomsModel, meta) in
+            onSuccess(roomsModel,(meta?.totalRoom)!, (meta?.currentPage)!)
         }) { (error) in
             onFailed(error.message)
         }
@@ -219,115 +215,18 @@ extension RoomModel {
         }
     }
     
-    //TODO NEED TO BE IMPLEMENT newFileComment
-    /// newFileComment
-    ///
-    /// - Parameters:
-    ///   - type: file type
-    ///   - filename: filename
-    ///   - caption: caption
-    ///   - data: data
-    ///   - thumbImage: thumbImage
-    /// - Returns: will return CommentModel model
-    public func newFileComment(type: QiscusFileType, filename:String = "", caption:String = "", data:Data? = nil, thumbImage:UIImage? = nil)->CommentModel{
-        let comment = CommentModel.init()
-        let fileNameArr = filename.split(separator: ".")
-        let fileExt = String(fileNameArr.last!).lowercased()
-        
-        var fileName = filename.lowercased()
-        if fileName == "asset.jpg" || fileName == "asset.png" {
-            fileName = "\(comment.uniqId).\(fileExt)"
-        }
-        
-        let payload = "{\"url\":\"\(fileName)\", \"caption\": \"\(caption)\"}"
-        
-        //comment.roomId = self.id
-        
-        //        comment.text = "[file]\(fileName) [/file]"
-        //        comment.createdAt = Double(Date().timeIntervalSince1970)
-        //        comment.senderEmail = QiscusMe.sharedInstance.email
-        //        comment.senderName = QiscusMe.sharedInstance.userName
-        //        comment.statusRaw = CommentModelStatus.sending.rawValue
-        //        comment.isUploading = true
-        //        comment.progress = 0
-        //        comment.data = payload
-        //
-        //        let file = QFile()
-        //        file.id = uniqueID
-        //        file.roomId = self.id
-        //        file.url = fileName
-        //        file.senderEmail = QiscusMe.sharedInstance.email
-        //
-        //
-        //        if let mime = QiscusFileHelper.mimeTypes["\(fileExt)"] {
-        //            file.mimeType = mime
-        //        }
-        //
-        switch type {
-        case .audio:
-            //            comment.typeRaw = CommentModelType.audio.name()
-            //            file.localPath = QFile.saveFile(data!, fileName: fileName)
-            break
-        case .image:
-            let image = UIImage(data: data!)
-            let gif = (fileExt == "gif" || fileExt == "gif_")
-            let jpeg = (fileExt == "jpg" || fileExt == "jpg_")
-            let png = (fileExt == "png" || fileExt == "png_")
-            
-            var thumb = UIImage()
-            var thumbData:Data?
-            //            if !gif {
-            //                thumb = QFile.createThumbImage(image!)
-            //                if jpeg {
-            //                    thumbData = UIImageJPEGRepresentation(thumb, 1)
-            //                    file.localThumbPath = QFile.saveFile(thumbData!, fileName: "thumb-\(fileName)")
-            //                }else if png {
-            //                    thumbData = UIImagePNGRepresentation(thumb)
-            //                    file.localThumbPath = QFile.saveFile(thumbData!, fileName: "thumb-\(fileName)")
-            //                }
-            //            }else{
-            //                file.localThumbPath = QFile.saveFile(data!, fileName: "thumb-\(fileName)")
-            //            }
-            //
-            //            comment.typeRaw = CommentModelType.image.name()
-            //            file.localPath = QFile.saveFile(data!, fileName: fileName)
-            break
-        case .video:
-            //            var fileNameOnly = String(fileNameArr.first!).lowercased()
-            //            var i = 0
-            //            for namePart in fileNameArr{
-            //                if i > 0 && i < (fileNameArr.count - 1){
-            //                    fileNameOnly += ".\(String(namePart).lowercased())"
-            //                }
-            //                i += 1
-            //            }
-            //            let thumbData = UIImagePNGRepresentation(thumbImage!)
-            //            file.localThumbPath = QFile.saveFile(thumbData!, fileName: "thumb-\(fileNameOnly).png")
-            //            comment.typeRaw = CommentModelType.video.name()
-            //            file.localPath = QFile.saveFile(data!, fileName: fileName)
-            break
-        default:
-            //            file.localPath = QFile.saveFile(data!, fileName: fileName)
-            //            comment.typeRaw = CommentModelType.file.name()
-            break
-        }
-        
-        
-        return comment
-    }
-    
     /// Load Comment by room
     ///
     /// - Parameters:
     ///   - id: Room ID
     ///   - limit: by default set 20, min 0 and max 100
     ///   - completion: Response new Qiscus Array of Comment Object and error if exist.
-    public func loadComments(roomID id: String, limit: Int? = 20, completion: @escaping ([CommentModel]?, String?) -> Void) {
+    public func loadComments(roomID id: String, limit: Int? = 20, onSuccess: @escaping ([CommentModel]) -> Void, onError: @escaping (String) -> Void) {
         // Load message by default 20
         QiscusCore.shared.loadComments(roomID: id, limit: limit, onSuccess: { (commentsModel) in
-            completion(commentsModel as! [CommentModel], nil)
+            onSuccess(commentsModel)
         }) { (error) in
-             completion(nil, error.message)
+             onError(error.message)
         }
     }
     
@@ -352,12 +251,7 @@ extension RoomModel {
             onError(error.message)
         }
     }
-    
-    //TODO NEED TO BE IMPLEMENT FROM SDKCore
-    public func downloadMedia(onComment comment:CommentModel, thumbImageRef: UIImage? = nil, isAudioFile: Bool = false, onSuccess: ((CommentModel)->Void)? = nil, onError:((String)->Void)? = nil, onProgress:((Double)->Void)? = nil){
-       
-    }
-    
+        
     /// Delete all message in room
     ///
     /// - Parameters:

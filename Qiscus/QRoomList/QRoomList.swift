@@ -43,10 +43,8 @@ open class QRoomList: UIChatListViewController {
 }
 
 extension QRoomList: UIChatListViewDelegate {
-    public func uiChatList(viewController: UIChatListViewController, cellForRoom room: RoomModel) -> String? {
-        let cell = "defaultCell"
-        
-        return cell
+    public func uiChatList(viewController: UIChatListViewController, cellForRoom room: RoomModel) -> BaseChatListCell? {
+         return self.reusableCell(withIdentifier: "defaultCell")
     }
 }
 

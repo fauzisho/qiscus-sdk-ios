@@ -59,6 +59,7 @@ public class Qiscus {
     var disableLocalization: Bool = false
     var isPushed:Bool = false
     var lastCommentID = [String]()
+    var usersColor = [UserNameColor]()
     /// cached qiscusChatVC : viewController that already opened will be chached here
     public var chatViews = [String:QiscusChatVC]()
     /**
@@ -152,6 +153,123 @@ public class Qiscus {
         }
     }
     
+    /// setup qiscus
+    ///
+    /// - Parameters:
+    ///   - appId: qiscus app id
+    ///   - userEmail: client (username, userEmail, id)
+    ///   - userKey: client (key)
+    ///   - username: client username
+    ///   - avatarURL: client avatar url
+    ///   - delegate: QiscusConfigDelegate
+    ///   - secureURl: true => https, false => http
+    ///   - extras:  client extras (jsonString)
+    public class func setup(withAppId appId:String, userEmail:String, userKey:String, username:String, avatarURL:String? = nil, extras:String? = nil, delegate:QiscusConfigDelegate? = nil, secureURl:Bool = true){
+        
+        self.setAppId(appId: appId)
+        
+        var requestProtocol = "https"
+        if !secureURl {
+            requestProtocol = "http"
+        }
+        let email = userEmail.lowercased()
+        let baseUrl = "\(requestProtocol)://api.qiscus.com"
+        
+        if delegate != nil {
+            
+            Qiscus.shared.configDelegate = delegate
+        }
+        var needLogin = false
+        
+        if QiscusClient.isLoggedIn {
+            if email != Qiscus.client.email || appId != Qiscus.client.appId{
+                needLogin = true
+            }
+        }else{
+            needLogin = true
+        }
+        Qiscus.setupReachability()
+        if needLogin {
+            Qiscus.clear()
+            Qiscus.client.appId = appId
+            Qiscus.client.userData.set(appId, forKey: "qiscus_appId")
+            
+            Qiscus.client.userData.set(email, forKey: "qiscus_param_email")
+            Qiscus.client.userData.set(userKey, forKey: "qiscus_param_pass")
+            Qiscus.client.userData.set(username, forKey: "qiscus_param_username")
+            Qiscus.client.userData.set(extras, forKey: "qiscus_param_extras")
+            
+            if Qiscus.client.baseUrl == "" {
+                Qiscus.client.baseUrl = baseUrl
+                Qiscus.client.userData.set(baseUrl, forKey: "qiscus_base_url")
+            }
+            
+            if avatarURL != nil{
+                Qiscus.client.userData.set(avatarURL, forKey: "qiscus_param_avatar")
+                let url = URL(string: avatarURL!)
+                QiscusCore.loginOrRegister(userID: userEmail, userKey: userKey,username: username, avatarURL: url, extras: JSON(extras).dictionaryObject, onSuccess: { (userModel) in
+                    Qiscus.client.id = Int(userModel.id)!
+                    Qiscus.client.email = userModel.email
+                    Qiscus.client.userName = userModel.username
+                    Qiscus.client.avatarUrl = userModel.avatarUrl.absoluteString
+                    Qiscus.client.rtKey = userModel.rtKey
+                    Qiscus.client.token = userModel.token
+                    Qiscus.client.userData.set(Int(userModel.id)!, forKey: "qiscus_id")
+                    Qiscus.client.userData.set(userModel.email, forKey: "qiscus_email")
+                    Qiscus.client.userData.set(userModel.username, forKey: "qiscus_username")
+                    Qiscus.client.userData.set(userModel.avatarUrl.absoluteString, forKey: "qiscus_avatar_url")
+                    Qiscus.client.userData.set(userModel.rtKey, forKey: "qiscus_rt_key")
+                    Qiscus.client.userData.set(userModel.token, forKey: "qiscus_token")
+                    Qiscus.client.userData.set(extras, forKey: "extras")
+                }) { (error) in
+                    
+                }
+            }else{
+                QiscusCore.loginOrRegister(userID: userEmail, userKey: userKey,username: username, avatarURL: nil, extras: JSON(extras).dictionaryObject, onSuccess: { (userModel) in
+                    Qiscus.client.id = Int(userModel.id)!
+                    Qiscus.client.email = userModel.email
+                    Qiscus.client.userName = userModel.username
+                    Qiscus.client.avatarUrl = userModel.avatarUrl.absoluteString
+                    Qiscus.client.rtKey = userModel.rtKey
+                    Qiscus.client.token = userModel.token
+                    Qiscus.client.userData.set(Int(userModel.id)!, forKey: "qiscus_id")
+                    Qiscus.client.userData.set(userModel.email, forKey: "qiscus_email")
+                    Qiscus.client.userData.set(userModel.username, forKey: "qiscus_username")
+                    Qiscus.client.userData.set(userModel.avatarUrl.absoluteString, forKey: "qiscus_avatar_url")
+                    Qiscus.client.userData.set(userModel.rtKey, forKey: "qiscus_rt_key")
+                    Qiscus.client.userData.set(userModel.token, forKey: "qiscus_token")
+                    Qiscus.client.userData.set(extras, forKey: "extras")
+                }) { (error) in
+                    
+                }
+            }
+            
+        }else{
+            if let delegate = Qiscus.shared.configDelegate {
+                delegate.qiscusConnected()
+                delegate.qiscus(didConnect: true, error: nil)
+            }
+        }
+        Qiscus.sharedInstance.RealtimeConnect()
+    }
+    
+    /// setup custom mqtt server
+    ///
+    /// - Parameters:
+    ///   - server: server domain, example: 'qiscus.mqtt.com'
+    ///   - port: server port
+    ///   - enableSSL: true => enable SSL, false => disable SSL
+    @objc public class func setRealtimeServer(withBaseUrl baseUrl: URL, realtimeServer:String?, port:Int = 1883){
+        if let realtimeServer = realtimeServer {
+            Qiscus.client.realtimeServer = realtimeServer
+            Qiscus.client.userData.set(realtimeServer, forKey: "qiscus_realtimeServer")
+        }
+        
+        Qiscus.client.realtimePort = port
+        Qiscus.client.userData.set(port, forKey: "qiscus_realtimePort")
+        QiscusCore.set(customServer: baseUrl, realtimeServer: realtimeServer, realtimePort: port)
+    }
+    
     /**
      Set App ID, when you are using nonce auth you need to setup App ID before get nounce
      
@@ -160,7 +278,7 @@ public class Qiscus {
     
     public class func setAppId(appId:String){
         QiscusCore.setup(WithAppID: appId)
-        QiscusCore.enableDebugPrint = true
+        QiscusCore.enableDebugPrint = Qiscus.showDebugPrint
     }
     
     /**
@@ -319,10 +437,10 @@ public class Qiscus {
             limit = loadLimit
         }
         
-        RoomModel.getAllRoom(withLimit: limit, page: page, onSuccess: { (RoomModel, totalRooms) in
-            onSuccess(RoomModel)
+        RoomModel.getAllRoom(withLimit: limit, page: 1, onSuccess: { (roomsModel, totalRoom, currentPage) in
+            onSuccess(roomsModel)
         }) { (error) in
-            onError(error)
+             onError(error)
         }
     }
     
@@ -711,7 +829,7 @@ public class Qiscus {
             userName = username!
         }
         if(avatarURL != nil){
-            QiscusCore.shared.updateProfile(displayName: userName, avatarUrl: URL(string: avatarURL!), onSuccess: { (qUser) in
+            QiscusCore.shared.updateProfile(username: userName, avatarUrl: URL(string: avatarURL!), onSuccess: { (qUser) in
                 QiscusNotification.publish(userAvatarChange: qUser)
                 QiscusNotification.publish(userNameChange: qUser)
                 onSuccess()
@@ -719,7 +837,7 @@ public class Qiscus {
                 onFailed(error.message)
             }
         }else{
-            QiscusCore.shared.updateProfile(displayName: userName, avatarUrl: nil, onSuccess: { (qUser) in
+            QiscusCore.shared.updateProfile(username: userName, avatarUrl: nil, onSuccess: { (qUser) in
                 QiscusNotification.publish(userNameChange: qUser)
                 onSuccess()
             }) { (error) in
@@ -952,9 +1070,10 @@ public class Qiscus {
     ///   - page: page is optional, default page is 1
     ///   - onSuccess: will return RoomModels and totalRooms
     ///   - onFailed: will return error message
-    public class func roomList(withLimit: Int? = 100, page: Int? = 1,onSuccess:@escaping (([RoomModel],Int)->Void), onFailed: @escaping ((String)->Void)){
-        RoomModel.getAllRoom(withLimit: withLimit!, page: page, onSuccess: { (RoomModel, totalRoom) in
-            onSuccess(RoomModel,totalRoom)
+    public class func roomList(withLimit: Int? = 100, page: Int? = 1,onSuccess:@escaping (([RoomModel],Int,Int)->Void), onFailed: @escaping ((String)->Void)){
+        
+        RoomModel.getAllRoom(withLimit: withLimit, page: page, onSuccess: { (roomsModel, totalRoom, currentPage) in
+            onSuccess(roomsModel,totalRoom,currentPage)
         }) { (error) in
             onFailed(error)
         }

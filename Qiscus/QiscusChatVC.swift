@@ -12,12 +12,11 @@ import SwiftyJSON
 import ContactsUI
 import Photos
 import MobileCoreServices
-
+    
 struct UserNameColor {
     var userEmail            : String    = ""
-    var color               : UIColor   = UIColor.black
+    var color               : UIColor = UIColor.lightGray
 }
-    
 
 public protocol QiscusChatVCCellDelegate{
     func chatVC(viewController:QiscusChatVC, didTapLinkButtonWithURL url:URL )
@@ -94,7 +93,6 @@ public class QiscusChatVC: UIChatViewController {
     let locationManager = CLLocationManager()
     var presentingLoading = false
     var inputBar = CustomChatInput()
-    var usersColor = [UserNameColor]()
     
     var latestNavbarTint = UINavigationBar.appearance().tintColor
     internal var currentNavbarTint = UINavigationBar.appearance().tintColor
@@ -177,19 +175,33 @@ public class QiscusChatVC: UIChatViewController {
         if let delegate = self.delegate{
             delegate.chatVC(onViewDidLoad: self)
         }
-        self.usersColor.removeAll()
+       // self.usersColor.removeAll()
         if let room = self.room{
             if room.participants?.count != 0 {
-                for user in (room.participants?.enumerated())!{
-                    var data = UserNameColor()
-                    data.userEmail = user.element.email
-                    data.color = Qiscus.style.color.randomColorLabelName.randomItem()!
-                    self.usersColor.append(data)
+                for participant in (room.participants?.enumerated())!{
+                    if Qiscus.shared.usersColor.count == 0{
+                        var data = UserNameColor()
+                        data.userEmail = participant.element.email
+                        data.color = Qiscus.style.color.randomColorLabelName.randomItem()!
+                        Qiscus.shared.usersColor.append(data)
+                    }else{
+                        //checking
+                        QiscusBackgroundThread.async {
+                            let user = Qiscus.shared.usersColor.filter( { return $0.userEmail == participant.element.email } )
+                            
+                            if(user.count == 0){
+                                var data = UserNameColor()
+                                data.userEmail = participant.element.email
+                                data.color = Qiscus.style.color.randomColorLabelName.randomItem()!
+                                Qiscus.shared.usersColor.append(data)
+                            }
+                        }
+                        
+                    }
                 }
             }
             
         }
-       
     }
     
     @objc func willEnterFromForeground(){
@@ -232,8 +244,8 @@ public class QiscusChatVC: UIChatViewController {
             let comment = userInfo["comment"] as! CommentModel
             
             self.replyData = comment
-            if usersColor.count != 0{
-                for user in usersColor.enumerated(){
+            if Qiscus.shared.usersColor.count != 0{
+                for user in Qiscus.shared.usersColor.enumerated(){
                     if(self.replyData?.userEmail == user.element.userEmail){
                         self.inputBar.colorName = user.element.color
                     }
@@ -377,7 +389,6 @@ public class QiscusChatVC: UIChatViewController {
         titleLabel.isUserInteractionEnabled = true
         titleLabel.addGestureRecognizer(tap)
         
-        
     }
     
     @objc func tapFunction(sender:UITapGestureRecognizer) {
@@ -483,14 +494,15 @@ extension QiscusChatVC : UIChatView {
     }
     
     public func uiChat(viewController: UIChatViewController, cellForMessage message: CommentModel) -> UIBaseChatCell? {
-        var colorName:UIColor = UIColor.black
-        
-        if usersColor.count != 0{
-            for user in usersColor.enumerated(){
-                if(message.userEmail == user.element.userEmail){
-                    colorName = user.element.color
+        var colorName:UIColor = UIColor.lightGray
+        if Qiscus.shared.usersColor.count != 0{
+            QiscusBackgroundThread.sync {
+                let user = Qiscus.shared.usersColor.filter( { return $0.userEmail == message.userEmail } )
+                if(user.count != 0){
+                    colorName = (user.first?.color)!
                 }
             }
+
         }
         
         var menuConfig = enableMenuConfig()
@@ -722,14 +734,14 @@ extension QiscusChatVC: CNContactViewControllerDelegate{
 
 extension QiscusChatVC : CustomChatInputDelegate {
     func sendMessage(message: CommentModel) {
-         var postedComment = message
+        var postedComment = message
         if let delegate = self.delegate{
             if let comment = delegate.chatVC(viewController: self, willPostComment: message, room: self.room, data: self.data){
                 postedComment = comment
             }
         }
         
-        self.send(message: message)
+        self.send(message: postedComment)
     }
     
     func sendAttachment() {
