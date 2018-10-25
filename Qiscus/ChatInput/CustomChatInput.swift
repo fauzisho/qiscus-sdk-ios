@@ -132,8 +132,13 @@ class CustomChatInput: UIChatInput {
     
     func hidePreviewReply(){
         self.topReplyPreviewCons.constant = -50
-        self.heightTextViewCons.constant = (self.heightView.constant - 10)
+        
+        let fixedWidth = textView.frame.size.width
+        let newSize = textView.sizeThatFits(CGSize.init(width: fixedWidth, height: CGFloat(MAXFLOAT)))
+        self.heightTextViewCons.constant = newSize.height
+        self.heightView.constant = newSize.height + 10.0
         self.setHeight(self.heightView.constant)
+        
     }
     
     @IBAction func cancelReply(_ sender: Any) {
@@ -159,18 +164,18 @@ class CustomChatInput: UIChatInput {
                     "replied_comment_type" : replyData?.type
                 ]
                 self.replyData = nil
-                self.hidePreviewReply()
             }else{
                
                 comment.type = "text"
                 comment.message = text
                 
             }
+           
             self.delegate?.sendMessage(message: comment)
         }
         
         self.textView.text = ""
-        textView.textColor = UIColor.lightGray
+        self.hidePreviewReply()
     }
     
     @IBAction func clickAttachment(_ sender: Any) {
