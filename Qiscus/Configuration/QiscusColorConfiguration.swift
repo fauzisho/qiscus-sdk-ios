@@ -96,8 +96,7 @@ open class QiscusColorConfiguration: NSObject {
         UIColor(red: 139/255, green: 122/255, blue: 221/255, alpha: 1),
         UIColor(red: 223/255, green: 182/255, blue: 16/255, alpha: 1),
         UIColor(red: 176/255, green: 70/255, blue: 50, alpha: 1),
-        UIColor(red: 41/255, green: 169/255, blue: 42/255, alpha: 1),
-        UIColor.black
+        UIColor(red: 41/255, green: 169/255, blue: 42/255, alpha: 1)
     ]
     
     public var baseColor:UIColor{
