@@ -62,6 +62,13 @@ public class Qiscus {
     var usersColor = [UserNameColor]()
     /// cached qiscusChatVC : viewController that already opened will be chached here
     public var chatViews = [String:QiscusChatVC]()
+    /// qiscus sdk version number
+    @objc public class var versionNumber:String{
+        get{
+            return Qiscus.qiscusVersionNumber
+        }
+    }
+    
     /**
      Active Qiscus Print log, by default is disable/false
      */
@@ -164,7 +171,7 @@ public class Qiscus {
     ///   - delegate: QiscusConfigDelegate
     ///   - secureURl: true => https, false => http
     ///   - extras:  client extras (jsonString)
-    public class func setup(withAppId appId:String, userEmail:String, userKey:String, username:String, avatarURL:String? = nil, extras:String? = nil, delegate:QiscusConfigDelegate? = nil, secureURl:Bool = true){
+    public class func setup(withAppId appId:String, userEmail:String, userKey:String, username:String, avatarURL:String? = nil, extras:[String: Any]? = nil, delegate:QiscusConfigDelegate? = nil, secureURl:Bool = true){
         
         self.setAppId(appId: appId)
         
@@ -207,40 +214,56 @@ public class Qiscus {
             if avatarURL != nil{
                 Qiscus.client.userData.set(avatarURL, forKey: "qiscus_param_avatar")
                 let url = URL(string: avatarURL!)
-                QiscusCore.loginOrRegister(userID: userEmail, userKey: userKey,username: username, avatarURL: url, extras: JSON(extras).dictionaryObject, onSuccess: { (userModel) in
+                QiscusCore.loginOrRegister(userID: userEmail, userKey: userKey,username: username, avatarURL: url, extras: extras, onSuccess: { (userModel) in
                     Qiscus.client.id = Int(userModel.id)!
                     Qiscus.client.email = userModel.email
                     Qiscus.client.userName = userModel.username
                     Qiscus.client.avatarUrl = userModel.avatarUrl.absoluteString
                     Qiscus.client.rtKey = userModel.rtKey
                     Qiscus.client.token = userModel.token
+                    if (userModel.extras != nil){
+                        Qiscus.client.extras = JSON(userModel.extras).description
+                        Qiscus.client.userData.set(extras, forKey: "qiscus_extras")
+                    }
+                    
                     Qiscus.client.userData.set(Int(userModel.id)!, forKey: "qiscus_id")
                     Qiscus.client.userData.set(userModel.email, forKey: "qiscus_email")
                     Qiscus.client.userData.set(userModel.username, forKey: "qiscus_username")
                     Qiscus.client.userData.set(userModel.avatarUrl.absoluteString, forKey: "qiscus_avatar_url")
                     Qiscus.client.userData.set(userModel.rtKey, forKey: "qiscus_rt_key")
                     Qiscus.client.userData.set(userModel.token, forKey: "qiscus_token")
-                    Qiscus.client.userData.set(extras, forKey: "extras")
+                   
                 }) { (error) in
-                    
+                    if let delegate = Qiscus.shared.configDelegate {
+                        delegate.qiscusFailToConnect(error.message)
+                        delegate.qiscus(didConnect: false, error: error.message)
+                    }
                 }
             }else{
-                QiscusCore.loginOrRegister(userID: userEmail, userKey: userKey,username: username, avatarURL: nil, extras: JSON(extras).dictionaryObject, onSuccess: { (userModel) in
+                QiscusCore.loginOrRegister(userID: userEmail, userKey: userKey,username: username, avatarURL: nil, extras: extras, onSuccess: { (userModel) in
                     Qiscus.client.id = Int(userModel.id)!
                     Qiscus.client.email = userModel.email
                     Qiscus.client.userName = userModel.username
                     Qiscus.client.avatarUrl = userModel.avatarUrl.absoluteString
                     Qiscus.client.rtKey = userModel.rtKey
                     Qiscus.client.token = userModel.token
+                    
+                    if (userModel.extras != nil){
+                        Qiscus.client.extras = JSON(userModel.extras).description
+                        Qiscus.client.userData.set(extras, forKey: "qiscus_extras")
+                    }
+                    
                     Qiscus.client.userData.set(Int(userModel.id)!, forKey: "qiscus_id")
                     Qiscus.client.userData.set(userModel.email, forKey: "qiscus_email")
                     Qiscus.client.userData.set(userModel.username, forKey: "qiscus_username")
                     Qiscus.client.userData.set(userModel.avatarUrl.absoluteString, forKey: "qiscus_avatar_url")
                     Qiscus.client.userData.set(userModel.rtKey, forKey: "qiscus_rt_key")
                     Qiscus.client.userData.set(userModel.token, forKey: "qiscus_token")
-                    Qiscus.client.userData.set(extras, forKey: "extras")
                 }) { (error) in
-                    
+                    if let delegate = Qiscus.shared.configDelegate {
+                        delegate.qiscusFailToConnect(error.message)
+                        delegate.qiscus(didConnect: false, error: error.message)
+                    }
                 }
             }
             
@@ -822,23 +845,40 @@ public class Qiscus {
     ///   - avatarURL: String avatar url
     ///   - onSuccess: @escaping on success update user profile
     ///   - onFailed: @escaping on error update user profile with error message
-    public class func updateProfile(username:String? = nil, avatarURL:String? = nil, onSuccess:@escaping (()->Void), onFailed:@escaping ((String)->Void)) {
+    public class func updateProfile(username:String? = nil, avatarURL:String? = nil, extras:[String : Any]? = nil, onSuccess:@escaping (()->Void), onFailed:@escaping ((String)->Void)) {
         
         var userName = ""
         if(userName != nil){
             userName = username!
         }
+        var urlAvatar : URL? = nil
+        
         if(avatarURL != nil){
-            QiscusCore.shared.updateProfile(username: userName, avatarUrl: URL(string: avatarURL!), onSuccess: { (qUser) in
+            QiscusCore.shared.updateProfile(username: userName, avatarUrl: URL(string: avatarURL!),extras: extras, onSuccess: { (qUser) in
                 QiscusNotification.publish(userAvatarChange: qUser)
                 QiscusNotification.publish(userNameChange: qUser)
+                Qiscus.client.userName = qUser.username
+                Qiscus.client.avatarUrl = qUser.avatarUrl.absoluteString
+                
+                if let extrasData = qUser.extras {
+                    Qiscus.client.extras = JSON(extrasData).description
+                    Qiscus.client.userData.set(extras, forKey: "qiscus_extras")
+                }
+                
                 onSuccess()
             }) { (error) in
                 onFailed(error.message)
             }
         }else{
-            QiscusCore.shared.updateProfile(username: userName, avatarUrl: nil, onSuccess: { (qUser) in
+            QiscusCore.shared.updateProfile(username: userName, avatarUrl: nil, extras: extras, onSuccess: { (qUser) in
                 QiscusNotification.publish(userNameChange: qUser)
+                Qiscus.client.userName = qUser.username
+                Qiscus.client.avatarUrl = qUser.avatarUrl.absoluteString
+                
+                if let extrasData = qUser.extras {
+                    Qiscus.client.extras = JSON(extrasData).description
+                    Qiscus.client.userData.set(extras, forKey: "qiscus_extras")
+                }
                 onSuccess()
             }) { (error) in
                 onFailed(error.message)

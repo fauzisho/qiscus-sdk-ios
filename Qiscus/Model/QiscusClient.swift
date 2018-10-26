@@ -51,6 +51,7 @@ open class QiscusClient: NSObject {
     public var userKey = ""
     public var appId = ""
     public var baseUrl = ""
+    public var extras = ""
     
     public var realtimeServer:String = "mqtt.qiscus.com"
     public var realtimePort:Int = 1883
@@ -64,6 +65,7 @@ open class QiscusClient: NSObject {
     public var paramPass = ""
     public var paramUsername = ""
     public var paramAvatar = ""
+    public var paramExtras = ""
     
     open var deviceToken:String = ""{
         didSet{
@@ -134,6 +136,10 @@ open class QiscusClient: NSObject {
         if let paramAvatar = userData.value(forKey: "qiscus_param_avatar") as? String{
             self.paramAvatar = paramAvatar
         }
+        
+        if let paramExtras = userData.value(forKey: "qiscus_param_extras") as? String{
+            self.paramExtras = paramExtras
+        }
     }
     
     public class func clear(){
@@ -145,6 +151,7 @@ open class QiscusClient: NSObject {
         Qiscus.client.token = ""
         Qiscus.client.lastCommentId = 0
         Qiscus.client.lastEventId = ""
+        Qiscus.client.extras = ""
         
         Qiscus.client.userData.removeObject(forKey: "qiscus_id")
         Qiscus.client.userData.removeObject(forKey: "qiscus_email")
@@ -155,6 +162,8 @@ open class QiscusClient: NSObject {
         Qiscus.client.userData.removeObject(forKey: "qiscus_lastComment_id")
         Qiscus.client.userData.removeObject(forKey: "qiscus_lastKnownComment_id")
         Qiscus.client.userData.removeObject(forKey: "qiscus_lastEvent_id")
+        Qiscus.client.userData.removeObject(forKey: "qiscus_extras")
+        
     }
     
 
