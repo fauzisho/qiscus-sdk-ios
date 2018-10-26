@@ -35,7 +35,7 @@
                         <dataDetectorType key="dataDetectorTypes" phoneNumber="YES" link="YES" address="YES" calendarEvent="YES"/>
                     </textView>
                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" spacing="1" translatesAutoresizingMaskIntoConstraints="NO" id="dWA-YN-0gc">
-                        <rect key="frame" x="16" y="65" width="81" height="20"/>
+                        <rect key="frame" x="18" y="65" width="76" height="20"/>
                         <color key="backgroundColor" red="0.92455440759999996" green="0.43101489539999999" blue="0.44916653629999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="20" id="uBe-8B-YNi"/>
@@ -56,7 +56,7 @@
                     <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="oaN-7f-0PB" secondAttribute="trailing" constant="55" id="0x8-HT-jdU"/>
                     <constraint firstItem="836-Ql-Vet" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="18" id="5Jc-L5-jJd"/>
                     <constraint firstItem="dPF-ZG-5GK" firstAttribute="trailing" secondItem="836-Ql-Vet" secondAttribute="trailing" constant="-3" id="AmD-b2-uyd"/>
-                    <constraint firstItem="dWA-YN-0gc" firstAttribute="trailing" secondItem="dPF-ZG-5GK" secondAttribute="trailing" constant="6.5" id="GBd-gS-Rac"/>
+                    <constraint firstItem="dWA-YN-0gc" firstAttribute="trailing" secondItem="dPF-ZG-5GK" secondAttribute="trailing" constant="4" id="GBd-gS-Rac"/>
                     <constraint firstAttribute="bottom" secondItem="oaN-7f-0PB" secondAttribute="bottom" constant="5" id="IhA-lu-eSY"/>
                     <constraint firstItem="dPF-ZG-5GK" firstAttribute="baseline" secondItem="oaN-7f-0PB" secondAttribute="baseline" constant="-6" id="O2D-2R-K3g"/>
                     <constraint firstItem="836-Ql-Vet" firstAttribute="width" secondItem="oaN-7f-0PB" secondAttribute="width" constant="-21" id="UV3-5G-2ba"/>
@@ -66,7 +66,7 @@
                     <constraint firstItem="dWA-YN-0gc" firstAttribute="top" secondItem="836-Ql-Vet" secondAttribute="bottom" constant="6" id="xP9-tj-umk"/>
                     <constraint firstItem="oaN-7f-0PB" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="5" id="yLL-re-Qfo"/>
                     <constraint firstItem="dPF-ZG-5GK" firstAttribute="top" secondItem="dWA-YN-0gc" secondAttribute="bottom" constant="4" id="yj7-AA-eyz"/>
-                    <constraint firstItem="dWA-YN-0gc" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leadingMargin" id="z6K-JQ-K0y"/>
+                    <constraint firstItem="dWA-YN-0gc" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leadingMargin" constant="2" id="z6K-JQ-K0y"/>
                 </constraints>
             </tableViewCellContentView>
             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
