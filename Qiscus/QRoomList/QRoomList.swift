@@ -17,7 +17,8 @@ open class QRoomList: UIChatListViewController {
         self.delegate = self
         QiscusUI.delegate = self
         
-        self.registerCell(nib: UINib(nibName: "QRoomListDefaultCell", bundle: Qiscus.bundle), forCellWithReuseIdentifier: "defaultCell")
+        
+        self.registerCell(nib: QRoomListDefaultCell.nib, forCellWithReuseIdentifier: QRoomListDefaultCell.identifier)
     }
     
     override open func didReceiveMemoryWarning() {
@@ -43,9 +44,11 @@ open class QRoomList: UIChatListViewController {
 }
 
 extension QRoomList: UIChatListViewDelegate {
-    public func uiChatList(viewController: UIChatListViewController, cellForRoom room: RoomModel) -> BaseChatListCell? {
-         return self.reusableCell(withIdentifier: "defaultCell")
+    public func uiChatList(tableView: UITableView, cellForRoom room: RoomModel, atIndexPath indexpath: IndexPath) -> BaseChatListCell? {
+
+        return tableView.dequeueReusableCell(withIdentifier: QRoomListDefaultCell.identifier, for: indexpath) as? BaseChatListCell
     }
+    
 }
 
 extension QRoomList : UIChatDelegate {

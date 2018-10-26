@@ -14,12 +14,23 @@ import SwiftyJSON
 import SDWebImage
 
 class QRoomListDefaultCell: BaseChatListCell {
+    static var nib:UINib {
+        return UINib(nibName: identifier, bundle: Qiscus.bundle)
+    }
+    
+    static var identifier: String {
+        return String(describing: self)
+    }
+    
+    @IBOutlet weak var badgeWitdh: NSLayoutConstraint!
+    
     @IBOutlet weak var viewBadge: UIView!
     @IBOutlet weak var imageViewPinRoom: UIImageView!
     @IBOutlet weak var labelName: UILabel!
     @IBOutlet weak var labelLastMessage: UILabel!
     @IBOutlet weak var imageViewRoom: UIImageView!
     @IBOutlet weak var labelDate: UILabel!
+    
     @IBOutlet weak var labelBadge: UILabel!
     
     var lastMessageCreateAt:String{
@@ -30,7 +41,8 @@ class QRoomListDefaultCell: BaseChatListCell {
                 return ""
             }else{
                 var result = ""
-                let date = Date(timeIntervalSince1970: Double(createAt))
+                
+                let date = Date(timeIntervalSince1970: TimeInterval(createAt / 1000000000))
                 let dateFormatter = DateFormatter()
                 dateFormatter.dateFormat = "d/MM"
                 let dateString = dateFormatter.string(from: date)
@@ -55,19 +67,22 @@ class QRoomListDefaultCell: BaseChatListCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
-        imageViewRoom.layer.cornerRadius = imageViewRoom.frame.height/2
+        labelLastMessage.sizeToFit()
+        imageViewRoom.layer.cornerRadius = imageViewRoom.frame.width/2
+        self.viewBadge.layer.cornerRadius = self.viewBadge.frame.width/2
+        self.layoutIfNeeded()
     }
     
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-        
-        // Configure the view for the selected state
     }
     
     override func setupUI() {
+        
         if let data = data {
-            self.labelName.text = data.name
+            if !data.name.isEmpty {
+                self.labelName.text = data.name
+            }else { self.labelName.text = "Room" }
             self.labelDate.text = lastMessageCreateAt
             
             if let avatar = data.avatarUrl {
@@ -96,23 +111,25 @@ class QRoomListDefaultCell: BaseChatListCell {
             }else{
                 message = lastComment.message
             }
-            
+
             if(data.type != .single){
-                self.labelLastMessage.text  =  "\(lastComment.username): \(message)"
+                self.labelLastMessage.text  =  "\(lastComment.username) :\n\(message)"
             }else{
-                self.labelLastMessage.text  = message
+                self.labelLastMessage.text  = message // single
             }
         }
     }
     
     public func hiddenBadge(){
         self.viewBadge.isHidden     = true
+        self.badgeWitdh.constant    = 0
         self.labelBadge.isHidden    = true
     }
     
     public func showBadge(){
         self.viewBadge.isHidden     = false
         self.labelBadge.isHidden    = false
+        self.badgeWitdh.constant    = 25
     }
     
 }
