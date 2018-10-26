@@ -50,7 +50,7 @@ var QiscusBackgroundThread = DispatchQueue(label: "com.qiscus.background", attri
 public class Qiscus {
     
     public static let sharedInstance = Qiscus()
-    static let qiscusVersionNumber:String = "2.9.1"
+    static let qiscusVersionNumber:String = "2.9.0"
     var reachability:QReachability?
     var configDelegate : QiscusConfigDelegate? = nil
     public static var listChatDelegate:QiscusListRoomDelegate?
