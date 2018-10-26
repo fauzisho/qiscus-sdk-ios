@@ -175,7 +175,7 @@ public class QiscusChatVC: UIChatViewController {
         if let delegate = self.delegate{
             delegate.chatVC(onViewDidLoad: self)
         }
-       // self.usersColor.removeAll()
+        
         if let room = self.room{
             if room.participants?.count != 0 {
                 for participant in (room.participants?.enumerated())!{
