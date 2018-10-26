@@ -355,16 +355,15 @@ Qiscus.roomList(withLimit: 100, page: page, onSuccess: { (rooms, totalRoom, curr
 
 After executing the code above, here is what you will get in return :
 
-```json
-id = 42313;
-storedName = Group test;
-avatarURL = https://favim.com/orig/201106/15/animal-beautiful-cat-cute-djur-Favim.com-76976.jpg;
-typingUser = ;
-unreadCount = 0;
-pinned = 0;
-lastCommentText = [file]https://d1edrlpyc25xu0.cloudfront.net/kopihitam-o6xn13fos3n/image/upload/IUyF4inZgx/1509078048-ios-15090780469543.jpg [/file];
-comments = []
-participants = []
+```
+id = "42313";
+uniqueId =  "23231"
+name = Group test;
+avatarUrl = https://favim.com/orig/201106/15/animal-beautiful-cat-cute-djur-Favim.com-76976.jpg;
+type = single;
+options = nil;
+lastComment = CommentModel;
+participants = [MemberModel]
 ```
 
 The returned data above provide you several information such as room id, room name,  how many participant in a room and many more.

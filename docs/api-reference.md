@@ -17,19 +17,21 @@ Qiscus.setup( withAppId: "app_id",
                           delegate: nil
             )
 ```
-
-Listen callback from delegate.
-
+sample usage in client side using extras like this :
 ```
-extension LoginVC : QiscusConfigDelegate{
-    func qiscusConnected() {
-        print("connect") // your connected callback
-    }
-    
-    func qiscusFailToConnect(_ withMessage: String) {
-        print(withMessage) //your error auth callback
-    }
-}
+var extras: [String: Any] = [
+    "key1": "example value 1",
+    "key2": "example value 2"
+]
+
+Qiscus.setup( withAppId: "sampleapp-65ghcsaysse",
+                    userEmail: "abcde1234@qiscus.com",
+                    userKey: "abcde1234",
+                    username: "steve Kusuma",
+                    avatarURL: "",
+                    extras : extras,
+                    delegate: self
+            )
 ```
 
 ### Using custom server
@@ -116,6 +118,21 @@ Qiscus.updateProfile(username: username, avatarURL: avatar, onSuccess: {
         }
 ```
 
+### Example Using Extras
+
+```
+var dataExtras: [String: Any] = [
+"key1": "example value 1",
+"key2": "example value 2"
+]
+
+Qiscus.updateProfile(username: "username", avatarURL: nil, extras: dataExtras, onSuccess: {
+    print("success")
+}) { (error) in
+    print("error\(error)")
+}
+```
+
 ### Login Status
 
 ```
@@ -153,7 +170,7 @@ QiscusCore.shared.upload(data: data, filename: fileName, onSuccess: { (file) in
     message.message = "Send Attachment"
     room.post(comment: message)
 }, onError: { (error) in
-//
+    print("error =\(error)")
 }) { (progress) in
     Qiscus.printLog(text: "upload progress: \(progress)")
 }
@@ -189,10 +206,10 @@ room.loadComments(roomID: "", onSuccess: { (comments) in
 
 })
 room.loadComments(roomID: String, limit: 20, onSuccess: { (comments) in
-            // comments contain array of QComment objects
-        }) { (error) in
-            print(error)
-        }
+        // comments contain array of QComment objects
+}) { (error) in
+        print(error)
+}
 ```
 
 ### Load More
@@ -211,12 +228,12 @@ room.loadMore(roomID: "123", lastCommentID: 231, limit: 20, onSuccess: { (commen
 
 ```
 Qiscus.searchComment(withQuery: (self.searchViewController?.searchBar.text)!, onSuccess: { (comments) in
-            self.filteredComments = comments
-            self.tableView.reloadData()
-            print("success search comment with result:\n\(comments)")
-        }, onFailed: { (error) in
-            print("fail to get search result")
-        })
+        self.filteredComments = comments
+        self.tableView.reloadData()
+        print("success search comment with result:\n\(comments)")
+}, onFailed: { (error) in
+        print("fail to get search result")
+})
 ```
 
 ### Delete Message
@@ -232,11 +249,12 @@ Delete with this function.
 ```
 var arrayDeleteComment = [String]()
 arrayDeleteComment.append(deletecomment.uniqueTempId)
+
 deletecomment.deleteMessage(uniqueIDs id: arrayDeleteComment, type: DeleteType.forMe, onSuccess: { in
-                print("success")
-            }, onError: { (error) in
-                print("delete error: \(statusCode)")
-            })
+    print("success")
+}, onError: { (error) in
+    print("delete error: \(error)")
+})
 ```
 
 ### Delete All Messages
@@ -246,10 +264,10 @@ var room:QRoom?
 var arrayRoom = [String]()
 arrayRoom(room.id)
 self.room?.deleteAllMessage(roomID: arrayRoom, onSuccess: {
-                print("success")
-            }, onError: { (error) in
-                print(error)
-            })
+    print("success")
+}, onError: { (error) in
+    print(error)
+})
 ```
 
 ## Room
@@ -258,97 +276,97 @@ self.room?.deleteAllMessage(roomID: arrayRoom, onSuccess: {
 
 ```
 Qiscus.newRoom(withUsers: ["user_id1", "user_id2"], roomName: "My RoomName", onSuccess: { (room) in
-            // room data in QRoom object
-        }) { (error) in
-            // resulting error in String
-        } 
+    // room data in QRoom object
+}) { (error) in
+    // resulting error in String
+} 
 ```
 
 ### Get Chat Room By ID
 
 ```
 Qiscus.room(withId: roomId, onSuccess: { (room) in
-            // room data in QRoom object
-            // for accessing comments inside room
-            let comments = room.listComment // ressulting array of QComment
-        }) { (error) in
-            // resulting error in String
-        }
+    // room data in QRoom object
+    // for accessing comments inside room
+    let comments = room.listComment // ressulting array of QComment
+}) { (error) in
+    // resulting error in String
+}
 ```
 
 ### Get Chat Room By Channel
 
 ```
 Qiscus.room(withChannel: channelName, onSuccess: { (room) in
-            // room data in QRoom object
-            // for accessing comments inside room
-            let comments = room.listComment // ressulting array of QComment
-        }) { (error) in
-            // resulting error in String
-        }
+    // room data in QRoom object
+    // for accessing comments inside room
+    let comments = room.listComment // ressulting array of QComment
+}) { (error) in
+    // resulting error in String
+}
 ```
 
 ### Get Chat Room Opponent By User ID
 
 ```
 Qiscus.room(withUserId: userId, onSuccess: { (room) in
-            // room data in QRoom object
-            // for accessing comments inside room
-            let comments = room.listComment // ressulting array of QComment
-        }) { (error) in
-            // resulting error in String
-        }
+    // room data in QRoom object
+    // for accessing comments inside room
+    let comments = room.listComment // ressulting array of QComment
+}) { (error) in
+    // resulting error in String
+}
 ```
 
 ### Get Room Info With ID
 
 ```
 Qiscus.roomInfo(withId: "13456", onSuccess: { (room) in
-            // room data in QRoom object
-        }) { (error) in
-            // resulting error in string
-        }
+    // room data in QRoom object
+}) { (error) in
+    // resulting error in string
+}
 ```
 
 ### Get Multiple Room Info
 
 ```
 Qiscus.roomsInfo(withIds: ["12345", "13456"], onSuccess: { (rooms) in
-            // rooms data in array of QRoom object
-        }) { (error) in
-            // resulting error in string
-        }
+    // rooms data in array of QRoom object
+}) { (error) in
+    // resulting error in string
+}
 ```
 
 ### Get Channel Info
 
 ```
 Qiscus.channelInfo(withName: "myChannel", onSuccess: { (room) in
-            // room data in QRoom object
-        }) { (error) in
-            // resulting error in string
-        }
+    // room data in QRoom object
+}) { (error) in
+    // resulting error in string
+}
 ```
 
 ### Get Multiple Channel Info
 
 ```
 Qiscus.channelsInfo(withNames: ["myChannel1","myChannel2"], onSuccess: { (rooms) in
-            // rooms data in array of QRoom object
-        }) { (error) in
-            // resulting error in string
-        }
+    // rooms data in array of QRoom object
+}) { (error) in
+    // resulting error in string
+}
 ```
 
 ### Get Room List
 
 ```
 Qiscus.roomList(withLimit: 100, page: 1, onSuccess: { (rooms, totalRoom,currentPage) in
-            // rooms contains array of room
-            // totalRoom = total room in server
-        }) { (error) in
-            // resulting error in string
-        }
+    // rooms contains array of room
+    // totalRoom = total room in server
+}) { (error) in
+    // resulting error in string
+}
 ```
 
 ### Get Room List in LocalDB
@@ -362,30 +380,30 @@ let rooms = QRoom.all()
 ```
 var room:QRoom?
 room.update(withID : "roomId", roomName: roomName, roomAvatarURL: avatar, onSuccess: { (qRoom) in
-                //success update
-            }, onError: { (error) in
-                //error
-            })
+    //success update
+}, onError: { (error) in
+    //error
+})
 ```
 
 ### Get List Of Participant in a Room
 
 ```
 Qiscus.room(withId: roomId!, onSuccess: { (room) in
-            // getroom list participant
-          let allparticipant = room.participants
-        }) { (error) in
-            print("error")
-        }
+    // getroom list participant
+    let allparticipant = room.participants
+}) { (error) in
+    print("error =\(error)")
+}
 ```
 
 ### Add participant in a Room
 
 ```
 Qiscus.addParticipant(onRoomId: "String", userEmails: ["email"], onSuccess: { (members) in
-
+    print("success")
 }) { (error) in
-
+    print("error")
 }
 
 ```
@@ -394,9 +412,9 @@ Qiscus.addParticipant(onRoomId: "String", userEmails: ["email"], onSuccess: { (m
 
 ```
 Qiscus.removeParticipant(onRoomId: "String", userEmails: ["email"], onSuccess: { (members) in
-
+    print("success")
 }) { (error) in
-
+    print("error")
 }
 ```
 
@@ -404,9 +422,9 @@ Qiscus.removeParticipant(onRoomId: "String", userEmails: ["email"], onSuccess: {
 
 ```
 Qiscus.getAllUnreadCount(onSuccess: { (unread) in
-print(" unread count " + "\(unread)")
+    print(" unread count " + "\(unread)")
 }) { (error) in
-print("error " + error)
+    print("error " + error)
 }
 ```
 
@@ -461,16 +479,16 @@ Subscribe All Room to get notification
 ```
 //Just call Qiscus.fetchAllRoom
 Qiscus.fetchAllRoom(onSuccess: { (qRoom) in
-    
+    print("success")
 }) { (error) in
-    
+    print("error")
 }
 
 //or Qiscus.roomList
 Qiscus.roomList(withLimit: 100, page: 1, onSuccess: { (qRooms, totalRooms, currentPage) in
-
+    print("success")
 }) { (error) in
-
+    print("error")
 }
 ```
 
@@ -485,9 +503,9 @@ Get data on your selector.
 ```
 func userTyping(_ notification: Notification){
         if let userInfo = notification.userInfo {
-            let user = userInfo["user"] as! QUser
+            let user = userInfo["user"] as! UserModel
             let typing = userInfo["typing"] as! Bool
-            let room = userInfo["room"] as! QRoom
+            let room = userInfo["room"] as! RoomModel
             
             // typing can be true or false
         }

@@ -137,6 +137,19 @@ Here the list of Event Handler provided in QiscusConfigDelegate:
 
 To use event handler inside your app, you will need to extend  QiscusConfigDelegate or QiscusNotification, so that you can see all event handlers that are provided by the class, then you can do whatever you need to do inside the event handlers.
 
+Listen callback from delegate.
+
+```
+extension LoginVC : QiscusConfigDelegate{
+    func qiscusConnected() {
+        print("connect") // your connected callback
+    }
+
+    func qiscusFailToConnect(_ withMessage: String) {
+        print(withMessage) //your error auth callback
+    }
+}
+```
 **Fail to Connect**
 
 `qiscusFailToConnect()` is an event handler that is called when you fail to connect to Qiscus Chat SDK Service. 
