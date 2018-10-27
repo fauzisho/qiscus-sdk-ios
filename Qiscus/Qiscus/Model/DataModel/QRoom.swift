@@ -681,7 +681,7 @@ public class QRoom:Object {
             self.updateUserTyping(userEmail: "")
         }
     }
-    public func deleteComment(comment:QComment){
+    @objc public func deleteComment(comment:QComment){
         let realm = try! Realm(configuration: Qiscus.dbConfiguration)
         realm.refresh()
         let id = self.id
@@ -1134,7 +1134,7 @@ public class QRoom:Object {
             }
         }
     }
-    public func clearMessages(onSuccess:@escaping ()->Void, onError:@escaping (Int)->Void){
+    @objc public func clearMessages(onSuccess:@escaping ()->Void, onError:@escaping (Int)->Void){
         let uid = self.uniqueId
         QRoomService.clearMessages(inRoomsChannel: [uid], onSuccess: { (_, _) in
             onSuccess()

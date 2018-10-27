@@ -11,14 +11,14 @@ import Foundation
 import RealmSwift
 
 extension Qiscus { // Public class API to get room
-    public class func clearMessages(inChannels channels:[String], onSuccess:@escaping ([QRoom],[String])->Void, onError:@escaping (Int)->Void){
+   @objc public class func clearMessages(inChannels channels:[String], onSuccess:@escaping ([QRoom],[String])->Void, onError:@escaping (Int)->Void){
         QRoomService.clearMessages(inRoomsChannel: channels, onSuccess: { (rooms, channels) in
             onSuccess(rooms,channels)
         }) { (statusCode) in
             onError(statusCode)
         }
     }
-    public class func prepareView(witCompletion completion: @escaping (([QiscusChatVC])->Void)){
+    @objc public class func prepareView(witCompletion completion: @escaping (([QiscusChatVC])->Void)){
         if Thread.isMainThread {
             let allRoom = QRoom.all()
             var allView = [QiscusChatVC]()
@@ -46,7 +46,7 @@ extension Qiscus { // Public class API to get room
             completion([QiscusChatVC]())
         }
     }
-    public class func prepareView(){
+    @objc public class func prepareView(){
         if Thread.isMainThread {
             let allRoom = QRoom.all()
             for room in allRoom {
@@ -70,7 +70,7 @@ extension Qiscus { // Public class API to get room
             }
         }
     }
-    public class func room(withId roomId:String, onSuccess:@escaping ((QRoom)->Void),onError:@escaping ((String)->Void)){
+    @objc public class func room(withId roomId:String, onSuccess:@escaping ((QRoom)->Void),onError:@escaping ((String)->Void)){
         let service = QChatService()
         var needToLoad = true
         func loadRoom(){
@@ -96,7 +96,7 @@ extension Qiscus { // Public class API to get room
         }
     }
     
-    public class func room(withChannel channelName:String, title:String = "", avatarURL:String, onSuccess:@escaping ((QRoom)->Void),onError:@escaping ((String)->Void)){
+    @objc public class func room(withChannel channelName:String, title:String = "", avatarURL:String, onSuccess:@escaping ((QRoom)->Void),onError:@escaping ((String)->Void)){
         let service = QChatService()
         var needToLoad = true
         var room:QRoom?
@@ -117,7 +117,7 @@ extension Qiscus { // Public class API to get room
         }
         
     }
-    public class func newRoom(withUsers usersId:[String], roomName: String, avatarURL:String = "", onSuccess:@escaping ((QRoom)->Void),onError:@escaping ((String)->Void)){
+    @objc public class func newRoom(withUsers usersId:[String], roomName: String, avatarURL:String = "", onSuccess:@escaping ((QRoom)->Void),onError:@escaping ((String)->Void)){
         let service = QChatService()
         if roomName.trimmingCharacters(in: .whitespacesAndNewlines) != "" {
             service.createRoom(withUsers: usersId, roomName: roomName, avatarURL: avatarURL, onSuccess: onSuccess, onError: onError)
@@ -125,7 +125,7 @@ extension Qiscus { // Public class API to get room
             onError("room name can not be empty string")
         }
     }
-    public class func room(withUserId userId:String, onSuccess:@escaping ((QRoom)->Void),onError:@escaping ((String)->Void)){
+    @objc public class func room(withUserId userId:String, onSuccess:@escaping ((QRoom)->Void),onError:@escaping ((String)->Void)){
         let service = QChatService()
         var needToLoad = true
         var room:QRoom?
@@ -148,7 +148,7 @@ extension Qiscus { // Public class API to get room
     }
     
     // MARK: - Room List
-    public class func roomList(withLimit limit:Int, page:Int, onSuccess:@escaping (([QRoom], Int, Int, Int)->Void),onError:@escaping ((String)->Void)){
+    @objc public class func roomList(withLimit limit:Int, page:Int, onSuccess:@escaping (([QRoom], Int, Int, Int)->Void),onError:@escaping ((String)->Void)){
         
         QChatService.roomList(onSuccess: { (rooms, totalRoom, currentPage, limit) in
             onSuccess(rooms, totalRoom, currentPage, limit)
@@ -156,7 +156,7 @@ extension Qiscus { // Public class API to get room
             onError(error)
         })
     }
-    public class func fetchAllRoom(loadLimit:Int = 0, onSuccess:@escaping (([QRoom])->Void),onError:@escaping ((String)->Void), onProgress: ((Double,Int,Int)->Void)? = nil){
+    @objc public class func fetchAllRoom(loadLimit:Int = 0, onSuccess:@escaping (([QRoom])->Void),onError:@escaping ((String)->Void), onProgress: ((Double,Int,Int)->Void)? = nil){
         var page = 1
         var limit = 100
         if loadLimit > 0 {
@@ -179,7 +179,7 @@ extension Qiscus { // Public class API to get room
         }
         load(onPage: 1)
     }
-    public class func roomInfo(withId id:String, lastCommentUpdate:Bool = true, onSuccess:@escaping ((QRoom)->Void), onError: @escaping ((String)->Void)){
+    @objc public class func roomInfo(withId id:String, lastCommentUpdate:Bool = true, onSuccess:@escaping ((QRoom)->Void), onError: @escaping ((String)->Void)){
         QChatService.roomInfo(withId: id, lastCommentUpdate: lastCommentUpdate, onSuccess: { (room) in
             onSuccess(room)
         }) { (error) in
@@ -187,14 +187,14 @@ extension Qiscus { // Public class API to get room
         }
     }
     
-    public class func roomsInfo(withIds ids:[String], onSuccess:@escaping (([QRoom])->Void), onError: @escaping ((String)->Void)){
+    @objc public class func roomsInfo(withIds ids:[String], onSuccess:@escaping (([QRoom])->Void), onError: @escaping ((String)->Void)){
         QChatService.roomsInfo(withIds: ids, onSuccess: { (rooms) in
             onSuccess(rooms)
         }) { (error) in
             onError(error)
         }
     }
-    public class func channelInfo(withName name:String, onSuccess:@escaping ((QRoom)->Void), onError: @escaping ((String)->Void)){
+    @objc public class func channelInfo(withName name:String, onSuccess:@escaping ((QRoom)->Void), onError: @escaping ((String)->Void)){
         QChatService.roomInfo(withUniqueId: name, onSuccess: { (room) in
             if !room.isInvalidated {
                 onSuccess(room)
@@ -206,7 +206,7 @@ extension Qiscus { // Public class API to get room
         }
     }
     
-    public class func channelsInfo(withNames names:[String], onSuccess:@escaping (([QRoom])->Void), onError: @escaping ((String)->Void)){
+    @objc public class func channelsInfo(withNames names:[String], onSuccess:@escaping (([QRoom])->Void), onError: @escaping ((String)->Void)){
         QChatService.roomsInfo(withUniqueIds: names, onSuccess: { (rooms) in
             onSuccess(rooms)
         }) { (error) in
