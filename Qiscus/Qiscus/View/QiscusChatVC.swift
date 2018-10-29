@@ -144,7 +144,7 @@ import RealmSwift
     var loadingMore = false
     
     // MARK: -  Data load configuration
-    public var chatRoom:QRoom?{
+    @objc public var chatRoom:QRoom?{
         didSet{
             if let room = self.chatRoom {
                 if !prefetch && isPresence {

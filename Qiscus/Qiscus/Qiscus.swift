@@ -47,7 +47,7 @@ var QiscusDBThread = DispatchQueue(label: "com.qiscus.db", attributes: .concurre
         }
     }
     
-    static var chatRooms = [String : QRoom]()
+    @objc static var chatRooms = [String : QRoom]()
     static var qiscusDownload:[String] = [String]()
     
     var backgroundTask: UIBackgroundTaskIdentifier = UIBackgroundTaskInvalid
@@ -390,7 +390,7 @@ var QiscusDBThread = DispatchQueue(label: "com.qiscus.db", attributes: .concurre
     ///   - extras: valid jsonString
     ///   - onSuccess: @escaping on success update user profile
     ///   - onFailed: @escaping on error update user profile with error message
-    public class func updateProfile(username:String? = nil, avatarURL:String? = nil, extras: String? = nil, onSuccess:@escaping (()->Void), onFailed:@escaping ((String)->Void)) {
+   @objc public class func updateProfile(username:String? = nil, avatarURL:String? = nil, extras: String? = nil, onSuccess:@escaping (()->Void), onFailed:@escaping ((String)->Void)) {
         QChatService.updateProfil(userName: username, userAvatarURL: avatarURL, extras: extras, onSuccess: onSuccess, onError: onFailed)
     }
     

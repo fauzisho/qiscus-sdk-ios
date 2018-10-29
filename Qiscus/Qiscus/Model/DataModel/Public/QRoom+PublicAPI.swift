@@ -8,22 +8,22 @@
 import RealmSwift
 import SwiftyJSON
 
-public extension QRoom {    
+public extension QRoom {
     
     // MARK: - Class method
-    public class func all() -> [QRoom]{
+    @objc public class func all() -> [QRoom]{
         return QRoom.allRoom()
     }
     public class func unpinAll(){
         QRoom.unpinAllRoom()
     }
-    public class func room(withId id:String) -> QRoom? {
+    @objc public class func room(withId id:String) -> QRoom? {
         return QRoom.getRoom(withId: id)
     }
     public class func room(withUniqueId uniqueId:String) -> QRoom? {
         return QRoom.getRoom(withUniqueId:uniqueId)
     }
-    public class func room(withUser user:String) -> QRoom? {
+    @objc public class func room(withUser user:String) -> QRoom? {
         if Thread.isMainThread {
             return QRoom.getSingleRoom(withUser: user)
         }else{
