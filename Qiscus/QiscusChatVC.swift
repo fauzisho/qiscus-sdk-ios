@@ -185,18 +185,14 @@ public class QiscusChatVC: UIChatViewController {
                         data.color = Qiscus.style.color.randomColorLabelName.randomItem()!
                         Qiscus.shared.usersColor.append(data)
                     }else{
-                        //checking
-                        QiscusBackgroundThread.async {
-                            let user = Qiscus.shared.usersColor.filter( { return $0.userEmail == participant.element.email } )
-                            
-                            if(user.count == 0){
-                                var data = UserNameColor()
-                                data.userEmail = participant.element.email
-                                data.color = Qiscus.style.color.randomColorLabelName.randomItem()!
-                                Qiscus.shared.usersColor.append(data)
-                            }
-                        }
+                        let user = Qiscus.shared.usersColor.filter( { return $0.userEmail == participant.element.email } )
                         
+                        if(user.count == 0){
+                            var data = UserNameColor()
+                            data.userEmail = participant.element.email
+                            data.color = Qiscus.style.color.randomColorLabelName.randomItem()!
+                            Qiscus.shared.usersColor.append(data)
+                        }
                     }
                 }
             }
@@ -496,13 +492,10 @@ extension QiscusChatVC : UIChatView {
     public func uiChat(viewController: UIChatViewController, cellForMessage message: CommentModel) -> UIBaseChatCell? {
         var colorName:UIColor = UIColor.lightGray
         if Qiscus.shared.usersColor.count != 0{
-            QiscusBackgroundThread.sync {
                 let user = Qiscus.shared.usersColor.filter( { return $0.userEmail == message.userEmail } )
                 if(user.count != 0){
                     colorName = (user.first?.color)!
                 }
-            }
-
         }
         
         var menuConfig = enableMenuConfig()
