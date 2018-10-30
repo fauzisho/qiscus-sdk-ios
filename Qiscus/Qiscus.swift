@@ -53,7 +53,7 @@ public class Qiscus {
     static let qiscusVersionNumber:String = "2.9.0"
     var reachability:QReachability?
     var configDelegate : QiscusConfigDelegate? = nil
-    public static var listChatDelegate:QiscusListRoomDelegate?
+    public static var listChatDelegate:QiscusRoomDelegate?
     static var qiscusDeviceToken: String = ""
     var notificationAction:((QiscusChatVC)->Void)? = nil
     var disableLocalization: Bool = false
@@ -497,6 +497,8 @@ public class Qiscus {
         
     }
     
+    
+    ///Deprecated
     /// search message comment from service
     ///
     /// - Parameters:
@@ -505,13 +507,13 @@ public class Qiscus {
     ///   - lastCommentId: latCommentId is optional
     ///   - onSuccess: response from Qiscus is array of comment
     ///   - onFailed: response error message
-    public class func searchCommentService(withQuery text:String, roomId: String? = nil, lastCommentId:Int? = nil, onSuccess:@escaping (([CommentModel])->Void), onFailed: @escaping ((String)->Void)){
-        QiscusCore.shared.searchMessage(keyword: text, roomID: roomId, lastCommentId: lastCommentId, onSuccess: { (commentsModel) in
-            onSuccess(commentsModel as! [CommentModel])
-        }) { (error) in
-            onFailed(error.message)
-        }
-    }
+//    public class func searchCommentService(withQuery text:String, roomId: String? = nil, lastCommentId:Int? = nil, onSuccess:@escaping (([CommentModel])->Void), onFailed: @escaping ((String)->Void)){
+//        QiscusCore.shared.searchMessage(keyword: text, roomID: roomId, lastCommentId: lastCommentId, onSuccess: { (commentsModel) in
+//            onSuccess(commentsModel as! [CommentModel])
+//        }) { (error) in
+//            onFailed(error.message)
+//        }
+//    }
     
     /// debug print
     ///
@@ -895,9 +897,6 @@ public class Qiscus {
     ///   - alertBody: banner body
     ///   - userInfo: userInfo
     public func createLocalNotification(commentId: String, alertTitle:String, alertBody:String, userInfo:[AnyHashable : Any]? = nil){
-        print("self.lasCommentId = \(self.lastCommentID)")
-        
-        
         DispatchQueue.main.async {autoreleasepool{
             if self.lastCommentID.contains(commentId){
                 return
