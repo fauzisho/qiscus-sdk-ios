@@ -100,7 +100,6 @@ class QRoomListDefaultCell: BaseChatListCell {
             if lastComment.message.range(of:"[file]") != nil {
                 guard let payload = lastComment.payload else { return }
                 let json = JSON(payload)
-                print("json ini =\(json)")
                 let caption = json["caption"].string ?? ""
                 if  !caption.isEmpty {
                     message = caption
@@ -113,7 +112,15 @@ class QRoomListDefaultCell: BaseChatListCell {
             }
 
             if(data.type != .single){
-                self.labelLastMessage.text  =  "\(lastComment.username) :\n\(message)"
+                let message = "\(lastComment.username) :\n\(message)"
+                let senderColor = "\(lastComment.username) :"
+                
+                let range = (message as NSString).range(of: senderColor)
+                
+                let attribute = NSMutableAttributedString.init(string: message)
+                attribute.addAttribute(NSAttributedStringKey.foregroundColor, value: UIColor.black , range: range)
+                
+                self.labelLastMessage.attributedText = attribute
             }else{
                 self.labelLastMessage.text  = message // single
             }
