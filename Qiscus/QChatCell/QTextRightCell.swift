@@ -98,6 +98,9 @@ class QTextRightCell: UIBaseChatCell {
             ivStatus.image = Qiscus.image(named: "ic_warning")?.withRenderingMode(.alwaysTemplate)
             ivStatus.tintColor = QiscusColorConfiguration.sharedInstance.failToSendColor
             break
+        case .deleting:
+            ivStatus.image = Qiscus.image(named: "ic_deleted")?.withRenderingMode(.alwaysTemplate)
+            break
         }
     }
     
