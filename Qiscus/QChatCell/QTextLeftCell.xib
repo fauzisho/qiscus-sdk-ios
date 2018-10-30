@@ -55,7 +55,7 @@
                                     <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="46" id="rin-5v-5OI"/>
                                     <constraint firstAttribute="width" relation="lessThanOrEqual" constant="250" id="ruK-E3-b82"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
