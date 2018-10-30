@@ -11,6 +11,7 @@ import QiscusUI
 import QiscusCore
 
 open class QRoomList: UIChatListViewController {
+    var listChatDelegate = Qiscus.listChatDelegate
     override open func viewDidLoad() {
         super.viewDidLoad()
         self.title = "Chat List"
@@ -41,6 +42,7 @@ open class QRoomList: UIChatListViewController {
         super.viewWillAppear(animated)
         self.tabBarController?.tabBar.isHidden = false
     }
+    
 }
 
 extension QRoomList: UIChatListViewDelegate {
@@ -54,11 +56,17 @@ extension QRoomList: UIChatListViewDelegate {
 extension QRoomList : UIChatDelegate {
     public func onRoom(update room: RoomModel) {
         QiscusNotification.publish(roomChange: room)
+        if(listChatDelegate != nil){
+            listChatDelegate?.didFinishUpdateRoom(onRoom: room)
+        }
     }
     
     public func onRoom(_ room: RoomModel, gotNewComment comment: CommentModel) {
         QiscusNotification.publish(gotNewComment: comment, room: room)
         QiscusNotification.publish(roomOrder: true)
+        if(listChatDelegate != nil){
+            listChatDelegate?.gotNewComment(comment)
+        }
     }
     
     public func onRoom(_ room: RoomModel, didChangeComment comment: CommentModel, changeStatus status: CommentStatus) {
@@ -85,4 +93,5 @@ extension QRoomList : UIChatDelegate {
         QiscusNotification.publish(roomDeleted: room.id)
     }
 }
+
 
