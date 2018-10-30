@@ -178,23 +178,27 @@ public class QiscusChatVC: UIChatViewController {
         
         if let room = self.room{
             if room.participants?.count != 0 {
-                for participant in (room.participants?.enumerated())!{
-                    if Qiscus.shared.usersColor.count == 0{
-                        var data = UserNameColor()
-                        data.userEmail = participant.element.email
-                        data.color = Qiscus.style.color.randomColorLabelName.randomItem()!
-                        Qiscus.shared.usersColor.append(data)
-                    }else{
-                        let user = Qiscus.shared.usersColor.filter( { return $0.userEmail == participant.element.email } )
-                        
-                        if(user.count == 0){
+                if let participants = room.participants {
+                    for participant in participants.enumerated(){
+                        if Qiscus.shared.usersColor.count == 0{
                             var data = UserNameColor()
                             data.userEmail = participant.element.email
                             data.color = Qiscus.style.color.randomColorLabelName.randomItem()!
                             Qiscus.shared.usersColor.append(data)
+                        }else{
+                            let user = Qiscus.shared.usersColor.filter( { return $0.userEmail == participant.element.email } )
+                            
+                            if(user.count == 0){
+                                var data = UserNameColor()
+                                data.userEmail = participant.element.email
+                                data.color = Qiscus.style.color.randomColorLabelName.randomItem()!
+                                Qiscus.shared.usersColor.append(data)
+                            }
                         }
                     }
                 }
+                
+                
             }
             
         }
@@ -468,7 +472,6 @@ extension QiscusChatVC : UIChatView {
     }
     
     public func uiChat(viewController: UIChatViewController, canPerformAction action: Selector, forRowAtmessage: CommentModel, withSender sender: Any?) -> Bool {
-        print("action.description =\(action.description)")
         switch action.description {
         case "copy:":
             return true
