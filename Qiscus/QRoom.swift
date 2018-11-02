@@ -47,12 +47,12 @@ extension RoomModel {
         
     }
     
-    public class func getRoom(withId: String, completion: @escaping (RoomModel?, String?) -> Void) {
+    public class func getRoom(withId: String,onSuccess: @escaping (RoomModel, [CommentModel]) -> Void, onError: @escaping (String) -> Void) {
         
-        QiscusCore.shared.getRoom(withID: withId, onSuccess: { (RoomModel,_) in
-             completion(RoomModel as! RoomModel,nil)
+        QiscusCore.shared.getRoom(withID: withId, onSuccess: { (roomModel, commentModel) in
+            onSuccess(roomModel,commentModel)
         }) { (error) in
-            completion(nil,error.message)
+            onError(error.message)
         }
     }
     

@@ -97,10 +97,10 @@ extension CommentModel {
         let comments = QiscusCore.database.comment.all().filter({ (comment) in comment.status.rawValue.lowercased() == "failed".lowercased() ||  comment.status.rawValue.lowercased() == "pending".lowercased() })
         
         for comment in comments {
-            RoomModel.getRoom(withId: comment.roomId) { (qRoomData, error) in
-                if let qRoom = qRoomData {
-                    qRoomData?.post(comment: comment as! CommentModel)
-                }
+            RoomModel.getRoom(withId: comment.roomId, onSuccess: { (roomModel, commentModel) in
+                roomModel.post(comment: comment)
+            }) { (error) in
+             //error
             }
         }
     }

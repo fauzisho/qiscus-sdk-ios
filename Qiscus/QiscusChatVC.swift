@@ -737,7 +737,11 @@ extension QiscusChatVC : CustomChatInputDelegate {
             }
         }
         
-        self.send(message: postedComment)
+        self.send(message: postedComment, onSuccess: { (comment) in
+            //success
+        }) { (error) in
+            //error
+        }
     }
     
     func sendAttachment() {
@@ -1073,7 +1077,11 @@ extension QiscusChatVC : CustomChatInputDelegate {
                                                     "caption"   : ""
                                                 ]
                                                 message.message = "Send Attachment"
-                                                self.send(message: message)
+                                                self.send(message: message, onSuccess: { (comment) in
+                                                    //success
+                                                }, onError: { (error) in
+                                                    //error
+                                                })
                                             }, onError: { (error) in
                                                 //
                                             }) { (progress) in
@@ -1102,7 +1110,11 @@ extension QiscusChatVC : CustomChatInputDelegate {
                             "caption"   : ""
                         ]
                         message.message = "Send Attachment"
-                        self.send(message: message)
+                        self.send(message: message, onSuccess: { (comment) in
+                            //success
+                        }, onError: { (error) in
+                            //error
+                        })
                     }, onError: { (error) in
                         //
                     }) { (progress) in
@@ -1189,7 +1201,11 @@ extension QiscusChatVC : CNContactPickerDelegate {
             "type"  : "phone"
         ]
         message.message = "Send Contact"
-        self.send(message: message)
+        self.send(message: message, onSuccess: { (comment) in
+            //success
+        }, onError: { (error) in
+            //error
+        })
     }
 }
 
@@ -1354,7 +1370,11 @@ extension QiscusChatVC : UIImagePickerControllerDelegate, UINavigationController
                                                 "caption"   : ""
                                             ]
                                             message.message = "Send Attachment"
-                                            self.send(message: message)
+                                            self.send(message: message, onSuccess: { (comment) in
+                                                //success
+                                            }, onError: { (error) in
+                                                //error
+                                            })
                                         }, onError: { (error) in
                                             //
                                         }) { (progress) in
@@ -1446,8 +1466,12 @@ extension QiscusChatVC: CLLocationManagerDelegate {
                                 DispatchQueue.main.async { autoreleasepool{
                                     let message = self.newLocationComment(latitude: latitude, longitude: longitude, title: title, address: address)
                                     message.message = "Send Location"
-                                    self.send(message: message)
-                                    }}
+                                    self.send(message: message, onSuccess: { (comment) in
+                                        //success
+                                    }, onError: { (error) in
+                                        //error
+                                    })
+                                }}
                             }
                         }
                     })

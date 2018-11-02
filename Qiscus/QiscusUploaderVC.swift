@@ -209,7 +209,11 @@ class QiscusUploaderVC: UIViewController, UIScrollViewDelegate,UITextViewDelegat
                 
             }
             
-            chatView?.send(message: self.imageData.first!)
+            chatView?.send(message: self.imageData.first!, onSuccess: { (comment) in
+                 let _ = self.navigationController?.popViewController(animated: true)
+            }, onError: { (error) in
+                 let _ = self.navigationController?.popViewController(animated: true)
+            })
             
 //            let firstComment = self.room!.prepareImageComment(filename: self.fileName!, caption: self.mediaCaption.value, data: self.data!)
 //            self.imageData.removeFirst()
@@ -223,7 +227,7 @@ class QiscusUploaderVC: UIViewController, UIScrollViewDelegate,UITextViewDelegat
 //                })
 //            }
             
-            let _ = self.navigationController?.popViewController(animated: true)
+           
         }
     }
     
