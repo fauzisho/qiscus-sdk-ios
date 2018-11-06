@@ -349,6 +349,7 @@ public class QiscusChatVC: UIChatViewController {
         self.registerClass(nib: UINib(nibName: "QAudioLeftCell", bundle: Qiscus.bundle), forMessageCellWithReuseIdentifier: "qAudioLeftCell")
         self.registerClass(nib: UINib(nibName: "QAudioRightCell", bundle: Qiscus.bundle), forMessageCellWithReuseIdentifier: "qAudioRightCell")
         self.registerClass(nib: UINib(nibName: "QPostbackLeftCell", bundle: Qiscus.bundle), forMessageCellWithReuseIdentifier: "postBack")
+        self.registerClass(nib: UINib(nibName: "QCarouselCell", bundle: Qiscus.bundle), forMessageCellWithReuseIdentifier: "qCarouselCell")
         
     }
     
@@ -685,6 +686,10 @@ extension QiscusChatVC : UIChatView {
         }else if message.type == "button_postback_response" {
             let cell =  self.reusableCell(withIdentifier: "qTextRightCell", for: message) as! QTextRightCell
             cell.menuConfig = menuConfig
+            return cell
+        }else if message.type == "carousel" ||  message.type == "card" {
+            let cell =  self.reusableCell(withIdentifier: "qCarouselCell", for: message) as! QCarouselCell
+            cell.delegateChat = self
             return cell
         }else {
             Qiscus.printLog(text: "message.type =\(message.type)")
