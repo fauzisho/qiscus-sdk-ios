@@ -21,7 +21,7 @@ class QPostbackLeftCell: UIBaseChatCell {
     @IBOutlet weak var textView: UITextView!
     @IBOutlet weak var buttonsView: UIStackView!
     
-//    @IBOutlet weak var textViewHeight: NSLayoutConstraint!
+    @IBOutlet weak var textViewHeight: NSLayoutConstraint!
 //    @IBOutlet weak var textViewWidth: NSLayoutConstraint!
     @IBOutlet weak var buttonsViewHeight: NSLayoutConstraint!
     var delegateChat : QiscusChatVC? = nil
@@ -50,12 +50,6 @@ class QPostbackLeftCell: UIBaseChatCell {
     func bindData(message: CommentModel){
         self.setupBalon()
         
-        var attributedText = NSMutableAttributedString(string: message.message)
-        let allRange = (message.message as NSString).range(of: message.message)
-        attributedText.addAttributes(self.textAttribute, range: allRange)
-        
-        self.textView.attributedText = attributedText
-        self.textView.linkTextAttributes = self.linkTextAttributes
         balloonView.image = getBallon()
         
         for view in buttonsView.subviews{
@@ -74,6 +68,16 @@ class QPostbackLeftCell: UIBaseChatCell {
                 return
             }
             let data = JSON(dataPayload)
+            
+            let message = data["text"].string ?? ""
+            
+            var attributedText = NSMutableAttributedString(string: message)
+            let allRange = (message as NSString).range(of: message)
+            attributedText.addAttributes(self.textAttribute, range: allRange)
+            
+            self.textView.attributedText = attributedText
+            self.textView.linkTextAttributes = self.linkTextAttributes
+            
             let buttonsPayload = data["buttons"].arrayValue
             self.buttonsViewHeight.constant = CGFloat(buttonsPayload.count * 35)
             self.layoutIfNeeded()

@@ -204,7 +204,7 @@ extension RoomModel {
     ///   - type: type is optional
     ///   - payload: payload is optional
     public func post(comment:CommentModel, type:String? = nil, payload:JSON? = nil){
-        comment.payload = payload?.dictionary
+        comment.payload = payload?.dictionaryObject
         if type != nil && !(type?.isEmpty)! {
             comment.type  = type!
         }

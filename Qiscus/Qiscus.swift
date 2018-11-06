@@ -232,7 +232,10 @@ public class Qiscus {
                     Qiscus.client.userData.set(userModel.avatarUrl.absoluteString, forKey: "qiscus_avatar_url")
                     Qiscus.client.userData.set(userModel.rtKey, forKey: "qiscus_rt_key")
                     Qiscus.client.userData.set(userModel.token, forKey: "qiscus_token")
-                   
+                    if let delegate = Qiscus.shared.configDelegate {
+                        delegate.qiscus(didConnect: true, error: nil)
+                        delegate.qiscusConnected()
+                    }
                 }) { (error) in
                     if let delegate = Qiscus.shared.configDelegate {
                         delegate.qiscusFailToConnect(error.message)
@@ -259,6 +262,11 @@ public class Qiscus {
                     Qiscus.client.userData.set(userModel.avatarUrl.absoluteString, forKey: "qiscus_avatar_url")
                     Qiscus.client.userData.set(userModel.rtKey, forKey: "qiscus_rt_key")
                     Qiscus.client.userData.set(userModel.token, forKey: "qiscus_token")
+                    
+                    if let delegate = Qiscus.shared.configDelegate {
+                        delegate.qiscus(didConnect: true, error: nil)
+                        delegate.qiscusConnected()
+                    }
                 }) { (error) in
                     if let delegate = Qiscus.shared.configDelegate {
                         delegate.qiscusFailToConnect(error.message)
@@ -476,7 +484,7 @@ public class Qiscus {
     }
     
     /// subscribe room notification
-    public func subscribeAllRoomNotification(){
+    public class func subscribeAllRoomNotification(){
         QiscusCore.connect()
     }
     
@@ -774,7 +782,7 @@ public class Qiscus {
     }
     
     /// trigger register notif delegate on appDelegate
-    public func registerNotification(){
+    public class func registerNotification(){
         let notificationSettings = UIUserNotificationSettings(types: [.badge, .sound, .alert], categories: nil)
         Qiscus.sharedInstance.application.registerUserNotificationSettings(notificationSettings)
         Qiscus.sharedInstance.application.registerForRemoteNotifications()
@@ -785,7 +793,7 @@ public class Qiscus {
      - parameter color: The **UIColor** as your navigation color.
      - parameter tintColor: The **UIColor** as your tint navigation color.
      */
-    public func setNavigationColor(_ color:UIColor, tintColor: UIColor){
+    public class func setNavigationColor(_ color:UIColor, tintColor: UIColor){
         Qiscus.sharedInstance.styleConfiguration.color.topColor = color
         Qiscus.sharedInstance.styleConfiguration.color.bottomColor = color
         Qiscus.sharedInstance.styleConfiguration.color.tintColor = tintColor
