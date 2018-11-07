@@ -18,7 +18,7 @@ import UIKit
     @objc optional func willLoad(rooms: [QRoom]) -> [QRoom]?
     /**
      Return your custom table view cell as QRoomListCell
-    */
+     */
     @objc optional func tableviewCell(for room: QRoom) -> QRoomListCell?
 }
 
@@ -55,6 +55,8 @@ open class QRoomList: UITableView{
         }
     }
     
+    public var searchComment : Bool = true
+    
     override open func draw(_ rect: CGRect) {
         // Drawing code
         self.delegate = self
@@ -68,7 +70,7 @@ open class QRoomList: UITableView{
         NotificationCenter.default.addObserver(self, selector: #selector(QRoomList.newRoom(_:)), name: QiscusNotification.GOT_NEW_ROOM, object: nil)
         registerCell()
     }
- 
+    
     open func registerCell(){
         self.register(UINib(nibName: "QRoomListDefaultCell", bundle: Qiscus.bundle), forCellReuseIdentifier: "roomDefaultCell")
         self.register(UINib(nibName: "QSearchListDefaultCell", bundle: Qiscus.bundle), forCellReuseIdentifier: "searchDefaultCell")
@@ -104,22 +106,23 @@ open class QRoomList: UITableView{
             self.reloadSections(indexSet, with: .none)
         }
     }
-
-    public func search(text:String, searchLocal: Bool = false){
+    
+    public func search(text:String, searchLocal: Bool = false, searchComment: Bool = true){
         self.searchText = text
-        
-        if !searchLocal {
-            QChatService.searchComment(withQuery: text, onSuccess: { (comments) in
-                if text == self.searchText {
-                    self.comments = comments
+        self.searchComment = searchComment
+        if searchComment {
+            if !searchLocal {
+                QChatService.searchComment(withQuery: text, onSuccess: { (comments) in
+                    if text == self.searchText {
+                        self.comments = comments
+                    }
+                }) { (error) in
+                    Qiscus.printLog(text: "test")
                 }
-            }) { (error) in
-                Qiscus.printLog(text: "test")
+            } else {
+                self.comments = Qiscus.searchComment(searchQuery: text)
             }
-        } else {
-            self.comments = Qiscus.searchComment(searchQuery: text)
         }
-        
     }
     @objc private func dataCleared(_ notification: Notification){
         dataCleared()
@@ -188,7 +191,8 @@ open class QRoomList: UITableView{
     }
     
     open func commentHeader()->UIView?{
-        if self.searchText != "" {
+        print("check\(searchComment)")
+        if self.searchText != "" && searchComment{
             let screenWidth: CGFloat    = QiscusHelper.screenWidth()
             let container           = UIView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: 25))
             let title               = UILabel(frame: CGRect(x: 8, y: 0, width: screenWidth - 16, height: 25))
@@ -253,7 +257,7 @@ extension QRoomList: UITableViewDelegate,UITableViewDataSource {
             didSelectComment(comment: self.comments[indexPath.row])
         }
     }
-
+    
     open func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
         if indexPath.section == 0 {
             self.listDelegate?.didDeselect?(room: self.filteredRooms[indexPath.row])
