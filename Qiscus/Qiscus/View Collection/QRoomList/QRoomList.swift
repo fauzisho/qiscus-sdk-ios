@@ -191,7 +191,6 @@ open class QRoomList: UITableView{
     }
     
     open func commentHeader()->UIView?{
-        print("check\(searchComment)")
         if self.searchText != "" && searchComment{
             let screenWidth: CGFloat    = QiscusHelper.screenWidth()
             let container           = UIView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: 25))
