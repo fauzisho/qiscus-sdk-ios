@@ -44,7 +44,7 @@ import AVFoundation
 public class QRoom:Object {
     @objc public dynamic var id:String = ""
     @objc public dynamic var uniqueId:String = ""
-    @objc internal dynamic var storedName:String = ""
+    @objc public dynamic var storedName:String = ""
     @objc internal dynamic var definedname:String = ""
     @objc public dynamic var storedAvatarURL:String = ""
     @objc public dynamic var definedAvatarURL:String = ""
